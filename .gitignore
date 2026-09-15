@@ -1,0 +1,10 @@
+.tools/
+build/
+__pycache__/
+*.rbxl.lock
+*.rbxlx.lock
+*.log
+.DS_Store
+.env
+.env.*
+
