@@ -31,7 +31,7 @@ Aim with the mouse on desktop; touch/controller techniques follow camera facing.
 
 Use Studio's **Server & Clients** test with at least two players. Each client joins PvP through Journey. Both must opt in before a round starts. Campaign missions are private, single-player encounter rooms within the same server. They are not yet cooperative campaign instances.
 
-For people on different computers, the owner must publish the place to their Roblox experience and configure its visibility/permissions. This repository does not contain a Roblox universe/place ID or deployment credentials. GitHub publication does not publish a Roblox experience.
+The development build has been uploaded to a [new private Roblox experience](https://www.roblox.com/games/139004028759819). Its universe/place IDs and update instructions are in [DEPLOYMENT.md](DEPLOYMENT.md) and `deploy/roblox.json`. Access settings and live multiplayer QA remain pending. The repository contains no deployment credentials; pushing to GitHub does not update the Roblox place automatically.
 
 ## Saving
 
@@ -55,5 +55,9 @@ python scripts/prepare_studio_test.py
 ```
 
 The runner temporarily injects server/client tests into its test copy. No test remotes or test hooks are included in the shipping Rojo tree. The legacy runner also loads its plugin in child Studio DataModels; the generated wrapper holds those copies idle so only the edit instance launches or terminates the suite.
+
+Add `--visual` to the preparation command for a 60-second in-game review pause. Add `--virtual-input` only to investigate the currently failing synthetic menu-click diagnostic; it is not part of the passing eight-check baseline. Actual desktop mouse navigation is documented separately in QA.md.
+
+If Studio updates and run-in-roblox fails to find an executable, inspect the Windows `HKCU\Software\Roblox\RobloxStudio\ContentFolder` value. The legacy runner reads that path; on this machine the updater left it pointing at a deleted version. Repair it only to the verified, currently installed Studio content directory. Keep Rojo disconnected from unrelated servers when reviewing or publishing the built place.
 
 Tests verify mechanics, not finished art, balance, complete lore fidelity, or physical device usability. See STATUS.md for actual executed results.

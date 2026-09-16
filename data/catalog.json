@@ -6182,7 +6182,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Flow between precise cuts, circular attacks and quick approaches."
     },
     "nezuko": {
       "id": "nezuko",
@@ -6212,7 +6213,8 @@
       "weapon": "claws",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Pressure with kicks and blood flames; recover when an opening allows."
     },
     "zenitsu": {
       "id": "zenitsu",
@@ -6243,7 +6245,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Time your approach carefully and punish openings with fast attacks."
     },
     "inosuke": {
       "id": "inosuke",
@@ -6280,7 +6283,8 @@
       "weapon": "dual",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Stay close and combine twin-blade attacks with rapid movement."
     },
     "kanao": {
       "id": "kanao",
@@ -6311,7 +6315,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Pair precise offensive sequences with defensive and evasive forms."
     },
     "genya": {
       "id": "genya",
@@ -6342,7 +6347,8 @@
       "weapon": "gun",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Alternate ranged shots and blade strikes, with limited recovery."
     },
     "giyu": {
       "id": "giyu",
@@ -6380,7 +6386,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Flow between precise cuts, circular attacks and quick approaches."
     },
     "shinobu": {
       "id": "shinobu",
@@ -6411,7 +6418,8 @@
       "weapon": "needle",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Land precise poison strikes, then use movement to control the fight."
     },
     "rengoku": {
       "id": "rengoku",
@@ -6443,7 +6451,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Pressure enemies with committed charges and strong frontal attacks."
     },
     "tengen": {
       "id": "tengen",
@@ -6473,7 +6482,8 @@
       "weapon": "dual",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Mix wide bursts, repeated slashes and a timed defensive technique."
     },
     "muichiro": {
       "id": "muichiro",
@@ -6506,7 +6516,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Change pace with lunges, repeated cuts and evasive movement."
     },
     "mitsuri": {
       "id": "mitsuri",
@@ -6537,7 +6548,8 @@
       "weapon": "whip",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Use broad sweeps and rapid attacks to catch opponents nearby."
     },
     "obanai": {
       "id": "obanai",
@@ -6568,7 +6580,8 @@
       "weapon": "serpent",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Keep opponents guessing with angled approaches and circular attacks."
     },
     "sanemi": {
       "id": "sanemi",
@@ -6603,7 +6616,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Combine aggressive movement with wide sweeping attacks."
     },
     "gyomei": {
       "id": "gyomei",
@@ -6634,7 +6648,8 @@
       "weapon": "flail",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Balance heavy ranged pressure with a strong defensive technique."
     },
     "muzan": {
       "id": "muzan",
@@ -6666,7 +6681,8 @@
       "weapon": "whip",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Mix long whips, poison pressure and limited regeneration."
     },
     "kokushibo": {
       "id": "kokushibo",
@@ -6703,7 +6719,8 @@
       "weapon": "serpent",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Control space with sweeping crescents and ranged pressure."
     },
     "doma": {
       "id": "doma",
@@ -6738,7 +6755,8 @@
       "weapon": "fans",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Force movement with delayed ice fields and slowing attacks."
     },
     "akaza": {
       "id": "akaza",
@@ -6775,7 +6793,8 @@
       "weapon": "fists",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Close the gap with martial arts and control space with shockwaves."
     },
     "hantengu": {
       "id": "hantengu",
@@ -6809,7 +6828,8 @@
       "weapon": "staff",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Choose between lightning, wind, spear, sound and wood attacks."
     },
     "nakime": {
       "id": "nakime",
@@ -6839,7 +6859,8 @@
       "weapon": "biwa",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Reposition and use projected fields to limit your opponents."
     },
     "gyokko": {
       "id": "gyokko",
@@ -6872,7 +6893,8 @@
       "weapon": "claws",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Use ranged attacks and trapping fields to control enemy movement."
     },
     "gyutaro": {
       "id": "gyutaro",
@@ -6902,7 +6924,8 @@
       "weapon": "sickles",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Apply poison with blood-sickle attacks and time your defense."
     },
     "daki": {
       "id": "daki",
@@ -6932,7 +6955,8 @@
       "weapon": "whip",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Pressure with sweeping ribbons and delayed binding fields."
     },
     "kaigaku": {
       "id": "kaigaku",
@@ -6963,7 +6987,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "official",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Time your approach carefully and punish openings with fast attacks."
     },
     "enmu": {
       "id": "enmu",
@@ -6993,7 +7018,8 @@
       "weapon": "hand",
       "playable": true,
       "source": "wiki_dream",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Catch opponents in brief sleep effects, then follow with attacks."
     },
     "rokuro": {
       "id": "rokuro",
@@ -7023,7 +7049,8 @@
       "weapon": "claws",
       "playable": true,
       "source": "wiki_demon",
-      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim."
+      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+      "summary": "This character has no revealed named art. Use an original claws, rush and recovery kit."
     },
     "wakuraba": {
       "id": "wakuraba",
@@ -7053,7 +7080,8 @@
       "weapon": "claws",
       "playable": true,
       "source": "wiki_demon",
-      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim."
+      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+      "summary": "This character has no revealed named art. Use an original claws, rush and recovery kit."
     },
     "mukago": {
       "id": "mukago",
@@ -7083,7 +7111,8 @@
       "weapon": "claws",
       "playable": true,
       "source": "wiki_demon",
-      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim."
+      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+      "summary": "This character has no revealed named art. Use an original claws, rush and recovery kit."
     },
     "rui": {
       "id": "rui",
@@ -7113,7 +7142,8 @@
       "weapon": "threads",
       "playable": true,
       "source": "wiki_thread",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Use thread fields and circular attacks to restrict approaches."
     },
     "kamanue": {
       "id": "kamanue",
@@ -7143,7 +7173,8 @@
       "weapon": "claws",
       "playable": true,
       "source": "wiki_demon",
-      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim."
+      "note": "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+      "summary": "This character has no revealed named art. Use an original claws, rush and recovery kit."
     },
     "kyogai": {
       "id": "kyogai",
@@ -7173,7 +7204,8 @@
       "weapon": "drums",
       "playable": true,
       "source": "wiki_drum",
-      "note": "Shared procedural combat; authored likeness and choreography pending."
+      "note": "Shared procedural combat; authored likeness and choreography pending.",
+      "summary": "Combine claw lanes, rapid drumming and evasive room movement."
     },
     "tamayo": {
       "id": "tamayo",
@@ -7203,7 +7235,8 @@
       "weapon": "hand",
       "playable": true,
       "source": "wiki_bewitchment",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Combine brief control effects with restorative support."
     },
     "yushiro": {
       "id": "yushiro",
@@ -7233,7 +7266,8 @@
       "weapon": "hand",
       "playable": true,
       "source": "wiki_talisman",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Pair evasive and defensive techniques with control and healing."
     },
     "susamaru": {
       "id": "susamaru",
@@ -7263,7 +7297,8 @@
       "weapon": "temari",
       "playable": true,
       "source": "wiki_temari",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Keep pressure with temari throws and close-range attacks."
     },
     "yahaba": {
       "id": "yahaba",
@@ -7293,7 +7328,8 @@
       "weapon": "hand",
       "playable": true,
       "source": "wiki_arrow",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Control distance with directional attacks and a quick retreat."
     },
     "urokodaki": {
       "id": "urokodaki",
@@ -7329,7 +7365,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_water",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Flow between precise cuts, circular attacks and quick approaches."
     },
     "sabito": {
       "id": "sabito",
@@ -7365,7 +7402,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_water",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Flow between precise cuts, circular attacks and quick approaches."
     },
     "makomo": {
       "id": "makomo",
@@ -7401,7 +7439,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_water",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Flow between precise cuts, circular attacks and quick approaches."
     },
     "murata": {
       "id": "murata",
@@ -7437,7 +7476,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_water",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Flow between precise cuts, circular attacks and quick approaches."
     },
     "kanae": {
       "id": "kanae",
@@ -7468,7 +7508,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_flower",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Pair precise offensive sequences with defensive and evasive forms."
     },
     "shinjuro": {
       "id": "shinjuro",
@@ -7500,7 +7541,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_flame",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Pressure enemies with committed charges and strong frontal attacks."
     },
     "jigoro": {
       "id": "jigoro",
@@ -7532,7 +7574,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_thunder",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Time your approach carefully and punish openings with fast attacks."
     },
     "yoriichi": {
       "id": "yoriichi",
@@ -7572,7 +7615,8 @@
       "weapon": "katana",
       "playable": true,
       "source": "wiki_sun",
-      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios."
+      "note": "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+      "summary": "Link powerful cuts and moving strikes while watching your energy."
     },
     "sekido": {
       "id": "sekido",

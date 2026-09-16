@@ -15,7 +15,7 @@ return function(session)
     local function client(player,command,args)
         serial+=1;local token=serial
         bridge:FireClient(player,token,command,args)
-        waitFor(function()return answers[token]end,20,"client response timeout: "..command)
+        waitFor(function()return answers[token]end,35,"client response timeout: "..command)
         local a=answers[token];answers[token]=nil
         assert(a.player==player and a.ok,tostring(a.result))
         return a.result
@@ -27,7 +27,7 @@ return function(session)
         print((ok and "PASS " or "FAIL ")..name..(not ok and (": "..tostring(err)) or ""))
     end
     local ok,err=pcall(function()
-        waitFor(function()return #Players:GetPlayers()>=2 end,40,"two clients did not join")
+        waitFor(function()return #Players:GetPlayers()>=2 end,100,"two clients did not join")
         local players=Players:GetPlayers()
         local p1,p2=players[1],players[2]
         waitFor(function()return session.players[p1] and session.players[p2] and session.players[p1].actor and session.players[p2].actor end,20,"player bootstrap failed")
@@ -41,6 +41,12 @@ return function(session)
         check("custom player rig supports client movement",function()
             assert(client(p1,"move")>5,"rig failed to walk")
         end)
+        -- VirtualInput delivers InputBegan without activating buttons in this Studio environment.
+        -- Keep this diagnostic opt-in; desktop mouse navigation is checked separately (docs/QA.md).
+        local testArgs=StudioTestService:GetTestArgs()
+        if type(testArgs)=="table" and testArgs.virtualInput then
+            check("virtual mouse clicks open all five menu tabs without client errors",function() client(p1,"tabs") end)
+        end
         check("character selection and loadout changes travel over real remotes",function()
             client(p1,"action",{name="Select",payload="giyu"})
             assert(session.players[p1].actor.characterId=="giyu")
@@ -94,6 +100,15 @@ return function(session)
             assert(not session.round.active and e1.profile.data.wins==wins+1)
         end)
         check("client UI survives mission and arena character respawns",function() client(p1,"ui");client(p2,"ui") end)
+        local args=StudioTestService:GetTestArgs()
+        if type(args)=="table" and args.visual then
+            task.wait(3)
+            session.players[p1].actor.lastCombat=0
+            client(p1,"action",{name="Hub"})
+            client(p1,"visual")
+            print("VISUAL_REVIEW_READY")
+            task.wait(60)
+        end
     end)
     if not ok then table.insert(results,{name="test harness",ok=false,error=tostring(err)}) end
     local failures=0

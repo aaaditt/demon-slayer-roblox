@@ -39,6 +39,38 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             assert(labels>30,"UI did not populate")
             assert(#failures==0,table.concat(failures,"\n"))
             return labels
+        elseif command=="tabs" then
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            local gui=player.PlayerGui.WisteriaUI
+            for _,tab in ipairs({"Characters","Techniques","Codex","Settings","Journey"}) do
+                local button
+                for _,item in ipairs(gui:GetDescendants()) do if item:IsA("TextButton") and item.Text==tab then button=item;break end end
+                assert(button,"tab button missing: "..tab)
+                local function opened()
+                    for _,item in ipairs(gui:GetDescendants()) do if item:IsA("TextLabel") and string.find(item.Text,string.upper(tab).."  /",1,true) then return true end end
+                    return false
+                end
+                local center=button.AbsolutePosition+button.AbsoluteSize/2
+                for attempt=1,2 do
+                    local point=center+(attempt==2 and game:GetService("GuiService"):GetGuiInset() or Vector2.zero)
+                    input:SendMousePosition(point)
+                    input:SendMouseButton(point,Enum.UserInputType.MouseButton1,true,0)
+                    task.wait(0.1)
+                    input:SendMouseButton(point,Enum.UserInputType.MouseButton1,false,0)
+                    task.wait(0.4)
+                    if opened() then break end
+                end
+                assert(opened(),"tab click failed: "..tab)
+            end
+            assert(#failures==0,table.concat(failures,"\n"))
+            return true
+        elseif command=="visual" then
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            input:SendKey(true,Enum.KeyCode.M,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.M,false)
+            local root=player.Character.HumanoidRootPart
+            workspace.CurrentCamera.CameraType=Enum.CameraType.Scriptable
+            workspace.CurrentCamera.CFrame=CFrame.lookAt(root.Position+Vector3.new(18,14,26),root.Position+Vector3.new(0,2,-12))
+            return true
         end
         error("Unknown runtime test command")
     end)

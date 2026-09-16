@@ -32,3 +32,18 @@
 - Corrected world signs/window orientation and prevented mouse clicks on UI buttons from also triggering basic attacks.
 - Added checksum-pinned cross-platform tool bootstrap, CI validation/artifact workflow, setup instructions, architecture map, and QA evidence with explicit limits.
 - Result: a locally playable development game. Authored art/choreography, full canonical environments/story/boss mechanics, live persistence QA, device polish and Roblox publishing are not complete.
+
+## 2026-09-15/16 — Desktop review and new Roblox experience
+
+- Owner explicitly selected **Create a new Roblox experience**. Created **Demon Slayer: Wisteria Chronicles**, universe `10766590718`, start place `139004028759819`; Studio confirmed successful upload and Private audience on 2026-09-15 at 19:38 UTC. Added target IDs, links, access status, and update instructions in deploy/roblox.json and docs/DEPLOYMENT.md.
+- Added character gameplay summaries in the source catalog and regenerated Content.luau; replaced implementation notes in the character menu with these summaries.
+- Added bounded, throttled basic combat audio using bundled Roblox sounds and an in-game mute toggle. This is placeholder feedback, not an authored soundtrack or anime audio.
+- Expanded the integration suite with a VirtualInput navigation diagnostic and optional 60-second visual-review pause. The expanded run was 8 passed / 1 failed (synthetic Characters click). A separate attempt timed out during client startup; raised the harness startup/response allowances.
+- Actual desktop mouse clicks opened all five menu tabs and their client heading assertions passed. The synthetic event reached InputBegan but did not activate the button; retained the unresolved diagnostic as explicit opt-in rather than claiming it passed. Inspected the hub, rig, panels and skill bar visually.
+- Studio auto-updated to 0.739. Identified an unrelated Rojo connection in the manual review window, disconnected it, discarded the contaminated window, reopened the fresh build, and verified Wisteria content before uploading. No other experience was overwritten.
+- Fixed the legacy test runner's stale Studio ContentFolder registry path after the update. Downloaded tool binaries, local GUI helpers, screenshots and Studio logs remain ignored; no credentials were copied into the project.
+- Validation on 2026-09-16: python scripts/check.py passed catalog/generation, 17 Luau compilations, all eight core tests and the place build. Earlier engine and baseline multiplayer results remain 7/7 and 8/8; the failed synthetic check is recorded separately in QA.md.
+- After repairing the runner path, repeated the engine suite in Studio 0.739: 7 passed / 0 failed. Verified all four referenced built-in sound files exist in the installed content directory. Audibility and mixing are not claimed as verified.
+- Repeated the two-client baseline in Studio 0.739 on 2026-09-16: all 8 checks passed, with RUNTIME_JSON failures = 0. The retained experimental VirtualInput check was explicitly disabled in this baseline run.
+- Public access remains incomplete: unauthenticated playability returned ContextualPlayabilityUnrated / false. Creator Dashboard opened at Roblox's login screen on 2026-09-16; asked the owner to sign in in the browser, without requesting credentials. No public-play or live DataStore result is claimed.
+- Remaining full-game production scope is preserved in STATUS.md and PLAN.md.

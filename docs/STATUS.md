@@ -1,10 +1,10 @@
 # Current status
 
-Updated: 2026-09-15
+Updated: 2026-09-16
 
 ## Active checkpoint
 
-Playable development build implemented and tested with two real Studio clients. Full requested production game remains in progress.
+Playable development build implemented, tested with two real Studio clients, and uploaded to a **new private Roblox experience**. Full requested production game remains in progress. [Deployment target and access status](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
 ## Confirmed environment
 
@@ -16,16 +16,16 @@ Playable development build implemented and tested with two real Studio clients. 
 
 ## Next work
 
-1. Finish visual/device QA and gameplay review; fix issues found.
-2. Add canonical boss mechanics, exploration objectives, full story scenes and supporting NPC roles.
-3. Produce authored character models, weapon rigs, per-technique animation/VFX and audio.
-4. Audit technique names, individual character usage, passives and variants against primary episode/movie references. The catalog is broad but not a completed scene audit.
-5. Test real published DataStore behavior, adversarial multiplayer inputs, performance and balance.
-6. Publish to an owner-controlled Roblox experience after its place/universe and settings are available. No Roblox deployment target is currently configured.
+1. Finish release settings after the owner signs into Creator Dashboard. The browser opened at Roblox's login screen; a sign-in request is pending. No public access or live save test has passed yet.
+2. Finish visual/device QA and gameplay review; fix issues found. Desktop hub and all five menu tabs have now been inspected with actual mouse navigation.
+3. Add canonical boss mechanics, exploration objectives, full story scenes and supporting NPC roles.
+4. Produce authored character models, weapon rigs, per-technique animation/VFX and audio.
+5. Audit technique names, individual character usage, passives and variants against primary episode/movie references. The catalog is broad but not a completed scene audit.
+6. Test real published DataStore behavior, adversarial multiplayer inputs, performance and balance.
 
 ## Latest validation
 
-`python scripts/check.py` passed: catalog integrity, 17 Luau files compiled, eight pure core tests, Rojo place build. Studio engine smoke: 7/7 passed. Real two-client Studio integration: 8/8 passed. See QA.md for exact assertions and limits. Live DataStore and device usability are not yet verified.
+`python scripts/check.py` passed again on 2026-09-16: catalog integrity, 17 Luau files compiled, eight pure core tests, Rojo place build. Fresh runs in Studio 0.739: engine smoke 7/7 passed; real two-client baseline 8/8 passed. An earlier expanded run passed those eight checks but failed the new synthetic menu click; that diagnostic remains opt-in and unresolved. All five tabs passed subsequent actual desktop mouse clicks. See QA.md for evidence and limits. Live DataStore and physical-device usability remain unverified.
 
 ## Content inventory
 
@@ -33,7 +33,7 @@ Playable development build implemented and tested with two real Studio clients. 
 
 ## Implemented systems
 
-Server-authoritative action admission/combat, energy/cooldowns, basic combo, guard/parry, wall-aware dodge, status effects, procedural rigs and effects, private sequential story encounters, progression/mastery, opt-in arena rounds/scoring, save-lease protection, searchable character menu, loadout editor, world atlas and input mappings. Studio saving is disabled by default; published saves use the configured DataStore.
+Server-authoritative action admission/combat, energy/cooldowns, basic combo, guard/parry, wall-aware dodge, status effects, procedural rigs and effects, private sequential story encounters, progression/mastery, opt-in arena rounds/scoring, save-lease protection, searchable character menu, loadout editor, world atlas, basic local combat audio with mute control, and input mappings. Studio saving is disabled by default; published saves use the configured DataStore.
 
 ## Working artifact
 

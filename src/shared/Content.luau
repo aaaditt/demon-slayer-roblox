@@ -6012,6 +6012,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
         },
         ["nezuko"] = {
             ["id"] = "nezuko",
@@ -6026,6 +6027,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Pressure with kicks and blood flames; recover when an opening allows.",
         },
         ["zenitsu"] = {
             ["id"] = "zenitsu",
@@ -6040,6 +6042,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Time your approach carefully and punish openings with fast attacks.",
         },
         ["inosuke"] = {
             ["id"] = "inosuke",
@@ -6054,6 +6057,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Stay close and combine twin-blade attacks with rapid movement.",
         },
         ["kanao"] = {
             ["id"] = "kanao",
@@ -6068,6 +6072,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Pair precise offensive sequences with defensive and evasive forms.",
         },
         ["genya"] = {
             ["id"] = "genya",
@@ -6082,6 +6087,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Alternate ranged shots and blade strikes, with limited recovery.",
         },
         ["giyu"] = {
             ["id"] = "giyu",
@@ -6096,6 +6102,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
         },
         ["shinobu"] = {
             ["id"] = "shinobu",
@@ -6110,6 +6117,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Land precise poison strikes, then use movement to control the fight.",
         },
         ["rengoku"] = {
             ["id"] = "rengoku",
@@ -6124,6 +6132,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Pressure enemies with committed charges and strong frontal attacks.",
         },
         ["tengen"] = {
             ["id"] = "tengen",
@@ -6138,6 +6147,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Mix wide bursts, repeated slashes and a timed defensive technique.",
         },
         ["muichiro"] = {
             ["id"] = "muichiro",
@@ -6152,6 +6162,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Change pace with lunges, repeated cuts and evasive movement.",
         },
         ["mitsuri"] = {
             ["id"] = "mitsuri",
@@ -6166,6 +6177,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Use broad sweeps and rapid attacks to catch opponents nearby.",
         },
         ["obanai"] = {
             ["id"] = "obanai",
@@ -6180,6 +6192,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Keep opponents guessing with angled approaches and circular attacks.",
         },
         ["sanemi"] = {
             ["id"] = "sanemi",
@@ -6194,6 +6207,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Combine aggressive movement with wide sweeping attacks.",
         },
         ["gyomei"] = {
             ["id"] = "gyomei",
@@ -6208,6 +6222,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Balance heavy ranged pressure with a strong defensive technique.",
         },
         ["muzan"] = {
             ["id"] = "muzan",
@@ -6222,6 +6237,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Mix long whips, poison pressure and limited regeneration.",
         },
         ["kokushibo"] = {
             ["id"] = "kokushibo",
@@ -6236,6 +6252,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Control space with sweeping crescents and ranged pressure.",
         },
         ["doma"] = {
             ["id"] = "doma",
@@ -6250,6 +6267,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Force movement with delayed ice fields and slowing attacks.",
         },
         ["akaza"] = {
             ["id"] = "akaza",
@@ -6264,6 +6282,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Close the gap with martial arts and control space with shockwaves.",
         },
         ["hantengu"] = {
             ["id"] = "hantengu",
@@ -6278,6 +6297,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Choose between lightning, wind, spear, sound and wood attacks.",
         },
         ["nakime"] = {
             ["id"] = "nakime",
@@ -6292,6 +6312,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Reposition and use projected fields to limit your opponents.",
         },
         ["gyokko"] = {
             ["id"] = "gyokko",
@@ -6306,6 +6327,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Use ranged attacks and trapping fields to control enemy movement.",
         },
         ["gyutaro"] = {
             ["id"] = "gyutaro",
@@ -6320,6 +6342,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Apply poison with blood-sickle attacks and time your defense.",
         },
         ["daki"] = {
             ["id"] = "daki",
@@ -6334,6 +6357,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Pressure with sweeping ribbons and delayed binding fields.",
         },
         ["kaigaku"] = {
             ["id"] = "kaigaku",
@@ -6348,6 +6372,7 @@ return {
             ["playable"] = true,
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Time your approach carefully and punish openings with fast attacks.",
         },
         ["enmu"] = {
             ["id"] = "enmu",
@@ -6362,6 +6387,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_dream",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Catch opponents in brief sleep effects, then follow with attacks.",
         },
         ["rokuro"] = {
             ["id"] = "rokuro",
@@ -6376,6 +6402,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_demon",
             ["note"] = "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+            ["summary"] = "This character has no revealed named art. Use an original claws, rush and recovery kit.",
         },
         ["wakuraba"] = {
             ["id"] = "wakuraba",
@@ -6390,6 +6417,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_demon",
             ["note"] = "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+            ["summary"] = "This character has no revealed named art. Use an original claws, rush and recovery kit.",
         },
         ["mukago"] = {
             ["id"] = "mukago",
@@ -6404,6 +6432,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_demon",
             ["note"] = "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+            ["summary"] = "This character has no revealed named art. Use an original claws, rush and recovery kit.",
         },
         ["rui"] = {
             ["id"] = "rui",
@@ -6418,6 +6447,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_thread",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Use thread fields and circular attacks to restrict approaches.",
         },
         ["kamanue"] = {
             ["id"] = "kamanue",
@@ -6432,6 +6462,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_demon",
             ["note"] = "Blood Demon Art unrevealed. Entire playable kit is an original adaptation, not a canon claim.",
+            ["summary"] = "This character has no revealed named art. Use an original claws, rush and recovery kit.",
         },
         ["kyogai"] = {
             ["id"] = "kyogai",
@@ -6446,6 +6477,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_drum",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
+            ["summary"] = "Combine claw lanes, rapid drumming and evasive room movement.",
         },
         ["tamayo"] = {
             ["id"] = "tamayo",
@@ -6460,6 +6492,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_bewitchment",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Combine brief control effects with restorative support.",
         },
         ["yushiro"] = {
             ["id"] = "yushiro",
@@ -6474,6 +6507,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_talisman",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Pair evasive and defensive techniques with control and healing.",
         },
         ["susamaru"] = {
             ["id"] = "susamaru",
@@ -6488,6 +6522,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_temari",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Keep pressure with temari throws and close-range attacks.",
         },
         ["yahaba"] = {
             ["id"] = "yahaba",
@@ -6502,6 +6537,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_arrow",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Control distance with directional attacks and a quick retreat.",
         },
         ["urokodaki"] = {
             ["id"] = "urokodaki",
@@ -6516,6 +6552,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_water",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
         },
         ["sabito"] = {
             ["id"] = "sabito",
@@ -6530,6 +6567,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_water",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
         },
         ["makomo"] = {
             ["id"] = "makomo",
@@ -6544,6 +6582,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_water",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
         },
         ["murata"] = {
             ["id"] = "murata",
@@ -6558,6 +6597,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_water",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
         },
         ["kanae"] = {
             ["id"] = "kanae",
@@ -6572,6 +6612,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_flower",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Pair precise offensive sequences with defensive and evasive forms.",
         },
         ["shinjuro"] = {
             ["id"] = "shinjuro",
@@ -6586,6 +6627,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_flame",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Pressure enemies with committed charges and strong frontal attacks.",
         },
         ["jigoro"] = {
             ["id"] = "jigoro",
@@ -6600,6 +6642,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_thunder",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Time your approach carefully and punish openings with fast attacks.",
         },
         ["yoriichi"] = {
             ["id"] = "yoriichi",
@@ -6614,6 +6657,7 @@ return {
             ["playable"] = true,
             ["source"] = "wiki_sun",
             ["note"] = "Style-level extrapolation where individual forms are not shown; historical characters use practice scenarios.",
+            ["summary"] = "Link powerful cuts and moving strikes while watching your energy.",
         },
         ["sekido"] = {
             ["id"] = "sekido",

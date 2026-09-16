@@ -160,7 +160,7 @@ function UI:renderCharacters()
             if self.state and self.state.mode~="Hub" then self:toast("Return to the courtyard to change character.");return end
             self.send("Select",id)
         end,true)
-        local note=label(detail,c.note,UDim2.new(1,-4,0,75),nil,12,palette.muted)
+        local note=label(detail,c.summary or "Choose four techniques and find your rhythm in the courtyard.",UDim2.new(1,-4,0,75),nil,12,palette.muted)
         note.LayoutOrder=1
         for i,mid in ipairs(c.moves) do
             local m=Content.moves[mid]
@@ -226,6 +226,8 @@ end
 function UI:renderSettings()
     local list=scroll(self.body,UDim2.fromScale(1,1),UDim2.new())
     button(list,self.effects.reduced and "REDUCED EFFECTS: ON" or "REDUCED EFFECTS: OFF",UDim2.new(1,-4,0,48),nil,function() self.effects.reduced=not self.effects.reduced;self:render() end)
+    local audio=button(list,self.effects.muted and "COMBAT AUDIO: OFF" or "COMBAT AUDIO: ON",UDim2.new(1,-4,0,48),nil,function() self.effects.muted=not self.effects.muted;self:render() end)
+    audio.LayoutOrder=1
     local save=self.state and self.state.saveStatus or "Connecting…"
     local t=label(list,"CONTROLS\n\nKeyboard: WASD move · Space jump\nMouse 1 attack · 1–4 techniques\nF hold guard · Q dodge · M menu\n\nController: right trigger attack\nX / Y / B / left bumper: techniques\nLeft trigger guard · right bumper dodge\nD-pad up: menu\n\nTouch: tap technique cards; use Attack, Guard and Dodge buttons. The default Roblox thumbstick and jump button control movement.\n\nPROGRESSION\n\n"..save.."\n\nRank and character mastery track campaign progress. PvP uses equal health and energy.\n\nUse the Roblox reset option to respawn if stuck.",UDim2.new(1,-12,0,0),nil,14,palette.muted)
     t.AutomaticSize=Enum.AutomaticSize.Y;t.TextYAlignment=Enum.TextYAlignment.Top;t.LayoutOrder=2

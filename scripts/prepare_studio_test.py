@@ -1,5 +1,6 @@
 """Compose an isolated Studio test runner without test hooks in production source."""
 from pathlib import Path
+import sys
 ROOT = Path(__file__).resolve().parents[1]
 def long_string(text):
     eq = "===="
@@ -24,10 +25,10 @@ client.Name="RuntimeTests";client.Source=CLIENT_SOURCE;client.Parent=StarterPlay
 ServerScriptService.Server.Bootstrap.Source=[[local Game=require(script.Parent.Game)
 local session=Game.new():start()
 require(script.Parent.RuntimeTests)(session)]]
-local result=game:GetService("StudioTestService"):ExecuteMultiplayerTestAsync(2,{suite="Wisteria"})
+local result=game:GetService("StudioTestService"):ExecuteMultiplayerTestAsync(2,{suite="Wisteria",visual=__VISUAL_ARG__,virtualInput=__INPUT_ARG__})
 print("RUNTIME_JSON "..game:GetService("HttpService"):JSONEncode(result))
 assert(result and result.failures==0,"Multiplayer tests failed")
-'''.replace("SERVER_SOURCE", long_string(server)).replace("CLIENT_SOURCE", long_string(client))
+'''.replace("SERVER_SOURCE", long_string(server)).replace("CLIENT_SOURCE", long_string(client)).replace("__VISUAL_ARG__", "true" if "--visual" in sys.argv else "false").replace("__INPUT_ARG__", "true" if "--virtual-input" in sys.argv else "false")
 (ROOT / "build").mkdir(exist_ok=True)
 (ROOT / "build/run-multiplayer.luau").write_text(runner,encoding="utf-8")
 print("Prepared build/run-multiplayer.luau")

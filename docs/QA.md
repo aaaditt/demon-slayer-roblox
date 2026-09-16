@@ -39,6 +39,19 @@ Test limits: the reward test sets the NPC's health to zero to exercise progressi
 
 The first multiplayer attempt exposed a **test-runner** issue: run-in-roblox's plugin also loaded in server/client DataModels and launched the edit-only test API again. The isolated wrapper now holds child copies idle. The corrected suite completed successfully. No production test hooks or test remotes ship in the place.
 
+## 2026-09-15/16 visual review and publishing follow-up
+
+- Added a ninth, experimental VirtualInput menu check. The expanded multiplayer run reported **8 passed / 1 failed**: synthetic clicks did not open Characters. Another attempt timed out while launching two clients; the startup allowance is now 100 seconds.
+- Investigated the click in the actual game: a Windows desktop mouse event opened Characters correctly. Additional desktop mouse clicks opened Techniques, Codex, Settings, Journey, and Characters; client assertions found each corresponding heading. These five navigation checks passed. They were driven by local UI automation, not a human playthrough.
+- Instrumenting VirtualInput showed a button receiving `InputBegan` without its `Activated` callback firing. This does not prove all virtual-input edge cases are understood. The failing diagnostic is retained behind `python scripts/prepare_studio_test.py --virtual-input`; it is **not counted as a passing check** or silently discarded.
+- Visually inspected the desktop Journey and Characters panels, skill bar, rig, and generated hub. These are procedural development visuals; full map/art review and small-screen checks remain open.
+- Studio updated from 0.738 to 0.739 during the work. An existing Rojo connection initially replaced the contents of a manually opened review window with another local project. Disconnected it, discarded that window, opened a fresh build, verified the Wisteria catalog, and repeated the manual review before publication. The wrong project was never published to this experience.
+- The update left the `ContentFolder` registry value pointing at the removed Studio version, breaking the legacy test runner. Corrected it to the installed Studio content directory; no credentials or global security settings were changed.
+- Re-ran the engine suite after that repair in Studio 0.739: **7 passed / 0 failed** on 2026-09-16.
+- Re-ran the full eight-check two-client baseline in Studio 0.739 on 2026-09-16: **8 passed / 0 failed**, with `RUNTIME_JSON.failures = 0`. The optional VirtualInput diagnostic was not enabled in this run.
+- `python scripts/check.py` passed on 2026-09-16: 17 Luau files, eight core tests, valid generated content, and the place build. The four basic audio cues reference bundled Roblox sound files, with bounded lifetimes and a mute control. Authored audio and listening/balance review remain open.
+- Studio confirmed **Successfully published** and **Private** for the new experience. Roblox's unauthenticated playability endpoint reported `ContextualPlayabilityUnrated`, `isPlayable: false`. Opening Creator Dashboard reached the browser login page. This is publication evidence, **not public-play or live-persistence evidence**.
+
 ## Remaining release checks
 
 - Human playthrough of every chapter and loadout; difficulty/balance tuning.

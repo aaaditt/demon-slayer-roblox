@@ -1,8 +1,25 @@
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
-local Effects = {reduced = false, active = 0}
+local SoundService = game:GetService("SoundService")
+local Effects = {reduced = false, active = 0, muted = false, lastSound = 0}
 local folder = Instance.new("Folder"); folder.Name = "LocalCombatEffects"; folder.Parent = workspace
+
+local function sound(kind, pattern, distance)
+    if Effects.muted or os.clock()-Effects.lastSound<0.09 then return end
+    local asset
+    if kind=="cast" then
+        asset=(pattern=="burst" or pattern=="summon") and "impact_explosion_03.mp3" or pattern=="spin" and "impact_water.mp3" or "action_jump.mp3"
+    elseif kind=="hit" then asset="action_jump_land.mp3"
+    elseif kind=="dodge" then asset="action_jump.mp3" end
+    if not asset then return end
+    Effects.lastSound=os.clock()
+    local audio=Instance.new("Sound")
+    audio.SoundId="rbxasset://sounds/"..asset
+    audio.Volume=0.2*math.clamp(1-distance/160,0,1)
+    audio.PlaybackSpeed=kind=="hit" and 1.45 or 1.1
+    audio.Parent=SoundService;audio:Play();Debris:AddItem(audio,4)
+end
 
 local function part(size, cf, color, life, transparency)
     if Effects.active >= (Effects.reduced and 45 or 160) then return nil end
@@ -49,6 +66,7 @@ function Effects.play(event)
     local root = character and character:FindFirstChild("HumanoidRootPart")
     if not root or not event.position or (root.Position-event.position).Magnitude>260 then return end
     if character:GetAttribute("Zone") ~= event.zone then return end
+    sound(event.kind,event.pattern,(root.Position-event.position).Magnitude)
     local color = event.color and Color3.fromRGB(table.unpack(event.color)) or Color3.fromRGB(250,220,164)
     local position, direction = event.position, event.direction or Vector3.new(0,0,-1)
     if event.kind == "telegraph" then
