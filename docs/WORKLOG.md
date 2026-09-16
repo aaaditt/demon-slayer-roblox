@@ -47,3 +47,10 @@
 - Repeated the two-client baseline in Studio 0.739 on 2026-09-16: all 8 checks passed, with RUNTIME_JSON failures = 0. The retained experimental VirtualInput check was explicitly disabled in this baseline run.
 - Public access remains incomplete: unauthenticated playability returned ContextualPlayabilityUnrated / false. Creator Dashboard opened at Roblox's login screen on 2026-09-16; asked the owner to sign in in the browser, without requesting credentials. No public-play or live DataStore result is claimed.
 - Remaining full-game production scope is preserved in STATUS.md and PLAN.md.
+
+## 2026-09-16 — GitHub development release
+
+- Committed and pushed the private-experience checkpoint as `5cecc68`. GitHub Actions run `35045353031` succeeded, including Linux validation and place artifact upload.
+- Created GitHub prerelease [v0.1.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.1.0-dev.1) targeting that exact source commit. Uploaded `WisteriaChronicles.rbxlx` (388,496 bytes) and its SHA-256 checksum file.
+- Place download SHA-256: `57911b1b6f49c0bdecde350750b07aeb045854aea4d7de8a17b5dfb87c938cb9`. This is the generated local release file's checksum, not a claim that Studio's cloud serialization is byte-identical.
+- Added durable release links to README.md and STATUS.md. Browser login/public release settings, live persistence QA, and the full production backlog remain open.

@@ -15,6 +15,8 @@ A Roblox action RPG and PvP project. Minimum cast: **Infinity Castle (2025)**, a
 
 ## Play locally
 
+Download the place from the [0.1.0 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.1.0-dev.1), or build it from source below.
+
 Run `python scripts/check.py`, open `build/WisteriaChronicles.rbxlx` in Roblox Studio, and press **Play (F5)**. The world generates on play. On a fresh machine, run `python scripts/bootstrap.py` first. Full instructions: [setup and controls](docs/SETUP.md).
 
 Select a fighter, choose four techniques, fight training constructs, play the campaign, or enter the PvP courtyard. Multiplayer requires at least two Studio clients or a published Roblox experience.

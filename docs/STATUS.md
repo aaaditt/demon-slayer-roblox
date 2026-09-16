@@ -37,4 +37,6 @@ Server-authoritative action admission/combat, energy/cooldowns, basic combo, gua
 
 ## Working artifact
 
-`build/WisteriaChronicles.rbxlx` (ignored generated file). Open in Studio and press Play. World geometry is created at runtime. GitHub Actions uploads a place artifact from each successful build.
+Download [v0.1.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.1.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `5cecc68`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35045353031).
+
+Local output: `build/WisteriaChronicles.rbxlx` (ignored generated file). Open in Studio and press Play. World geometry is created at runtime. GitHub Actions also uploads a place artifact from each successful build. The release is a development checkpoint; public Roblox access still awaits dashboard setup after browser sign-in.
