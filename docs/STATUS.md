@@ -6,7 +6,7 @@ Updated: 2026-09-17
 
 Story-first revision implemented following owner playtest feedback. Chapter one now has a staged Kamado mountain prologue, an enterable home, family NPCs, charcoal errands, Saburo's shelter, Nezuko carrying, Giyu's intervention, dialogue and camera scenes. Shared locomotion, timed directional dashes and sword drawing are implemented. The held-W-plus-Q regression now passes in two-client Studio testing.
 
-The full game is not finished. Chapters 2-22 remain encounter previews. The private Roblox upload and v0.1.0 release still contain the earlier build until a new artifact/upload is explicitly recorded. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
+The full game is not finished. Chapters 2-22 remain encounter previews. The new v0.2.0 development download contains this revision. The existing private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
 ## Confirmed environment
 
@@ -41,6 +41,6 @@ Server-authoritative action admission/combat, energy/cooldowns, basic combo, gua
 
 ## Working artifact
 
-Download [v0.1.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.1.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `5cecc68`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35045353031).
+Download [v0.2.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.2.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `68d3421`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35244084052). The uploaded place is 445,153 bytes; SHA-256 `9ab5e890b7ff381316fc0432a7ed1de236f0635c7d16b7c60e2462fa4f3f3d90` matches GitHub's asset digest.
 
 Local output: `build/WisteriaChronicles.rbxlx` (ignored generated file). Open in Studio and press Play. World geometry is created at runtime. GitHub Actions also uploads a place artifact from each successful build. The release is a development checkpoint; public Roblox access still awaits dashboard setup after browser sign-in.

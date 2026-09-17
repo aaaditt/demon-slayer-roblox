@@ -29,3 +29,9 @@ On 2026-09-16, **View on Creator Hub** opened the Roblox login screen in Chrome.
 5. Verify the success dialog and game IDs, test access/save behavior, then update this document, STATUS.md, and WORKLOG.md; commit and push.
 
 Do not upload a test-injected place. The generated multiplayer runner modifies a temporary test copy only. Never store account cookies, authentication tickets, or Studio logs in Git.
+
+## 2026-09-17 downloadable revision (cloud unchanged)
+
+The new [v0.2.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.2.0-dev.1) contains the Kamado prologue and movement/sword revision at source `68d3421`. Its place and checksum are uploaded to GitHub, and the source build passed GitHub Actions. Open that file in Studio to review Journey -> 01 A Trail in the Snow.
+
+No Roblox cloud upload or audience change was performed for this revision. The experience linked above still has the earlier published build. Updating it remains a separate deployment step using the exact existing place/universe IDs and the production place, never a test-injected copy.

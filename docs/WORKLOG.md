@@ -70,3 +70,11 @@
 - Final real two-client suite passed **12/12**, including E-key dialogue continuation and the full prologue state sequence. Inspected actual opening screenshots; refined Tanjiro's green/checkered outfit, framing, lantern placement and cinematic HUD/nameplate clutter. A desktop interaction helper outlived the review pause; no full manual route/proximity playthrough is claimed.
 - The existing Roblox cloud place has not been overwritten in this session. Preparing a new reproducible GitHub development artifact; later chapters, authored animation, device QA and live persistence remain open.
 - Repeated the expanded engine suite on the final build, including the strengthened swept-dash wall-clearance assertion: **10/10 passed**. Final portable build and whitespace checks also passed.
+
+
+## 2026-09-17 — Prologue checkpoint and development release
+
+- Committed and pushed the story/movement checkpoint as `68d3421`. GitHub Actions run `35244084052` completed successfully.
+- Created [v0.2.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.2.0-dev.1) targeting full commit `68d3421911eb921389da54fd9c82a14281c7da95`. The initial create request used a short SHA and was rejected with HTTP 422 / invalid target_commitish; retrying with the full SHA succeeded.
+- Uploaded the production place (445,153 bytes) and checksum. GitHub's uploaded asset digest matches local SHA-256 `9ab5e890b7ff381316fc0432a7ed1de236f0635c7d16b7c60e2462fa4f3f3d90`. Test injection, tool binaries, screenshots, credentials and Studio logs are not included.
+- Updated README, STATUS and DEPLOYMENT to link the new download and explicitly distinguish it from the unchanged Roblox cloud upload. Next implementation slice is the route to Sagiri and staged training; all later-story, character-art, PvP and production qualification objectives remain tracked.
