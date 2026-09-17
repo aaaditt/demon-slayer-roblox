@@ -31,6 +31,81 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             repeat humanoid:Move(Vector3.new(1,0,0),false);RunService.RenderStepped:Wait() until os.clock()>=untilTime
             humanoid:Move(Vector3.zero);controls:Enable()
             return (player.Character.HumanoidRootPart.Position-start).Magnitude
+        elseif command=="animation" then
+            local controls=require(player.PlayerScripts:WaitForChild("PlayerModule")):GetControls()
+            controls:Disable()
+            local model=player.Character
+            local humanoid=model:FindFirstChildOfClass("Humanoid")
+            local hip=model.Torso["Right Hip"]
+            local original=hip.C0
+            local changed=false
+            local deadline=os.clock()+0.5
+            repeat
+                humanoid:Move(Vector3.new(-1,0,0),false)
+                RunService.RenderStepped:Wait()
+                if (hip.C0.Position-original.Position).Magnitude>0.01 or hip.C0.LookVector:Dot(original.LookVector)<0.99 then changed=true end
+            until os.clock()>deadline
+            humanoid:Move(Vector3.zero);humanoid.Jump=true
+            local states={}
+            deadline=os.clock()+1.5
+            repeat RunService.RenderStepped:Wait();states[model:GetAttribute("MotionState") or "missing"]=true until os.clock()>deadline
+            controls:Enable()
+            assert(changed,"walking did not change the leg joint")
+            assert(states.jump and states.fall and states.land,"missing jump, fall or landing poses")
+            return true
+        elseif command=="dashInput" then
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            local shade=player.PlayerGui.WisteriaUI:FindFirstChild("MenuShade")
+            if shade.Visible then
+                input:SendKey(true,Enum.KeyCode.M,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.M,false);task.wait(0.2)
+            end
+            assert(not shade.Visible,"menu did not close for movement test")
+            local model=player.Character
+            local root=model.HumanoidRootPart
+            input:SendKey(true,Enum.KeyCode.W,false);task.wait(0.15)
+            local start=root.Position;local previous=start;local largest=0;local animated=false
+            input:SendKey(true,Enum.KeyCode.Q,false)
+            local deadline=os.clock()+0.5
+            repeat
+                RunService.RenderStepped:Wait()
+                largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
+                animated=animated or model:GetAttribute("MotionState")=="evade"
+            until os.clock()>deadline
+            input:SendKey(false,Enum.KeyCode.Q,false);input:SendKey(false,Enum.KeyCode.W,false)
+            -- Ownership changes and snapshots can trail input under a four-Studio test load.
+            -- Keep sampling through replication settling instead of measuring only the local prediction.
+            deadline=os.clock()+0.65
+            repeat
+                RunService.RenderStepped:Wait()
+                largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
+            until os.clock()>deadline
+            assert(animated,"Q was not admitted while holding W")
+            assert((root.Position-start).Magnitude>10,"dash failed to travel: "..(root.Position-start).Magnitude.."; largest frame "..largest)
+            assert(largest<12,"dash jumped an entire frame: "..largest)
+            return {distance=(root.Position-start).Magnitude,largestFrame=largest}
+        elseif command=="weapon" then
+            local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
+            assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")
+            assert(model:FindFirstChild("Scabbard") and model.Torso:FindFirstChild("WeaponGrip"))
+            assert(model.Blade.LocalTransparencyModifier==(args.drawn and 0 or 1),"blade visibility incorrect")
+            return true
+        elseif command=="sceneKey" then
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            input:SendKey(true,Enum.KeyCode.E,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.E,false)
+            task.wait(0.65)
+            return true
+        elseif command=="story" then
+            task.wait(0.4)
+            local gui=player.PlayerGui:FindFirstChild("StoryUI")
+            assert(gui,"story UI missing")
+            if args.scene then
+                assert(gui.Cutscene.Visible and workspace.CurrentCamera.CameraType==Enum.CameraType.Scriptable,"cutscene did not start")
+                assert(player.Character.HumanoidRootPart.Anchored,"server did not lock cinematic movement")
+            else
+                assert(not gui.Cutscene.Visible and not gui.Objective.Visible,"story UI leaked")
+                assert(workspace.CurrentCamera.CameraType==Enum.CameraType.Custom and workspace.CurrentCamera.CameraSubject==player.Character:FindFirstChildOfClass("Humanoid"),"camera was not restored")
+            end
+            return true
         elseif command=="ui" then
             local gui=player.PlayerGui:FindFirstChild("WisteriaUI")
             assert(gui,"missing UI")

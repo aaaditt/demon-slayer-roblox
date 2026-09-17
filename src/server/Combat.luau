@@ -3,6 +3,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Rules = require(Shared.Rules)
 local Content = require(Shared.Content)
+local Rig = require(script.Parent.Rig)
 local Combat = {}
 Combat.__index = Combat
 
@@ -32,6 +33,7 @@ function Combat:register(model, humanoid, root, options)
     humanoid.Died:Connect(function()
         if not actor.alive then return end
         actor.alive = false; actor.castToken += 1; actor.blocking = false
+        self:stopMotion(actor)
         model:SetAttribute("Dead", true)
         if actor.onDeath then actor.onDeath(actor, actor.lastAttacker) end
     end)
@@ -39,6 +41,7 @@ function Combat:register(model, humanoid, root, options)
 end
 
 function Combat:remove(actor)
+    self:stopMotion(actor)
     actor.alive = false; actor.castToken += 1
     self.actors[actor.model] = nil
     if actor.model.Parent then actor.model:Destroy() end
@@ -61,8 +64,34 @@ function Combat:lineOfSight(actor, target, from)
     return hit == nil
 end
 
-function Combat:move(actor, direction, distance)
-    if distance <= 0 then return end
+function Combat:stopMotion(actor, reason)
+    local motion = actor.motion
+    if not motion then return end
+    actor.lastMotion = {distance=(actor.root.Position-motion.origin).Magnitude,reason=reason or "cancelled"}
+    actor.motion = nil
+    motion.velocity:Destroy(); motion.attachment:Destroy()
+    if actor.root.Parent then
+        local v = actor.root.AssemblyLinearVelocity
+        actor.root.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
+        actor.humanoid.AutoRotate = true
+        if actor.player then
+            -- Let the final server physics position replicate before giving control back.
+            -- Immediate handoff lets the client's older position shorten the visible dash.
+            local releaseAt=workspace:GetServerTimeNow()+0.15
+            actor.motionReleaseAt=releaseAt
+            task.delay(0.15,function()
+                if actor.alive and actor.root.Parent and not actor.root.Anchored and not actor.motion and actor.motionReleaseAt==releaseAt then
+                    pcall(function() actor.root:SetNetworkOwner(actor.player) end)
+                    actor.motionReleaseAt=nil
+                end
+            end)
+        end
+    end
+end
+
+function Combat:move(actor, direction, distance, duration)
+    if distance <= 0 then return 0 end
+    self:stopMotion(actor)
     local parameters = RaycastParams.new()
     parameters.FilterType = Enum.RaycastFilterType.Exclude
     parameters.FilterDescendantsInstances = {actor.model}
@@ -75,10 +104,28 @@ function Combat:move(actor, direction, distance)
         local bound = actor.room.size/2-5
         destination = Vector3.new(math.clamp(destination.X, actor.room.center.X-bound, actor.room.center.X+bound), destination.Y, math.clamp(destination.Z, actor.room.center.Z-bound, actor.room.center.Z+bound))
     end
-    actor.model:PivotTo(CFrame.lookAt(destination, destination+direction))
-    actor.root.AssemblyLinearVelocity = Vector3.zero
-    actor.lastPosition = destination
-    actor.motionTime = workspace:GetServerTimeNow()
+    travel = (destination-origin).Magnitude
+    if travel < 0.1 then
+        actor.lastMotion = {distance=0,reason="blocked: "..(hit and hit.Instance.Name or "room bound"),height=origin.Y}
+        return 0
+    end
+    direction = (destination-origin).Unit
+    duration = duration or math.clamp(travel/65, 0.16, 0.36)
+    local attachment = Instance.new("Attachment"); attachment.Name = "DashAttachment"; attachment.Parent = actor.root
+    local velocity = Instance.new("LinearVelocity")
+    velocity.Name = "DashVelocity"; velocity.Attachment0 = attachment
+    velocity.RelativeTo = Enum.ActuatorRelativeTo.World
+    velocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Plane
+    velocity.PrimaryTangentAxis = Vector3.xAxis; velocity.SecondaryTangentAxis = Vector3.zAxis
+    velocity.ForceLimitsEnabled = false
+    velocity.PlaneVelocity = Vector2.new(direction.X, direction.Z)*(travel/duration)
+    velocity.Parent = actor.root
+    actor.humanoid.AutoRotate = false
+    actor.root.CFrame = CFrame.lookAt(origin, origin+direction)
+    pcall(function() actor.root:SetNetworkOwner(nil) end)
+    actor.motion = {attachment=attachment,velocity=velocity,origin=origin,direction=direction,distance=travel,
+        ends=workspace:GetServerTimeNow()+duration,speed=travel/duration,parameters=parameters,token=actor.castToken}
+    return duration
 end
 
 function Combat:damage(actor, target, amount, status)
@@ -136,6 +183,17 @@ end
 function Combat:cast(actor, move, direction)
     local now = workspace:GetServerTimeNow()
     if not actor.alive then return false, "Respawning" end
+    if actor.storyLocked then return false, "Follow the story objective" end
+    -- Draw first, then execute the requested strike if this actor has not been interrupted.
+    if actor.model:GetAttribute("HasSheath") and not actor.model:GetAttribute("WeaponDrawn") then
+        if now < actor.busyUntil or now < actor.stunUntil then return false, "Recovering" end
+        self:weapon(actor, true)
+        local token = actor.castToken
+        task.delay(0.46, function()
+            if actor.alive and actor.castToken == token then self:cast(actor, move, direction) end
+        end)
+        return true
+    end
     if actor.blocking then return false, "Release guard first" end
     if actor.mode == "Arena" and not actor.arenaActive then return false, "Waiting for an opponent" end
     local accepted, reason = Rules.spend(actor, move, now)
@@ -163,8 +221,10 @@ function Combat:cast(actor, move, direction)
             actor.humanoid.Health = math.min(actor.humanoid.MaxHealth, actor.humanoid.Health+28)
             if move.status == "cleanse" then actor.status = {} end
         end
-        self:move(actor, direction, move.dash)
+        local travelTime = self:move(actor, direction, move.dash)
         self:emit(actor, "cast", {move = move.id, position = field or origin, destination = actor.root.Position, direction = direction, color = color, pattern = move.pattern, range = field and move.width or move.range, width = move.width})
+        if travelTime > 0 then task.wait(travelTime) end
+        if not actor.alive or actor.castToken ~= token then return end
         if move.damage <= 0 then return end
         local reference = CFrame.lookAt(origin, origin+direction)
         for hitIndex = 1, move.hits do
@@ -205,17 +265,31 @@ end
 function Combat:guard(actor, enabled)
     local now = workspace:GetServerTimeNow()
     if not enabled then actor.blocking = false; return end
-    if not actor.alive or actor.blocking or now < actor.busyUntil or now < actor.stunUntil then return end
+    if not actor.alive or actor.storyLocked or actor.blocking or now < actor.busyUntil or now < actor.stunUntil then return end
     if now-(actor.lastGuard or 0) < 0.45 then return end
     actor.lastGuard = now; actor.blockStarted = now; actor.blocking = true
 end
 
+function Combat:weapon(actor, drawn)
+    local now = workspace:GetServerTimeNow()
+    if not actor.alive or actor.storyLocked or not actor.model:GetAttribute("HasSheath") or now < actor.busyUntil or now < actor.stunUntil then return false end
+    if drawn == nil then drawn = not actor.model:GetAttribute("WeaponDrawn") end
+    actor.castToken += 1; actor.blocking = false; actor.busyUntil = now+0.45
+    Rig.draw(actor.model, drawn)
+    actor.model:SetAttribute("Pose", drawn and "draw" or "sheathe")
+    actor.model:SetAttribute("PoseStart", now); actor.model:SetAttribute("PoseDuration", 0.45)
+    return true
+end
+
 function Combat:dodge(actor, direction)
     local now = workspace:GetServerTimeNow()
+    if actor.model:GetAttribute("InCutscene") then return end
     if not actor.alive or now < actor.stunUntil or now < actor.busyUntil or (actor.cooldowns.dodge or 0)>now or actor.energy<Config.DodgeCost then return end
     actor.energy -= Config.DodgeCost; actor.cooldowns.dodge = now+Config.DodgeCooldown
     actor.busyUntil = now+0.32; actor.invulnerableUntil = now+0.28; actor.blocking = false; actor.castToken += 1
-    self:move(actor, direction, Config.DodgeDistance)
+    actor.model:SetAttribute("Pose", "evade")
+    actor.model:SetAttribute("PoseStart", now); actor.model:SetAttribute("PoseDuration", Config.DodgeDuration)
+    self:move(actor, direction, Config.DodgeDistance, Config.DodgeDuration)
     self:emit(actor, "dodge", {position = actor.root.Position, color = Content.characters[actor.characterId].color})
 end
 
@@ -234,9 +308,18 @@ function Combat:tick(dt)
             end
         end
         if not actor.alive then continue end
+        if actor.motion then
+            local m = actor.motion
+            local traveled = (actor.root.Position-m.origin):Dot(m.direction)
+            local hit = workspace:Blockcast(actor.root.CFrame, Vector3.new(3, 4, 2), m.direction*(m.speed*dt+0.6), m.parameters)
+            if hit then self:stopMotion(actor, "collision: "..hit.Instance.Name)
+            elseif now >= m.ends or traveled >= m.distance then self:stopMotion(actor, "finished")
+            elseif now < actor.stunUntil or actor.castToken ~= m.token then self:stopMotion(actor, "interrupted") end
+        end
         local stunned = now<actor.stunUntil
-        actor.humanoid.WalkSpeed = stunned and 0 or actor.blocking and Config.GuardSpeed or actor.status.chill and 14 or Config.WalkSpeed
-        actor.humanoid.JumpPower = (stunned or actor.blocking) and 0 or Config.JumpPower
+        local frozen = stunned or actor.motion ~= nil or (actor.motionReleaseAt and now<actor.motionReleaseAt) or actor.model:GetAttribute("InCutscene")
+        actor.humanoid.WalkSpeed = frozen and 0 or actor.blocking and Config.GuardSpeed or actor.status.chill and 14 or Config.WalkSpeed
+        actor.humanoid.JumpPower = (frozen or actor.blocking) and 0 or Config.JumpPower
         actor.model:SetAttribute("Blocking", actor.blocking)
         actor.model:SetAttribute("Invulnerable", now<actor.invulnerableUntil or now<actor.guardUntil)
         if actor.kind == "player" and now-actor.motionTime>=0.25 then

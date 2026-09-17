@@ -9,6 +9,7 @@ local Rig = require(script.Parent.Rig)
 local World = require(script.Parent.World)
 local Combat = require(script.Parent.Combat)
 local Profiles = require(script.Parent.Profiles)
+local Story = require(script.Parent.Story)
 local Game = {}
 Game.__index = Game
 
@@ -43,13 +44,14 @@ function Game:push(player)
     end
     table.sort(leaderboard, function(x,y) return x.score>y.score end)
     self.state:FireClient(player, {
-        kind = "state", time = workspace:GetServerTimeNow(), selected = p.selected,
+        kind = "state", time = workspace:GetServerTimeNow(), selected = a and a.characterId or p.selected,
         mode = a and a.mode or "Hub", hp = a and a.humanoid.Health or 0, maxHp = Config.MaxHealth,
         energy = a and a.energy or 0, maxEnergy = Config.MaxEnergy,
-        loadout = p.loadouts[p.selected], cooldowns = a and a.cooldowns or {},
+        loadout = p.loadouts[a and a.characterId or p.selected], cooldowns = a and a.cooldowns or {},
         xp = p.xp, rank = Rules.rank(p.xp), chapter = p.chapter, mastery = p.mastery[p.selected],
         kills = p.kills, deaths = p.deaths, wins = p.wins, saveStatus = entry.profile.status,
         mission = entry.mission and {index = entry.mission.chapter.index, wave = entry.mission.wave, total = #entry.mission.chapter.enemies, ends = entry.mission.deadline} or nil,
+        story = entry.mission and entry.mission.story and entry.mission.story.step and entry.mission.story:snapshot() or nil,
         round = {active = self.round.active, ends = self.round.ends, number = self.round.number, leaderboard = leaderboard},
     })
 end
@@ -59,7 +61,8 @@ function Game:spawn(player, mode)
     if not entry or player.Parent ~= Players then return end
     if entry.actor then self.combat:remove(entry.actor) end
     local p = entry.profile.data
-    local definition = Content.characters[p.selected]
+    local characterId = mode == "Story" and entry.mission.chapter.story and entry.mission.chapter.story.character or p.selected
+    local definition = Content.characters[characterId]
     local room = mode == "Arena" and World.Arena or mode == "Story" and entry.mission.room or World.Hub
     local position = room.spawn
     if mode == "Arena" then
@@ -70,7 +73,7 @@ function Game:spawn(player, mode)
     player.Character = model
     local actor = self.combat:register(model, humanoid, root, {
         kind = "player", mode = mode, zone = mode == "Arena" and "arena" or mode == "Story" and "story_" .. player.UserId or "hub",
-        characterId = p.selected, player = player, room = room, arenaActive = self.round.active,
+        characterId = characterId, player = player, room = room, arenaActive = self.round.active,
         onDeath = function(dead, killer) self:playerDied(player, dead, killer) end,
     })
     entry.actor = actor
@@ -84,6 +87,7 @@ function Game:clearMission(entry)
     local mission = entry.mission
     if not mission then return end
     mission.finished = true
+    if mission.story then mission.story:destroy() end
     if mission.enemy then self.combat:remove(mission.enemy) end
     self.slots[mission.slot] = nil
     World.remove(mission.slot)
@@ -111,20 +115,26 @@ function Game:playerDied(player, dead, killer)
     end)
 end
 
+function Game:completeMission(player, mission)
+    local entry = self.players[player]
+    if not entry or entry.mission ~= mission or mission.finished or not entry.actor.alive then return end
+    local p, chapter = entry.profile.data, mission.chapter
+    mission.finished = true
+    p.xp += chapter.reward
+    p.mastery[entry.actor.characterId] += 1
+    if p.chapter == chapter.index then p.chapter = math.min(#Content.chapters+1, p.chapter+1) end
+    self:toast(player, "CHAPTER COMPLETE  +" .. chapter.reward .. " XP")
+    self:clearMission(entry)
+    self:spawn(player, "Hub")
+    task.spawn(function() self.profiles:save(player, false) end)
+end
+
 function Game:nextWave(player, mission)
     local entry = self.players[player]
     if not entry or entry.mission ~= mission or mission.finished or not entry.actor.alive then return end
     mission.wave += 1
     if mission.wave > #mission.chapter.enemies then
-        local p, chapter = entry.profile.data, mission.chapter
-        mission.finished = true
-        p.xp += chapter.reward
-        p.mastery[p.selected] += 1
-        if p.chapter == chapter.index then p.chapter = math.min(#Content.chapters+1, p.chapter+1) end
-        self:toast(player, "CHAPTER COMPLETE  +" .. chapter.reward .. " XP")
-        self:clearMission(entry)
-        self:spawn(player, "Hub")
-        task.spawn(function() self.profiles:save(player, false) end)
+        self:completeMission(player, mission)
         return
     end
     local id = mission.chapter.enemies[mission.wave]
@@ -161,11 +171,16 @@ function Game:startMission(player, index)
     if not slot then self:toast(player, "All mission rooms are in use. Try again shortly."); return end
     local chapter = Content.chapters[index]
     self.slots[slot] = player
-    local mission = {slot = slot, chapter = chapter, room = World.mission(slot, Content.locations[chapter.location]), wave = 0, finished = false, deadline = workspace:GetServerTimeNow()+chapter.timeLimit}
+    local mission = {slot = slot, chapter = chapter, room = World.mission(slot, Content.locations[chapter.location], chapter.story), wave = 0, finished = false, deadline = workspace:GetServerTimeNow()+chapter.timeLimit}
     entry.mission = mission
     self:spawn(player, "Story")
-    self:toast(player, chapter.objective)
-    self:nextWave(player, mission)
+    if chapter.story then
+        mission.story = Story.new(self, player, mission)
+        mission.story:advance()
+    else
+        self:toast(player, chapter.objective)
+        self:nextWave(player, mission)
+    end
 end
 
 function Game:finishRound(winner)
@@ -216,6 +231,10 @@ function Game:handle(player, action, payload)
     local actor = entry.actor
     if action == "Ready" then self:push(player); return end
     if not actor or not actor.alive then return end
+    if action == "StoryContinue" or action == "StorySkip" then
+        if entry.mission and entry.mission.story then entry.mission.story:continue(action == "StorySkip") end
+        return
+    end
     local function direction()
         if typeof(payload) == "Vector3" and Rules.finite(payload.X) and Rules.finite(payload.Y) and Rules.finite(payload.Z) and payload.Magnitude < 100000 then
             local flat = Vector3.new(payload.X, 0, payload.Z)
@@ -226,6 +245,7 @@ function Game:handle(player, action, payload)
     end
     if action == "Basic" then self.combat:basic(actor, direction())
     elseif action == "Dodge" then self.combat:dodge(actor, direction())
+    elseif action == "Weapon" then self.combat:weapon(actor)
     elseif action == "Guard" then if type(payload)=="boolean" then self.combat:guard(actor, payload) end
     elseif action == "Skill" then
         if type(payload)~="table" or not Rules.integer(payload.slot, 1, 4) then return end
@@ -302,6 +322,9 @@ function Game:start()
     for _, player in ipairs(Players:GetPlayers()) do task.spawn(function() self:addPlayer(player) end) end
     self.heartbeat = RunService.Heartbeat:Connect(function(dt)
         self.combat:tick(math.min(dt, 0.1))
+        for _, entry in pairs(self.players) do
+            if entry.mission and entry.mission.story then entry.mission.story:tick(workspace:GetServerTimeNow()) end
+        end
         self.accumulated += dt
         if self.accumulated<0.2 then return end
         self.accumulated = 0

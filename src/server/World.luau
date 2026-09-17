@@ -1,4 +1,5 @@
 local Lighting = game:GetService("Lighting")
+local StoryWorld = require(script.Parent.StoryWorld)
 local World = {}
 World.Rooms = {}
 local wood = Color3.fromRGB(75, 47, 42)
@@ -170,8 +171,13 @@ function World.init()
     return World
 end
 
-function World.mission(slot, location)
+function World.mission(slot, location, story)
     local center = Vector3.new((slot%4)*500, 0, 700+math.floor(slot/4)*500)
+    if story then
+        local room = StoryWorld.build(World.Root, center, story)
+        World.Rooms[slot] = room
+        return room
+    end
     local room = World.room("Mission_" .. slot .. "_" .. location.id, center, location.theme, 190)
     sign(room.folder, center+Vector3.new(0, 7, -78), location.name, "Watch the telegraph. Find your opening.")
     World.Rooms[slot] = room

@@ -11,14 +11,30 @@ local effectRemote=network:WaitForChild("Effects")
 local Effects=require(script.Parent.Effects)
 local Animator=require(script.Parent.Animator)
 local UI=require(script.Parent.UI)
+local StoryPlayer=require(script.Parent.StoryPlayer)
 local function send(name,payload) action:FireServer(name,payload) end
 local ui=UI.new(send,Effects)
+local storyPlayer=StoryPlayer.new(send,ui)
 local function direction(dodge)
     local character=player.Character
     local root=character and character:FindFirstChild("HumanoidRootPart")
     local humanoid=character and character:FindFirstChildOfClass("Humanoid")
     if not root then return Vector3.new(0,0,-1) end
-    if dodge and humanoid and humanoid.MoveDirection.Magnitude>0.1 then return humanoid.MoveDirection end
+    if dodge then
+        if humanoid and humanoid.MoveDirection.Magnitude>0.1 then return humanoid.MoveDirection end
+        -- Resolve held keys too: MoveDirection can lag behind a simultaneous WASD + Q press.
+        if not UserInputService:GetFocusedTextBox() then
+            local x = (UserInputService:IsKeyDown(Enum.KeyCode.D) and 1 or 0)-(UserInputService:IsKeyDown(Enum.KeyCode.A) and 1 or 0)
+            local z = (UserInputService:IsKeyDown(Enum.KeyCode.W) and 1 or 0)-(UserInputService:IsKeyDown(Enum.KeyCode.S) and 1 or 0)
+            local look = workspace.CurrentCamera.CFrame.LookVector
+            local forward = Vector3.new(look.X,0,look.Z)
+            if forward.Magnitude > 0.01 and (x ~= 0 or z ~= 0) then
+                forward = forward.Unit
+                return (forward*z+forward:Cross(Vector3.yAxis)*x).Unit
+            end
+        end
+        return root.CFrame.LookVector
+    end
     if UserInputService.MouseEnabled and not UserInputService.TouchEnabled and UserInputService:GetLastInputType()~=Enum.UserInputType.Gamepad1 then
         local mouse=player:GetMouse()
         local offset=mouse.Hit.Position-root.Position
@@ -26,7 +42,8 @@ local function direction(dodge)
     end
     return workspace.CurrentCamera.CFrame.LookVector
 end
-local function canAct() return not ui.shade.Visible and UserInputService:GetFocusedTextBox()==nil end
+local function canAct() return not storyPlayer.activeScene and not ui.shade.Visible and UserInputService:GetFocusedTextBox()==nil end
+local function canFight() return canAct() and not (ui.state and ui.state.story) end
 local function overButton()
     local mouse=UserInputService:GetMouseLocation()
     for _,item in ipairs(player.PlayerGui:GetGuiObjectsAtPosition(mouse.X,mouse.Y)) do
@@ -34,7 +51,7 @@ local function overButton()
     end
     return false
 end
-ui.onSkill=function(slot) if canAct() then send("Skill",{slot=slot,direction=direction(false)}) end end
+ui.onSkill=function(slot) if canFight() then send("Skill",{slot=slot,direction=direction(false)}) end end
 ui.onMenu=function(open)
     send("Guard",false)
     if open and UserInputService.GamepadEnabled then GuiService.SelectedObject=ui.panel:FindFirstChildWhichIsA("TextButton",true) else GuiService.SelectedObject=nil end
@@ -47,18 +64,22 @@ local function bind(name,callback,touch,...)
 end
 bind("WisteriaAttack",function(s,input)
     if input.UserInputType==Enum.UserInputType.MouseButton1 and overButton() then return false end
-    if s==Enum.UserInputState.Begin and canAct() then send("Basic",direction(false));return true end
+    if s==Enum.UserInputState.Begin and canFight() then send("Basic",direction(false));return true end
     return false
 end,true,Enum.UserInputType.MouseButton1,Enum.KeyCode.ButtonR2)
 bind("WisteriaGuard",function(s)
     if s==Enum.UserInputState.End or s==Enum.UserInputState.Cancel then send("Guard",false);return true end
-    if s==Enum.UserInputState.Begin and canAct() then send("Guard",true);return true end
+    if s==Enum.UserInputState.Begin and canFight() then send("Guard",true);return true end
     return false
 end,true,Enum.KeyCode.F,Enum.KeyCode.ButtonL2)
 bind("WisteriaDodge",function(s)
     if s==Enum.UserInputState.Begin and canAct() then send("Dodge",direction(true));return true end
     return false
 end,true,Enum.KeyCode.Q,Enum.KeyCode.ButtonR1)
+bind("WisteriaWeapon",function(s)
+    if s==Enum.UserInputState.Begin and canFight() then send("Weapon");return true end
+    return false
+end,true,Enum.KeyCode.R,Enum.KeyCode.DPadRight)
 local keyboard={Enum.KeyCode.One,Enum.KeyCode.Two,Enum.KeyCode.Three,Enum.KeyCode.Four}
 local controller={Enum.KeyCode.ButtonX,Enum.KeyCode.ButtonY,Enum.KeyCode.ButtonB,Enum.KeyCode.ButtonL1}
 for i=1,4 do
@@ -68,18 +89,23 @@ bind("WisteriaMenu",function(s) if s==Enum.UserInputState.Begin and not UserInpu
 ContextActionService:SetTitle("WisteriaAttack","Attack")
 ContextActionService:SetTitle("WisteriaGuard","Guard")
 ContextActionService:SetTitle("WisteriaDodge","Dodge")
+ContextActionService:SetTitle("WisteriaWeapon","Sword")
+ContextActionService:SetPosition("WisteriaWeapon",UDim2.new(1,-80,1,-310))
 ContextActionService:SetPosition("WisteriaAttack",UDim2.new(1,-150,1,-240))
 ContextActionService:SetPosition("WisteriaGuard",UDim2.new(1,-220,1,-170))
 ContextActionService:SetPosition("WisteriaDodge",UDim2.new(1,-80,1,-240))
 UserInputService.WindowFocusReleased:Connect(function() send("Guard",false) end)
 local function characterAdded(character)
     local humanoid=character:WaitForChild("Humanoid")
+    local head=character:WaitForChild("Head")
+    local nameplate=head:WaitForChild("Nameplate",5)
+    if nameplate then nameplate.Enabled=false end
     workspace.CurrentCamera.CameraType=Enum.CameraType.Custom
     workspace.CurrentCamera.CameraSubject=humanoid
 end
 player.CharacterAdded:Connect(characterAdded)
 if player.Character then task.spawn(characterAdded,player.Character) end
-stateRemote.OnClientEvent:Connect(function(state) ui:update(state) end)
+stateRemote.OnClientEvent:Connect(function(state) ui:update(state);storyPlayer:update(state) end)
 effectRemote.OnClientEvent:Connect(Effects.play)
 Animator.start()
 send("Ready")

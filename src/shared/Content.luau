@@ -269,6 +269,20 @@ return {
             ["reviewed"] = "2026-09-15",
             ["evidence"] = "search-index; primary scene audit pending",
         },
+        ["episode_1"] = {
+            ["title"] = "Official episode 1: Cruelty",
+            ["url"] = "https://demonslayer-anime.com/risshihen/story/01.html",
+            ["kind"] = "primary",
+            ["reviewed"] = "2026-09-17",
+            ["evidence"] = "official synopsis; sequence context, not choreography",
+        },
+        ["episode_2"] = {
+            ["title"] = "Official episode 2: Trainer Sakonji Urokodaki",
+            ["url"] = "https://demonslayer-anime.com/risshihen/story/02.html",
+            ["kind"] = "primary",
+            ["reviewed"] = "2026-09-17",
+            ["evidence"] = "official synopsis; Giyu sends Tanjiro toward Sagiri; temple belongs after mountain prologue",
+        },
     },
     ["styles"] = {
         ["water"] = {
@@ -6013,6 +6027,7 @@ return {
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
             ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
+            ["outfitColor"] = {43, 121, 88},
         },
         ["nezuko"] = {
             ["id"] = "nezuko",
@@ -7337,13 +7352,306 @@ return {
             ["index"] = 1,
             ["name"] = "A Trail in the Snow",
             ["location"] = "kamado",
-            ["enemies"] = {"temple_demon"},
-            ["objective"] = "Follow the mountain trail and survive your first demon encounter.",
+            ["enemies"] = {},
+            ["objective"] = "Live Tanjiro's last ordinary day, return to the Kamado home, and begin the journey with Nezuko.",
             ["mentor"] = "giyu",
             ["spoiler"] = false,
             ["reward"] = 110,
             ["bossHealth"] = 128,
-            ["timeLimit"] = 600,
+            ["timeLimit"] = 1800,
+            ["story"] = {
+                ["id"] = "kamado_prologue",
+                ["character"] = "tanjiro",
+                ["sources"] = {"episode_1", "episode_2"},
+                ["adaptation"] = "Original condensed dialogue, interaction tasks, non-graphic staging and camera choreography. No copied episode script. Prologue is played as pre-training Tanjiro without breathing techniques or a Nichirin sword.",
+                ["shots"] = {
+                    ["home_wide"] = {
+                        ["from"] = {32, 20, -77},
+                        ["to"] = {0, 6, -112},
+                    },
+                    ["family"] = {
+                        ["from"] = {8, 7, -94},
+                        ["to"] = {-5, 4, -109},
+                    },
+                    ["basket"] = {
+                        ["from"] = {14, 6, -96},
+                        ["to"] = {9, 2, -107},
+                    },
+                    ["market"] = {
+                        ["from"] = {-56, 10, 92},
+                        ["to"] = {-87, 4, 103},
+                    },
+                    ["shelter"] = {
+                        ["from"] = {75, 9, 72},
+                        ["to"] = {101, 5, 85},
+                    },
+                    ["return"] = {
+                        ["from"] = {8, 8, -92},
+                        ["to"] = {0, 3, -109},
+                    },
+                    ["nezuko"] = {
+                        ["from"] = {10, 5, -95},
+                        ["to"] = {5, 2, -103},
+                    },
+                    ["pass"] = {
+                        ["from"] = {38, 10, -4},
+                        ["to"] = {13, 3, 12},
+                    },
+                    ["giyu"] = {
+                        ["from"] = {23, 7, 26},
+                        ["to"] = {13, 4, 8},
+                    },
+                    ["resolve"] = {
+                        ["from"] = {5, 6, 30},
+                        ["to"] = {12, 4, 14},
+                    },
+                    ["departure"] = {
+                        ["from"] = {117, 17, 104},
+                        ["to"] = {135, 6, 133},
+                    },
+                },
+                ["steps"] = {{
+                        ["id"] = "morning",
+                        ["title"] = "Before the snow falls",
+                        ["objective"] = "A morning at the Kamado home",
+                        ["clock"] = 9,
+                        ["automatic"] = true,
+                        ["scene"] = {{
+                                ["speaker"] = "A TRAIL IN THE SNOW",
+                                ["text"] = "A mountain home. A family to provide for. One ordinary morning before everything changes.",
+                                ["shot"] = "home_wide",
+                            }, {
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "I should speak to Mother before I take the charcoal down to town.",
+                                ["shot"] = "family",
+                            }},
+                    }, {
+                        ["id"] = "family",
+                        ["title"] = "The Kamado family",
+                        ["objective"] = "Speak to Kie outside the house.",
+                        ["target"] = "mother",
+                        ["action"] = "Talk",
+                        ["clock"] = 9,
+                        ["scene"] = {{
+                                ["speaker"] = "Kie",
+                                ["text"] = "The path is icy today. Take your time, and come home safely.",
+                                ["shot"] = "family",
+                            }, {
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "I will. Keep the little ones warm until I get back.",
+                                ["shot"] = "family",
+                            }},
+                    }, {
+                        ["id"] = "charcoal",
+                        ["title"] = "Work for the day",
+                        ["objective"] = "Collect the charcoal basket beside the porch.",
+                        ["target"] = "charcoal",
+                        ["action"] = "Collect charcoal",
+                        ["clock"] = 10,
+                        ["carryAfter"] = "charcoal",
+                        ["scene"] = {{
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "Enough charcoal for the town. I will follow the lanterns down the trail.",
+                                ["shot"] = "basket",
+                            }},
+                    }, {
+                        ["id"] = "town",
+                        ["title"] = "Down the mountain",
+                        ["objective"] = "Follow the snowy trail and deliver charcoal at the market.",
+                        ["target"] = "merchant",
+                        ["action"] = "Deliver charcoal",
+                        ["clock"] = 15,
+                        ["carryAfter"] = "none",
+                        ["scene"] = {{
+                                ["speaker"] = "Townsperson",
+                                ["text"] = "Just in time. These coals will keep the stove going through the cold.",
+                                ["shot"] = "market",
+                            }, {
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "The basket is empty already. I should get back before it gets dark.",
+                                ["shot"] = "market",
+                            }},
+                    }, {
+                        ["id"] = "shelter",
+                        ["title"] = "A warning at dusk",
+                        ["objective"] = "Speak to Saburo at the lantern-lit shelter.",
+                        ["target"] = "saburo",
+                        ["action"] = "Talk to Saburo",
+                        ["clock"] = 18,
+                        ["scene"] = {{
+                                ["speaker"] = "Saburo",
+                                ["text"] = "Stay here tonight. The mountain is dangerous after sunset.",
+                                ["shot"] = "shelter",
+                            }, {
+                                ["speaker"] = "THE NIGHT PASSES",
+                                ["text"] = "Tanjiro accepts shelter. At first light, he starts the journey home.",
+                                ["shot"] = "shelter",
+                            }},
+                    }, {
+                        ["id"] = "return",
+                        ["title"] = "An unfamiliar silence",
+                        ["objective"] = "Return to the Kamado house and investigate the open doorway.",
+                        ["target"] = "doorway",
+                        ["action"] = "Look inside",
+                        ["clock"] = 7,
+                        ["tragedy"] = true,
+                        ["scene"] = {{
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "The door is open. Why is everything so quiet?",
+                                ["shot"] = "return",
+                                ["playerPose"] = "kneel",
+                            }, {
+                                ["speaker"] = "A CHANGED HOME",
+                                ["text"] = "A demon attacked while Tanjiro was away. His family is gone. Nezuko is the only one still breathing.",
+                                ["shot"] = "nezuko",
+                            }},
+                    }, {
+                        ["id"] = "rescue",
+                        ["title"] = "One heartbeat remains",
+                        ["objective"] = "Go to Nezuko beside the porch. Carry her to safety.",
+                        ["target"] = "nezuko",
+                        ["action"] = "Help Nezuko",
+                        ["clock"] = 7,
+                        ["tragedy"] = true,
+                        ["carryAfter"] = "nezuko",
+                        ["scene"] = {{
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "Nezuko, stay with me. I will find someone who can help.",
+                                ["shot"] = "nezuko",
+                                ["playerPose"] = "kneel",
+                            }},
+                    }, {
+                        ["id"] = "descent",
+                        ["title"] = "Something has changed",
+                        ["objective"] = "Carry Nezuko down the trail to the clearing.",
+                        ["target"] = "pass",
+                        ["action"] = "Catch your breath",
+                        ["clock"] = 7,
+                        ["tragedy"] = true,
+                        ["carryOnScene"] = "none",
+                        ["encounter"] = true,
+                        ["scene"] = {{
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "Nezuko? Please, look at me!",
+                                ["shot"] = "pass",
+                                ["playerPose"] = "kneel",
+                                ["nezukoPose"] = "barrage",
+                            }, {
+                                ["speaker"] = "A SWORDSMAN IN THE SNOW",
+                                ["text"] = "Giyu Tomioka intercepts the struggle. Nezuko has become a demon.",
+                                ["shot"] = "giyu",
+                                ["giyuPose"] = "dash",
+                            }, {
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "She is my sister. There must be a way to help her.",
+                                ["shot"] = "resolve",
+                                ["playerPose"] = "kneel",
+                            }, {
+                                ["speaker"] = "AN UNEXPECTED CHOICE",
+                                ["text"] = "Nezuko places herself between her brother and the swordsman. Giyu lowers his blade.",
+                                ["shot"] = "pass",
+                                ["nezukoPose"] = "guard",
+                                ["giyuPose"] = "guard",
+                            }},
+                    }, {
+                        ["id"] = "giyu",
+                        ["title"] = "A different path",
+                        ["objective"] = "Speak to Giyu in the clearing.",
+                        ["target"] = "giyu",
+                        ["action"] = "Speak to Giyu",
+                        ["clock"] = 8,
+                        ["tragedy"] = true,
+                        ["carryAfter"] = "nezuko",
+                        ["scene"] = {{
+                                ["speaker"] = "Giyu",
+                                ["text"] = "Find Sakonji Urokodaki at Mount Sagiri. Tell him Giyu Tomioka sent you.",
+                                ["shot"] = "giyu",
+                            }, {
+                                ["speaker"] = "Tanjiro",
+                                ["text"] = "I will find a way to bring her back. Whatever it takes.",
+                                ["shot"] = "resolve",
+                            }},
+                    }, {
+                        ["id"] = "departure",
+                        ["title"] = "Toward Mount Sagiri",
+                        ["objective"] = "Follow the east trail to the mountain exit.",
+                        ["target"] = "exit",
+                        ["action"] = "Set out for Sagiri",
+                        ["clock"] = 8,
+                        ["tragedy"] = true,
+                        ["scene"] = {{
+                                ["speaker"] = "THE JOURNEY BEGINS",
+                                ["text"] = "Tanjiro and Nezuko leave their mountain behind. The road ahead leads to Sakonji Urokodaki.",
+                                ["shot"] = "departure",
+                            }, {
+                                ["speaker"] = "CHAPTER COMPLETE",
+                                ["text"] = "The Kamado mountain prologue is complete. Mount Sagiri is now unlocked.",
+                                ["shot"] = "departure",
+                            }},
+                    }},
+                ["actors"] = {{
+                        ["id"] = "mother",
+                        ["name"] = "Kie Kamado",
+                        ["color"] = {142, 111, 140},
+                        ["position"] = {-5, 3, -109},
+                    }, {
+                        ["id"] = "takeo",
+                        ["name"] = "Takeo Kamado",
+                        ["color"] = {87, 115, 136},
+                        ["position"] = {-10, 3, -106},
+                    }, {
+                        ["id"] = "hanako",
+                        ["name"] = "Hanako Kamado",
+                        ["color"] = {179, 126, 110},
+                        ["position"] = {-10, 3, -114},
+                        ["scale"] = 0.8,
+                    }, {
+                        ["id"] = "shigeru",
+                        ["name"] = "Shigeru Kamado",
+                        ["color"] = {112, 142, 105},
+                        ["position"] = {4, 2.4, -112},
+                        ["scale"] = 0.8,
+                    }, {
+                        ["id"] = "rokuta",
+                        ["name"] = "Rokuta Kamado",
+                        ["color"] = {147, 135, 123},
+                        ["position"] = {-3, 1.9, -114},
+                        ["scale"] = 0.65,
+                    }, {
+                        ["id"] = "merchant",
+                        ["name"] = "Townsperson",
+                        ["color"] = {105, 130, 141},
+                        ["position"] = {-87, 3, 103},
+                    }, {
+                        ["id"] = "saburo",
+                        ["name"] = "Saburo",
+                        ["color"] = {107, 93, 77},
+                        ["position"] = {101, 3, 85},
+                    }, {
+                        ["id"] = "nezuko",
+                        ["name"] = "Nezuko Kamado",
+                        ["color"] = {231, 137, 163},
+                        ["position"] = {5, 3, -103},
+                    }, {
+                        ["id"] = "giyu",
+                        ["name"] = "Giyu Tomioka",
+                        ["template"] = "giyu",
+                        ["color"] = {65, 174, 238},
+                        ["position"] = {13, 3, 8},
+                    }},
+                ["targets"] = {
+                    ["mother"] = {-5, 3, -106},
+                    ["charcoal"] = {10, 2, -105},
+                    ["merchant"] = {-84, 3, 103},
+                    ["saburo"] = {98, 3, 85},
+                    ["doorway"] = {0, 3, -99},
+                    ["nezuko"] = {5, 3, -101},
+                    ["pass"] = {12, 3, 17},
+                    ["giyu"] = {13, 3, 12},
+                    ["exit"] = {134, 3, 130},
+                },
+            },
+            ["production"] = "playable story prologue",
         }, {
             ["id"] = "training",
             ["index"] = 2,
@@ -7356,6 +7664,7 @@ return {
             ["reward"] = 130,
             ["bossHealth"] = 136,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "selection",
             ["index"] = 3,
@@ -7368,6 +7677,7 @@ return {
             ["reward"] = 150,
             ["bossHealth"] = 144,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "swamp",
             ["index"] = 4,
@@ -7380,6 +7690,7 @@ return {
             ["reward"] = 170,
             ["bossHealth"] = 152,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "asakusa",
             ["index"] = 5,
@@ -7392,6 +7703,7 @@ return {
             ["reward"] = 190,
             ["bossHealth"] = 160,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "drums",
             ["index"] = 6,
@@ -7404,6 +7716,7 @@ return {
             ["reward"] = 210,
             ["bossHealth"] = 168,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "webs",
             ["index"] = 7,
@@ -7416,6 +7729,7 @@ return {
             ["reward"] = 230,
             ["bossHealth"] = 176,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "rui",
             ["index"] = 8,
@@ -7428,6 +7742,7 @@ return {
             ["reward"] = 250,
             ["bossHealth"] = 184,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "recovery",
             ["index"] = 9,
@@ -7440,6 +7755,7 @@ return {
             ["reward"] = 270,
             ["bossHealth"] = 192,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "dreams",
             ["index"] = 10,
@@ -7452,6 +7768,7 @@ return {
             ["reward"] = 290,
             ["bossHealth"] = 200,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "akaza_train",
             ["index"] = 11,
@@ -7464,6 +7781,7 @@ return {
             ["reward"] = 310,
             ["bossHealth"] = 208,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "district",
             ["index"] = 12,
@@ -7476,6 +7794,7 @@ return {
             ["reward"] = 330,
             ["bossHealth"] = 216,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "pots",
             ["index"] = 13,
@@ -7488,6 +7807,7 @@ return {
             ["reward"] = 350,
             ["bossHealth"] = 224,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "emotions",
             ["index"] = 14,
@@ -7500,6 +7820,7 @@ return {
             ["reward"] = 370,
             ["bossHealth"] = 232,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "hashira",
             ["index"] = 15,
@@ -7512,6 +7833,7 @@ return {
             ["reward"] = 390,
             ["bossHealth"] = 240,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "descent",
             ["index"] = 16,
@@ -7524,6 +7846,7 @@ return {
             ["reward"] = 410,
             ["bossHealth"] = 248,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "kaigaku",
             ["index"] = 17,
@@ -7536,6 +7859,7 @@ return {
             ["reward"] = 430,
             ["bossHealth"] = 256,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "lotus",
             ["index"] = 18,
@@ -7548,6 +7872,7 @@ return {
             ["reward"] = 450,
             ["bossHealth"] = 264,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "compass",
             ["index"] = 19,
@@ -7560,6 +7885,7 @@ return {
             ["reward"] = 470,
             ["bossHealth"] = 272,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "moon",
             ["index"] = 20,
@@ -7572,6 +7898,7 @@ return {
             ["reward"] = 490,
             ["bossHealth"] = 280,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "sunrise",
             ["index"] = 21,
@@ -7584,6 +7911,7 @@ return {
             ["reward"] = 510,
             ["bossHealth"] = 288,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }, {
             ["id"] = "archive",
             ["index"] = 22,
@@ -7596,6 +7924,7 @@ return {
             ["reward"] = 530,
             ["bossHealth"] = 296,
             ["timeLimit"] = 600,
+            ["production"] = "encounter blockout; story scenes pending",
         }},
     ["unknowns"] = {"Flame forms 6, 7 and 8 are not populated: named demonstrations not established.", "Sound forms 2 and 3 are unrevealed.", "Love form 4 is unrevealed.", "Flower forms 1 and 3 are unrevealed.", "Moon forms 4, 11, 12, 13 and 15 are unrevealed.", "Rokuro, Wakuraba, Mukago and Kamanue have no verified named Blood Demon Art. Their playable actions are original.", "Zenitsu has form 1 variants and his own form 7, not Kaigaku's forms 2-6. Kaigaku cannot use form 1.", "Named style membership does not establish that every individual user demonstrated every form.", "Anime-original Insect Horsefly is included; licensed video-game-exclusive techniques are excluded.", "Later-story flags are conservative editorial labels, not an exhaustive shot-by-shot anime adaptation audit.", "Supporting cast and spider family canonical mechanics need more scene-level research. Hairo and Ubume (supplementary works) remain outside anime baseline."},
 }

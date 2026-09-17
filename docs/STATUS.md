@@ -1,10 +1,12 @@
 # Current status
 
-Updated: 2026-09-16
+Updated: 2026-09-17
 
 ## Active checkpoint
 
-Playable development build implemented, tested with two real Studio clients, and uploaded to a **new private Roblox experience**. Full requested production game remains in progress. [Deployment target and access status](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
+Story-first revision implemented following owner playtest feedback. Chapter one now has a staged Kamado mountain prologue, an enterable home, family NPCs, charcoal errands, Saburo's shelter, Nezuko carrying, Giyu's intervention, dialogue and camera scenes. Shared locomotion, timed directional dashes and sword drawing are implemented. The held-W-plus-Q regression now passes in two-client Studio testing.
+
+The full game is not finished. Chapters 2-22 remain encounter previews. The private Roblox upload and v0.1.0 release still contain the earlier build until a new artifact/upload is explicitly recorded. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
 ## Confirmed environment
 
@@ -16,16 +18,18 @@ Playable development build implemented, tested with two real Studio clients, and
 
 ## Next work
 
-1. Finish release settings after the owner signs into Creator Dashboard. The browser opened at Roblox's login screen; a sign-in request is pending. No public access or live save test has passed yet.
-2. Finish visual/device QA and gameplay review; fix issues found. Desktop hub and all five menu tabs have now been inspected with actual mouse navigation.
-3. Add canonical boss mechanics, exploration objectives, full story scenes and supporting NPC roles.
-4. Produce authored character models, weapon rigs, per-technique animation/VFX and audio.
-5. Audit technique names, individual character usage, passives and variants against primary episode/movie references. The catalog is broad but not a completed scene audit.
-6. Test real published DataStore behavior, adversarial multiplayer inputs, performance and balance.
+1. Play the new opening from Journey -> 01 A Trail in the Snow and collect owner feedback on movement, pacing and the story scenes.
+2. Continue the chronological story with the road/temple encounter and Mount Sagiri training; see [session roadmap](STORY_PRODUCTION.md).
+3. Replace shared procedural characters and choreography with authored character-specific assets, starting with Tanjiro, Nezuko and Giyu.
+4. Expand all later story arcs, canonical boss mechanics, exploration and supporting NPC roles. Keep all nine Hashira, protagonists, Muzan, Upper/Lower Moons, PvP and progression in scope.
+5. Test touch/controller hardware, small-screen layout, adversarial multiplayer input, performance, balance and real published DataStores.
+6. Finish public-release settings only after story/gameplay review and owner dashboard access. The earlier public-access check did not pass.
 
 ## Latest validation
 
-`python scripts/check.py` passed again on 2026-09-16: catalog integrity, 17 Luau files compiled, eight pure core tests, Rojo place build. Fresh runs in Studio 0.739: engine smoke 7/7 passed; real two-client baseline 8/8 passed. An earlier expanded run passed those eight checks but failed the new synthetic menu click; that diagnostic remains opt-in and unresolved. All five tabs passed subsequent actual desktop mouse clicks. See QA.md for evidence and limits. Live DataStore and physical-device usability remain unverified.
+2026-09-17: `python scripts/check.py` passes catalog/story integrity, 20 Luau files, all eight portable tests and the place build. Expanded Studio engine checks passed 10/10. Final expanded real two-client integration passed 12/12, including actual joint motion through walk/jump/fall/landing, held W + Q via keyboard events, sword replication, E to advance dialogue, every prologue scene/objective, one-time rewards, private-stage checks, camera cleanup and existing PvP behavior. The final dash measured 16.81 studs on the server and 16.99 on the client after settling. Earlier dash checks failed and are documented in QA.md.
+
+Inspected actual Studio screenshots of the opening house/family scene, dialogue and revised framing. This is automated runtime and screenshot review, not a human full-route playthrough. Physical touch/controller, sustained low-FPS/lag behavior, authored animation quality and live DataStore behavior remain unverified.
 
 ## Content inventory
 
@@ -33,7 +37,7 @@ Playable development build implemented, tested with two real Studio clients, and
 
 ## Implemented systems
 
-Server-authoritative action admission/combat, energy/cooldowns, basic combo, guard/parry, wall-aware dodge, status effects, procedural rigs and effects, private sequential story encounters, progression/mastery, opt-in arena rounds/scoring, save-lease protection, searchable character menu, loadout editor, world atlas, basic local combat audio with mute control, and input mappings. Studio saving is disabled by default; published saves use the configured DataStore.
+Server-authoritative action admission/combat, energy/cooldowns, basic combo, guard/parry, wall-aware dodge, status effects, procedural rigs and effects, a staged opening prologue plus private sequential encounter previews, progression/mastery, opt-in arena rounds/scoring, save-lease protection, searchable character menu, loadout editor, world atlas, basic local combat audio with mute control, and input mappings. Studio saving is disabled by default; published saves use the configured DataStore.
 
 ## Working artifact
 

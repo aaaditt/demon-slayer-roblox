@@ -28,7 +28,7 @@ flowchart LR
 
 ## Network contract
 
-`Network.Action` accepts Ready, Basic, Dodge, Guard, Skill, Select, Equip, Story, Arena and Hub. Skill payload contains a slot and facing direction. Equip contains a slot and owned move ID. No client-supplied damage, cooldown, target instance, currency, or progression is accepted. Requests consume a per-player token bucket.
+`Network.Action` accepts Ready, Basic, Dodge, Guard, Skill, Select, Equip, Story, StoryContinue, StorySkip, Weapon, Arena and Hub. Skill payload contains a slot and facing direction. Equip contains a slot and owned move ID. No client-supplied damage, cooldown, target instance, currency, or progression is accepted. Requests consume a per-player token bucket.
 
 `Network.State` carries player-specific snapshots at 5 Hz and sparse notifications. `Network.Effects` broadcasts compact cues; clients discard cues from distant rooms or different zones. Geometry, cooldowns and outcomes are server-controlled. Client-owned physics is checked for large movement anomalies; this is a basic safeguard and needs adversarial live testing before competitive release.
 
@@ -39,3 +39,11 @@ Save record: `{data = validatedProfile, lease = {token, expires}}`. UpdateAsync 
 ## Current mechanical abstractions
 
 One active enemy per story wave. NPCs share a chase/attack decision loop with character-specific technique selection. Projectiles are telegraphed server line attacks. Summon forms are repeated projected fields, not autonomous minions. Style colors and weapon rigs vary; animation choreography is shared by pattern. These abstractions must be expanded for final canonical boss behavior and scene-quality animation.
+
+## Staged campaign architecture
+
+`StoryWorld.luau` builds the original mountain set and objective anchors. `Story.luau` owns sequential objectives, proximity admission, scene lines, scene movement locks, NPC lifecycle, carry props and completion. `StoryPlayer.luau` renders the objective/scene UI, changes local time of day and manages camera/input restoration. The catalog supplies all story text, shots, supporting actor definitions and stage ordering.
+
+A mission with a `story` definition uses that sequence instead of spawning waves. The first chapter temporarily selects pre-training Tanjiro without changing the saved hub character. Remaining encounter chapters still use the wave system. Story NPCs do not enter the damage registry. Client Continue/Skip requests cannot select a stage, award XP or satisfy proximity objectives.
+
+Dashes use a temporary, server-owned planar LinearVelocity with collision sweeps, a distance/time limit and cleanup on cancellation/death/removal. The client resolves held movement before facing direction. Single-blade rigs have a scabbard and Motor6D grip; Weapon requests replicate drawn state. C0 poses are applied locally for all observing clients, with replication retries and player lifecycle discovery. The built-in Animator cannot overwrite those C0 offsets.

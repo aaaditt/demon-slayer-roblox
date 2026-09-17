@@ -1,5 +1,10 @@
 local Rig = {}
 
+function Rig.draw(model, drawn)
+    model:SetAttribute("WeaponDrawn", drawn)
+    model:SetAttribute("WeaponChanged", workspace:GetServerTimeNow())
+end
+
 local function part(parent, name, size, color, cf, collide)
     local p = Instance.new("Part")
     p.Name = name
@@ -34,7 +39,7 @@ function Rig.create(parent, position, definition, actorName)
     model:SetAttribute("CharacterId", definition.id)
     local skin = Color3.fromRGB(235, 197, 171)
     local dark = Color3.fromRGB(27, 30, 43)
-    local accent = Color3.fromRGB(table.unpack(definition.color))
+    local accent = Color3.fromRGB(table.unpack(definition.outfitColor or definition.color))
     local origin = CFrame.new(position)
     local root = part(model, "HumanoidRootPart", Vector3.new(2, 2, 1), dark, origin)
     root.Transparency = 1; root.Massless = false
@@ -79,8 +84,14 @@ function Rig.create(parent, position, definition, actorName)
                 if (row + col) % 2 == 0 then
                     local check = part(model, "Check", Vector3.new(0.48, 0.65, 0.05), dark)
                     weld(torso, check, CFrame.new(-0.75 + col * 0.5, 0.65 - row * 0.68, 0.7))
+                    local front = part(model, "HaoriCheck", Vector3.new(0.48, 0.65, 0.05), (col+row)%4==0 and dark or accent)
+                    weld(torso, front, CFrame.new(-0.75+col*0.5,0.65-row*0.68,-0.53))
                 end
             end
+        end
+        for _,side in ipairs({-1,1}) do
+            local earring=part(model,"HanafudaEarring",Vector3.new(0.15,0.45,0.09),Color3.fromRGB(235,225,207))
+            weld(head,earring,CFrame.new(side*0.95,-0.45,-0.4))
         end
     elseif definition.id == "nezuko" then
         local bamboo = part(model, "Bamboo", Vector3.new(1.2, 0.22, 0.22), Color3.fromRGB(112, 153, 93))
@@ -103,7 +114,24 @@ function Rig.create(parent, position, definition, actorName)
         return p
     end
     local weapon = definition.weapon
-    if weapon == "katana" or weapon == "needle" or weapon == "dual" or weapon == "serpent" or weapon == "sickles" then
+    if weapon == "katana" or weapon == "needle" or weapon == "serpent" then
+        model:SetAttribute("HasSheath", true)
+        Rig.draw(model, true)
+        local sheathCF = CFrame.new(-1.05, -0.8, 0.3)*CFrame.Angles(0, 0, -0.18)
+        local sheath = part(model, "Scabbard", Vector3.new(0.3, 0.28, 3.8), dark)
+        weld(torso, sheath, sheathCF*CFrame.new(0, 0, 1.2))
+        local hilt = part(model, "Hilt", Vector3.new(0.23, 0.24, 1), dark)
+        motor(torso, "WeaponGrip", torso, hilt, sheathCF, CFrame.identity)
+        local guard = part(model, "Guard", Vector3.new(0.65, 0.5, 0.12), accent)
+        weld(hilt, guard, CFrame.new(0, 0, -0.52))
+        local blade = part(model, "Blade", Vector3.new(weapon == "needle" and 0.09 or 0.22, 0.1, 3.6), Color3.fromRGB(218, 233, 242))
+        weld(hilt, blade, CFrame.new(0, 0, -2.35))
+        local a = Instance.new("Attachment"); a.Position = Vector3.new(0,0,-1.7); a.Parent = blade
+        local b = Instance.new("Attachment"); b.Position = Vector3.new(0,0,1.4); b.Parent = blade
+        local trail = Instance.new("Trail"); trail.Name = "SwordTrail"; trail.Attachment0 = a; trail.Attachment1 = b
+        trail.Lifetime = 0.13; trail.MinLength = 0.1; trail.Enabled = false
+        trail.Color = ColorSequence.new(accent); trail.Transparency = NumberSequence.new(0.5,1); trail.Parent = blade
+    elseif weapon == "dual" or weapon == "sickles" then
         local hands = (weapon == "dual" or weapon == "sickles") and {ra, la} or {ra}
         for _, hand in ipairs(hands) do
             weaponPiece("Hilt", Vector3.new(0.2, 0.22, 0.9), CFrame.new(0, -0.9, -0.15), hand, dark)

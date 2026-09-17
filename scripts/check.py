@@ -41,8 +41,17 @@ def validate():
     assert len({c["id"] for c in d["chapters"]}) == len(d["chapters"])
     for n, chapter in enumerate(d["chapters"], 1):
         assert chapter["index"] == n and chapter["location"] in d["locations"]
-        assert chapter["enemies"] and all(e in d["characters"] for e in chapter["enemies"])
+        assert (chapter["enemies"] or chapter.get("story")) and all(e in d["characters"] for e in chapter["enemies"])
         assert chapter["mentor"] in d["characters"]
+        if story := chapter.get("story"):
+            assert story["character"] in d["characters"] and all(s in d["sources"] for s in story["sources"])
+            assert len({s["id"] for s in story["steps"]}) == len(story["steps"])
+            for step in story["steps"]:
+                assert step.get("automatic") or step["target"] in story["targets"]
+                assert step["scene"] and 0 <= step["clock"] <= 24
+                assert all(line["shot"] in story["shots"] and line["text"] for line in step["scene"])
+                for field in ("carryAfter", "carryOnScene"):
+                    assert step.get(field, "none") in {"none", "charcoal", "nezuko"}
     assert sum(c["group"] == "Hashira" for c in d["characters"].values()) == 9
     assert "thunder_2" not in d["characters"]["zenitsu"]["moves"]
     assert "thunder_1" not in d["characters"]["kaigaku"]["moves"]

@@ -41,6 +41,25 @@ return function(session)
         check("custom player rig supports client movement",function()
             assert(client(p1,"move")>5,"rig failed to walk")
         end)
+        check("locomotion animates joints through walking, jumping and landing",function() client(p1,"animation") end)
+        check("W plus Q produces a moving animated dash",function()
+            local actor=session.players[p1].actor
+            actor.model:PivotTo(CFrame.new(0,4,35));actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow()
+            task.wait(0.6)
+            local ok,result=pcall(function() return client(p1,"dashInput") end)
+            local motion=session.players[p1].actor.lastMotion
+            print("DASH_DIAGNOSTIC "..game:GetService("HttpService"):JSONEncode(motion or {}))
+            assert(ok,result)
+            print("DASH_CLIENT "..game:GetService("HttpService"):JSONEncode(result))
+            assert(motion and motion.distance>8,"server dash did not travel: "..(motion and motion.reason or "missing motion"))
+        end)
+        check("sword sheathe and draw replicate to both clients",function()
+            client(p1,"action",{name="Weapon",wait=0.55})
+            assert(not session.players[p1].actor.model:GetAttribute("WeaponDrawn"))
+            client(p2,"weapon",{name=p1.Name,drawn=false})
+            client(p1,"action",{name="Weapon",wait=0.55})
+            client(p2,"weapon",{name=p1.Name,drawn=true})
+        end)
         -- VirtualInput delivers InputBegan without activating buttons in this Studio environment.
         -- Keep this diagnostic opt-in; desktop mouse navigation is checked separately (docs/QA.md).
         local testArgs=StudioTestService:GetTestArgs()
@@ -56,18 +75,55 @@ return function(session)
             assert(session.players[p1].profile.data.loadouts.giyu[1]=="water_11","foreign move admitted")
             client(p1,"ui")
         end)
-        check("story rewards advance one chapter and mission cleanup removes enemies",function()
+        check("prologue validates objectives, plays every scene, rewards once and cleans up",function()
             client(p1,"action",{name="Story",payload=1})
             local e=session.players[p1]
-            assert(e.mission and e.actor.mode=="Story")
+            assert(e.mission and e.actor.mode=="Story" and e.actor.characterId=="tanjiro")
+            local mission=e.mission
+            local story=mission.story
             local before=e.profile.data.xp
-            local enemy=e.mission.enemy
-            assert(enemy and enemy.target==e.actor)
-            enemy.humanoid.Health=0
-            waitFor(function()return e.mission==nil end,6,"mission did not finish")
-            assert(e.profile.data.chapter==2 and e.profile.data.xp>before)
-            assert(e.actor.mode=="Hub" and session.combat.actors[enemy.model]==nil)
-            -- These assertions exercise reward plumbing, not player combat difficulty.
+            assert(story and not mission.enemy,"prologue spawned a combat enemy")
+            client(p1,"story",{scene=true})
+            client(p1,"sceneKey")
+            assert(story.line==2,"E did not advance cinematic dialogue")
+            assert(not story:interact(p2,"mother"),"another player advanced the story")
+            client(p1,"action",{name="Skill",payload={slot=1,direction=Vector3.xAxis}})
+            assert(not e.actor.cooldowns.water_1,"pre-training technique admitted")
+            for stage=1,#story.data.steps do
+                assert(story.stepIndex==stage,"unexpected story order")
+                if story.phase=="objective" then
+                    assert(not story:interact(p1,"invalid"),"unknown target admitted")
+                    local anchor=mission.room.anchors[story.step.target]
+                    e.actor.model:PivotTo(CFrame.new(mission.room.center+Vector3.new(0,3,0)))
+                    e.actor.lastPosition=e.actor.root.Position;e.actor.motionTime=workspace:GetServerTimeNow()
+                    assert(not story:interact(p1,story.step.target),"distant interaction admitted")
+                    e.actor.model:PivotTo(CFrame.new(anchor.Position+Vector3.new(0,0,4)))
+                    e.actor.lastPosition=e.actor.root.Position;e.actor.motionTime=workspace:GetServerTimeNow()
+                    assert(story:interact(p1,story.step.target),"nearby interaction rejected")
+                end
+                local lines=#story.step.scene
+                for line=story.line,lines do
+                    assert(story.line==line)
+                    task.wait(0.65)
+                    client(p1,"action",{name="StoryContinue",wait=0.15})
+                end
+            end
+            assert(e.mission==nil and e.profile.data.chapter==2 and e.profile.data.xp==before+110)
+            assert(e.actor.mode=="Hub" and e.actor.characterId=="giyu","hub selection was not restored")
+            for _,model in pairs(story.npcs) do assert(model.Parent==nil,"story actor leaked") end
+            assert(mission.room.folder.Parent==nil,"story room leaked")
+            client(p1,"action",{name="StorySkip"})
+            assert(e.profile.data.xp==before+110,"duplicate completion reward")
+            client(p1,"story",{scene=false})
+        end)
+        check("leaving a cutscene restores camera and frees the mission slot",function()
+            client(p1,"action",{name="Story",payload=1})
+            local e=session.players[p1]
+            local slot=e.mission.slot
+            client(p1,"story",{scene=true})
+            client(p1,"action",{name="Hub"})
+            assert(not e.mission and not session.slots[slot])
+            client(p1,"story",{scene=false})
         end)
         check("locked chapters cannot be started by forged remote requests",function()
             client(p2,"action",{name="Story",payload=20})
@@ -105,7 +161,7 @@ return function(session)
             task.wait(3)
             session.players[p1].actor.lastCombat=0
             client(p1,"action",{name="Hub"})
-            client(p1,"visual")
+            client(p1,"action",{name="Story",payload=1})
             print("VISUAL_REVIEW_READY")
             task.wait(60)
         end

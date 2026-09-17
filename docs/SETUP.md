@@ -61,3 +61,9 @@ Add `--visual` to the preparation command for a 60-second in-game review pause. 
 If Studio updates and run-in-roblox fails to find an executable, inspect the Windows `HKCU\Software\Roblox\RobloxStudio\ContentFolder` value. The legacy runner reads that path; on this machine the updater left it pointing at a deleted version. Repair it only to the verified, currently installed Studio content directory. Keep Rojo disconnected from unrelated servers when reviewing or publishing the built place.
 
 Tests verify mechanics, not finished art, balance, complete lore fidelity, or physical device usability. See STATUS.md for actual executed results.
+
+## Opening story revision
+
+Choose Journey -> 01 A Trail in the Snow to play the new Kamado prologue, even if an earlier save has already unlocked later chapters. Later chapter cards say Encounter Preview. In the prologue, Tanjiro has no breathing skills or Nichirin sword; follow objective markers and interact with E / controller X / tap. Dialogue uses E / controller A / Continue. Y / controller Y / Skip Scene skips the current scene only. M -> Return to Hub safely leaves a cinematic.
+
+Outside the prologue, R / D-pad right / Sword toggles single-blade sword drawing. Attacking while sheathed first draws the blade. Q / right bumper / Dodge follows movement, including held WASD. The directional dash uses bounded motion with collision checks, not a position teleport.

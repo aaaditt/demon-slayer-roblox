@@ -1,5 +1,5 @@
 return {
-    Version = "0.1.0",
+    Version = "0.2.0",
     MaxHealth = 160,
     MaxEnergy = 100,
     EnergyRegen = 18,
@@ -9,6 +9,7 @@ return {
     DodgeCost = 18,
     DodgeCooldown = 1.4,
     DodgeDistance = 16,
+    DodgeDuration = 0.32,
     ParryWindow = 0.18,
     GuardReduction = 0.75,
     GuardEnergyCost = 13,

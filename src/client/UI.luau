@@ -57,12 +57,12 @@ function UI.new(send,effects)
         b.TextSize=12;stroke(b)
         self.skillButtons[i]=b
     end
-    self.hint=label(gui,"LMB attack   •   1–4 techniques   •   F guard/parry   •   Q dodge",UDim2.new(0.9,0,0,22),UDim2.new(0.05,0,1,-25),11,palette.muted)
+    self.hint=label(gui,"LMB attack   •   1–4 techniques   •   F guard   •   Q dash   •   R sword",UDim2.new(0.9,0,0,22),UDim2.new(0.05,0,1,-25),11,palette.muted)
     self.hint.TextXAlignment=Enum.TextXAlignment.Center
     self.toastFrame=make("Frame",gui,{Size=UDim2.new(0.72,0,0,60),Position=UDim2.new(0.5,0,0,80),AnchorPoint=Vector2.new(0.5,0),BackgroundColor3=palette.bg,BackgroundTransparency=0.04,BorderSizePixel=0,Visible=false,ZIndex=20});corner(self.toastFrame);stroke(self.toastFrame,palette.gold)
     self.toastLabel=label(self.toastFrame,"",UDim2.new(1,-28,1,-12),UDim2.fromOffset(14,6),15);self.toastLabel.ZIndex=21;self.toastLabel.TextXAlignment=Enum.TextXAlignment.Center
 
-    self.shade=make("Frame",gui,{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(),BackgroundTransparency=0.38,BorderSizePixel=0,Visible=true,ZIndex=5})
+    self.shade=make("Frame",gui,{Name="MenuShade",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(),BackgroundTransparency=0.38,BorderSizePixel=0,Visible=true,ZIndex=5})
     self.panel=make("Frame",self.shade,{Size=UDim2.fromScale(0.94,0.83),Position=UDim2.fromScale(0.5,0.52),AnchorPoint=Vector2.new(0.5,0.5),BackgroundColor3=palette.bg,BorderSizePixel=0,ZIndex=6});corner(self.panel,12);stroke(self.panel)
     make("UISizeConstraint",self.panel,{MaxSize=Vector2.new(1120,730)})
     self.heading=label(self.panel,"YOUR NEXT CHAPTER",UDim2.new(0.8,-24,0,31),UDim2.fromOffset(20,12),18,palette.gold)
@@ -114,11 +114,12 @@ function UI:update(state)
     self.stats.Text=string.format("%d HP  /  %d ENERGY",math.ceil(state.hp),math.floor(state.energy))
     self.location.Text=state.mode.."  ·  "..state.rank.."  ·  "..state.xp.." XP"
     if state.mission then
-        self.location.Text=Content.chapters[state.mission.index].name.."  ·  Encounter "..state.mission.wave.."/"..state.mission.total
+        self.location.Text=Content.chapters[state.mission.index].name..(state.story and "  ·  Tanjiro's journey" or "  ·  Encounter "..state.mission.wave.."/"..state.mission.total)
     elseif state.mode=="Arena" then
         local seconds=math.max(0,math.ceil(state.round.ends-state.time))
         self.location.Text=state.round.active and ("ARENA  ·  "..seconds.."s  ·  "..(#state.round.leaderboard>0 and state.round.leaderboard[1].name.." "..state.round.leaderboard[1].score or "")) or "ARENA  ·  Waiting for two players"
     end
+    self.hint.Text=state.story and "WASD / stick: move   •   Space / A: jump   •   E / X / tap: interact   •   M: menu" or "LMB attack   •   1–4 techniques   •   F guard   •   Q dash   •   R sword"
     if changed and self.shade.Visible then self:render() end
 end
 
@@ -137,7 +138,7 @@ function UI:renderJourney()
         local card=make("Frame",list,{Size=UDim2.new(1,-2,0,74),BackgroundColor3=palette.card,BorderSizePixel=0,LayoutOrder=c.index});corner(card)
         label(card,string.format("%02d",c.index),UDim2.fromOffset(30,50),UDim2.fromOffset(12,10),20,unlocked and palette.gold or palette.muted)
         label(card,c.name,UDim2.new(0.72,-60,0,29),UDim2.fromOffset(50,8),15,unlocked and palette.text or palette.muted)
-        label(card,Content.locations[c.location].name..(c.spoiler and "  ·  LATER STORY" or ""),UDim2.new(0.75,-60,0,30),UDim2.fromOffset(50,36),11,palette.muted)
+        label(card,Content.locations[c.location].name..(c.story and "  ·  STORY" or "  ·  ENCOUNTER PREVIEW")..(c.spoiler and "  ·  LATER STORY" or ""),UDim2.new(0.75,-60,0,30),UDim2.fromOffset(50,36),11,palette.muted)
         local b=button(card,unlocked and "PLAY" or "LOCKED",UDim2.new(0.23,0,0,34),UDim2.new(0.76,-6,0,20),function()
             if unlocked then self.send("Story",c.index);self:toggle(false) else self:toast("Complete the previous chapter first.") end
         end)
@@ -229,7 +230,7 @@ function UI:renderSettings()
     local audio=button(list,self.effects.muted and "COMBAT AUDIO: OFF" or "COMBAT AUDIO: ON",UDim2.new(1,-4,0,48),nil,function() self.effects.muted=not self.effects.muted;self:render() end)
     audio.LayoutOrder=1
     local save=self.state and self.state.saveStatus or "Connecting…"
-    local t=label(list,"CONTROLS\n\nKeyboard: WASD move · Space jump\nMouse 1 attack · 1–4 techniques\nF hold guard · Q dodge · M menu\n\nController: right trigger attack\nX / Y / B / left bumper: techniques\nLeft trigger guard · right bumper dodge\nD-pad up: menu\n\nTouch: tap technique cards; use Attack, Guard and Dodge buttons. The default Roblox thumbstick and jump button control movement.\n\nPROGRESSION\n\n"..save.."\n\nRank and character mastery track campaign progress. PvP uses equal health and energy.\n\nUse the Roblox reset option to respawn if stuck.",UDim2.new(1,-12,0,0),nil,14,palette.muted)
+    local t=label(list,"CONTROLS\n\nKeyboard: WASD move · Space jump\nMouse 1 attack · 1–4 techniques\nF hold guard · Q dash · R sword · M menu\n\nController: right trigger attack\nX / Y / B / left bumper: techniques\nLeft trigger guard · right bumper dodge\nD-pad up: menu · D-pad right: sword\n\nTouch: tap technique cards; use Attack, Guard and Dodge buttons. The default Roblox thumbstick and jump button control movement.\n\nPROGRESSION\n\n"..save.."\n\nRank and character mastery track campaign progress. PvP uses equal health and energy.\n\nUse the Roblox reset option to respawn if stuck.",UDim2.new(1,-12,0,0),nil,14,palette.muted)
     t.AutomaticSize=Enum.AutomaticSize.Y;t.TextYAlignment=Enum.TextYAlignment.Top;t.LayoutOrder=2
 end
 

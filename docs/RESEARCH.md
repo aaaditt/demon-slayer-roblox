@@ -37,3 +37,13 @@ Supporting cast are catalog records; they are not all realized as individual que
 - [run-in-roblox](https://github.com/rojo-rbx/run-in-roblox): local Studio script execution for runtime smoke tests.
 
 No anime footage, ripped models, soundtrack recordings, or commercial-game animation files were downloaded into the project.
+
+## 2026-09-17 opening chapter audit
+
+Read the official [episode 1 synopsis](https://demonslayer-anime.com/risshihen/story/01.html) and [episode 2 synopsis](https://demonslayer-anime.com/risshihen/story/02.html). These support the family/charcoal premise, discovery at the home, carrying Nezuko down the snowy mountain, her transformation, Giyu sending Tanjiro toward Sagiri, and the temple encounter occurring afterward. Removed the temple demon from chapter one.
+
+The prologue's dialogue, errands, layout, camera positions, non-graphic depiction of loss and brief joint choreography are original condensed game adaptations. The primary synopsis is not a detailed scene audit: Saburo dialogue, exact family blocking, Giyu's choreography and costume/prop details still need a lawful episode-level review. We have not read or ingested the entire manga in this session. Later chapters remain encounter previews with the production sequence tracked in STORY_PRODUCTION.md.
+
+Technical behavior was checked against Roblox's [Motor6D reference](https://create.roblox.com/docs/reference/engine/classes/Motor6D). Procedural joints are now discovered across character replication/lifecycle events and posed locally on every observing client. Authored animation asset IDs are still absent by design at this checkpoint; animation visibly running in a client must be tested, not inferred from successful compilation.
+
+The revised dash uses the official [LinearVelocity constraint API](https://create.roblox.com/docs/reference/engine/classes/LinearVelocity) and [WorldRoot block casts](https://create.roblox.com/docs/reference/engine/classes/WorldRoot#Blockcast). Server physics ownership is retained briefly after stopping to allow the final transform to replicate before control returns to the player.

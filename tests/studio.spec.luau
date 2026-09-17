@@ -39,6 +39,18 @@ check("all location themes produce bounded mission rooms",function()
     end
 end)
 
+check("Kamado prologue has an enterable house and every objective anchor",function()
+    local story=Content.chapters[1].story
+    local room=World.mission(1,Content.locations.kamado,story)
+    assert(room.folder:FindFirstChild("KamadoHouse"),"house missing")
+    for _,step in ipairs(story.steps) do
+        if step.target then assert(room.anchors[step.target] and World.inside(room,room.anchors[step.target].Position),step.id) end
+    end
+    local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Include;params.FilterDescendantsInstances={room.folder};params.RespectCanCollide=true
+    assert(not workspace:Blockcast(CFrame.new(room.center+Vector3.new(0,3,-100)),Vector3.new(2,4,2),Vector3.new(0,0,-17),params),"house doorway is blocked")
+    World.remove(1)
+end)
+
 local function actor(id,kind,position)
     local model,humanoid,root=Rig.create(World.Actors,position,Content.characters[id])
     root.Anchored=true
@@ -73,8 +85,34 @@ check("walls block melee and server dash collision",function()
     local wall=Instance.new("Part");wall.Anchored=true;wall.Size=Vector3.new(20,12,1);wall.Position=Vector3.new(0,5,-4);wall.Parent=workspace
     assert(not combat:lineOfSight(a,b,a.root.Position))
     combat:move(a,Vector3.new(0,0,-1),20)
-    assert(a.root.Position.Z>-4,"dash crossed wall")
+    assert(not a.motion or a.motion.distance<3,"dash destination crossed the wall clearance")
     wall:Destroy();combat:remove(a);combat:remove(b)
+end)
+
+check("dodge starts bounded motion without teleport and cleanup removes constraints",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    local start=a.root.Position
+    combat:dodge(a,Vector3.xAxis)
+    assert((a.root.Position-start).Magnitude<0.01,"dodge teleported")
+    assert(a.motion and a.root:FindFirstChild("DashVelocity"),"dash constraint missing")
+    assert(a.energy==82 and a.model:GetAttribute("Pose")=="evade")
+    combat:stopMotion(a)
+    assert(not a.root:FindFirstChild("DashVelocity") and not a.root:FindFirstChild("DashAttachment"))
+    combat:remove(a)
+end)
+
+check("sword draw state and story combat restrictions are server controlled",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    assert(a.model:FindFirstChild("Scabbard") and a.model.Torso:FindFirstChild("WeaponGrip"))
+    assert(combat:weapon(a,false) and not a.model:GetAttribute("WeaponDrawn"))
+    assert(not combat:weapon(a,true),"draw bypassed recovery")
+    a.busyUntil=0;a.storyLocked=true
+    assert(not combat:cast(a,Content.moves.water_1,Vector3.xAxis))
+    assert(not combat:weapon(a,true))
+    a.model:SetAttribute("InCutscene",true)
+    local energy=a.energy;combat:dodge(a,Vector3.xAxis)
+    assert(a.energy==energy and not a.motion,"cutscene dodge admitted")
+    combat:remove(a)
 end)
 
 check("defense, status and regeneration execute inside the engine",function()
