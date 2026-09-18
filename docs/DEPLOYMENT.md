@@ -35,3 +35,7 @@ Do not upload a test-injected place. The generated multiplayer runner modifies a
 The new [v0.2.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.2.0-dev.1) contains the Kamado prologue and movement/sword revision at source `68d3421`. Its place and checksum are uploaded to GitHub, and the source build passed GitHub Actions. Open that file in Studio to review Journey -> 01 A Trail in the Snow.
 
 No Roblox cloud upload or audience change was performed for this revision. The experience linked above still has the earlier published build. Updating it remains a separate deployment step using the exact existing place/universe IDs and the production place, never a test-injected copy.
+
+## 2026-09-18 downloadable Sagiri chapter (cloud unchanged)
+
+The [v0.3.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.3.0-dev.1) adds the temple/Sagiri training chapter at source `d41ac26`. Its source passed [GitHub Actions](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35375934094). The production place is 501,252 bytes, SHA-256 `06d8194664886bb8fc486ac56a8fca94c480b75388c09e74708cb62f4293d3ad`; its checksum is included in the release. Open this download in Studio to play both staged chapters. The Roblox cloud upload and audience settings remain unchanged.

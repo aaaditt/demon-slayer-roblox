@@ -6,7 +6,7 @@ Updated: 2026-09-18
 
 Two chronological story chapters are implemented. The Kamado prologue continues into The Mountain Trial: an enterable temple and Urokodaki home, axe encounter, trapped mountain descent, sword and breathing practice, Sabito/Makomo scenes, rematch and the boulder test. Training uses server-checked objectives, timed breathing input, nonlethal retries and visible practice weapons. Shared locomotion, directional dashes and sword drawing remain implemented.
 
-The full game is not finished. Chapters 3-22 remain encounter previews. The existing v0.2.0 download contains the prologue; the current local build also contains Sagiri, with release preparation in progress. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
+The full game is not finished. Chapters 3-22 remain encounter previews. The v0.3.0 development download contains both staged chapters. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
 ## Confirmed environment
 
@@ -41,6 +41,6 @@ Server-authoritative action admission/combat, energy/cooldowns, basic combo, gua
 
 ## Working artifact
 
-Download [v0.2.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.2.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `68d3421`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35244084052). The uploaded place is 445,153 bytes; SHA-256 `9ab5e890b7ff381316fc0432a7ed1de236f0635c7d16b7c60e2462fa4f3f3d90` matches GitHub's asset digest.
+Download [v0.3.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.3.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `d41ac26`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35375934094). The place is 501,252 bytes; SHA-256 `06d8194664886bb8fc486ac56a8fca94c480b75388c09e74708cb62f4293d3ad`.
 
 Local output: `build/WisteriaChronicles.rbxlx` (ignored generated file). Open in Studio and press Play. World geometry is created at runtime. GitHub Actions also uploads a place artifact from each successful build. The release is a development checkpoint; public Roblox access still awaits dashboard setup after browser sign-in.
