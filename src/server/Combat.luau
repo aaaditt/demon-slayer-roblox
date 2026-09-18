@@ -136,6 +136,7 @@ function Combat:damage(actor, target, amount, status)
     local offset = actor.root.Position-target.root.Position
     local frontal = offset.Magnitude < 0.01 or target.root.CFrame.LookVector:Dot(offset.Unit) > 0.15
     local damage, result, energyCost = Rules.resolveDamage(amount, target, now, frontal, Config.GuardEnergyCost, Config.GuardReduction, Config.ParryWindow)
+    if target.healthFloor then damage = Rules.trainingDamage(target.humanoid.Health, damage, target.healthFloor) end
     target.energy = math.max(0, target.energy-energyCost)
     actor.lastCombat = now; target.lastCombat = now
     if result == "parry" or result == "counter" then
@@ -151,6 +152,7 @@ function Combat:damage(actor, target, amount, status)
             target.stunUntil = math.max(target.stunUntil, now+0.12)
         end
         target.humanoid:TakeDamage(damage)
+        if target.onDamaged then target.onDamaged(actor, damage, result) end
         if target.alive and result ~= "block" and status ~= "none" and status ~= "cleanse" then
             if status == "poison" or status == "burn" then
                 target.status[status] = {untilTime = now+3, nextTick = now+0.75, source = actor}
@@ -183,7 +185,8 @@ end
 function Combat:cast(actor, move, direction)
     local now = workspace:GetServerTimeNow()
     if not actor.alive then return false, "Respawning" end
-    if actor.storyLocked then return false, "Follow the story objective" end
+    if actor.storyLocked and not (actor.storyCanBasic and move.id == "basic") then return false, "Follow the story objective" end
+    if actor.model:GetAttribute("InCutscene") then return false, "Follow the story scene" end
     -- Draw first, then execute the requested strike if this actor has not been interrupted.
     if actor.model:GetAttribute("HasSheath") and not actor.model:GetAttribute("WeaponDrawn") then
         if now < actor.busyUntil or now < actor.stunUntil then return false, "Recovering" end
@@ -254,7 +257,7 @@ end
 function Combat:basic(actor, direction)
     local now = workspace:GetServerTimeNow()
     local combo = now-actor.comboTime < 1.2 and actor.combo%3+1 or 1
-    local style = Content.characters[actor.characterId].styles[1] or "demon"
+    local style = actor.basicStyle or Content.characters[actor.characterId].styles[1] or "demon"
     local move = {id = "basic", style = style, pattern = combo==3 and "thrust" or "slash", status = "none", damage = combo==3 and 15 or 10,
         cost = 0, cooldown = 0.42, windup = 0.12, recovery = 0.3, range = 9, width = 8, dash = 0, hits = 1}
     local ok, reason = self:cast(actor, move, direction)
@@ -265,7 +268,7 @@ end
 function Combat:guard(actor, enabled)
     local now = workspace:GetServerTimeNow()
     if not enabled then actor.blocking = false; return end
-    if not actor.alive or actor.storyLocked or actor.blocking or now < actor.busyUntil or now < actor.stunUntil then return end
+    if not actor.alive or (actor.storyLocked and not actor.storyCanBasic) or actor.model:GetAttribute("InCutscene") or actor.blocking or now < actor.busyUntil or now < actor.stunUntil then return end
     if now-(actor.lastGuard or 0) < 0.45 then return end
     actor.lastGuard = now; actor.blockStarted = now; actor.blocking = true
 end
@@ -341,18 +344,18 @@ function Combat:tick(dt)
             local distance = flat.Magnitude
             actor.nextAI = now+0.15
             if stunned then actor.humanoid:Move(Vector3.zero)
-            elseif distance > 11 then actor.humanoid:MoveTo(target.root.Position)
+            elseif distance > (actor.basicOnly and 7 or 11) then actor.humanoid:MoveTo(target.root.Position)
             else actor.humanoid:Move(Vector3.zero) end
             if distance>0.1 and now>=actor.nextAction and now>=actor.busyUntil then
                 actor.root.CFrame = CFrame.lookAt(actor.root.Position, actor.root.Position+flat.Unit)
                 local list = Content.characters[actor.characterId].moves
                 local choices = {}
-                for _, id in ipairs(list) do
+                for _, id in ipairs(actor.basicOnly and {} or list) do
                     local move = Content.moves[id]
                     if move.damage>0 and (actor.cooldowns[id] or 0)<=now and actor.energy>=move.cost then table.insert(choices, move) end
                 end
                 local move = #choices>0 and choices[math.random(#choices)] or nil
-                if distance < 10 and math.random()<0.4 then self:basic(actor, flat.Unit); actor.nextAction = now+0.9
+                if distance < 10 and (actor.basicOnly or math.random()<0.4) then self:basic(actor, flat.Unit); actor.nextAction = now+(actor.attackInterval or 0.9)
                 elseif move and distance < math.max(move.range+move.dash, 16) then self:cast(actor, move, flat.Unit); actor.nextAction = now+1.5
                 end
             end

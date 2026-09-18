@@ -1,5 +1,6 @@
 """Validate content, compile all Luau, execute pure rules tests, and build a place."""
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -25,6 +26,8 @@ def run(args, quiet=False):
 
 def validate():
     d = json.loads((ROOT / "data/catalog.json").read_text(encoding="utf-8"))
+    def vector(value):
+        return len(value) == 3 and all(isinstance(n, (int, float)) and math.isfinite(n) for n in value)
     for mid, m in d["moves"].items():
         assert mid == m["id"] and m["style"] in d["styles"] and m["source"] in d["sources"], mid
         assert m["pattern"] in {"slash", "thrust", "dash", "spin", "barrage", "projectile", "burst", "guard", "evade", "heal", "trap", "summon"}, mid
@@ -46,12 +49,47 @@ def validate():
         if story := chapter.get("story"):
             assert story["character"] in d["characters"] and all(s in d["sources"] for s in story["sources"])
             assert len({s["id"] for s in story["steps"]}) == len(story["steps"])
+            actors = {a["id"] for a in story["actors"]}
+            assert len(actors) == len(story["actors"])
+            assert all(vector(a["position"]) and (not a.get("template") or a["template"] in d["characters"]) for a in story["actors"])
+            assert all(vector(pos) for pos in story["targets"].values())
+            assert all(vector(shot["from"]) and vector(shot["to"]) and shot["from"] != shot["to"] for shot in story["shots"].values())
             for step in story["steps"]:
                 assert step.get("automatic") or step["target"] in story["targets"]
                 assert step["scene"] and 0 <= step["clock"] <= 24
-                assert all(line["shot"] in story["shots"] and line["text"] for line in step["scene"])
+                assert all(line["shot"] in story["shots"] and line["text"] for line in step["scene"] + step.get("outro", []))
+                assert 0 <= step.get("resultClock", step["clock"]) <= 24
                 for field in ("carryAfter", "carryOnScene"):
                     assert step.get(field, "none") in {"none", "charcoal", "nezuko"}
+                for field in ("actors", "resultActors"):
+                    for aid, state in step.get(field, {}).items():
+                        assert aid in actors
+                        assert "position" not in state or vector(state["position"])
+                        assert "rotation" not in state or vector(state["rotation"])
+                        assert "visible" not in state or isinstance(state["visible"], bool)
+                if challenge := step.get("challenge"):
+                    kind = challenge["kind"]
+                    assert kind in {"route", "survive", "strikes", "spar", "breath", "cut"}
+                    assert vector(challenge["start"]) and 0 < challenge["limit"] <= chapter["timeLimit"]
+                    assert 0 < challenge["radius"] <= 40 and step.get("outro")
+                    assert challenge.get("weapon") in {None, "axe", "practice"}
+                    if kind in {"survive", "strikes", "spar", "cut"}:
+                        assert challenge["enemy"] in d["characters"] and vector(challenge["spawn"])
+                        assert challenge["weapon"] in {"axe", "practice"}
+                        assert 0 < challenge.get("damageScale", 0.45) <= 1
+                        assert 1 <= challenge.get("hits", 1) <= 20
+                    if kind == "survive":
+                        assert 0 < challenge["duration"] < challenge["limit"]
+                    if kind == "route":
+                        assert challenge["checkpoints"] and all(c in story["targets"] for c in challenge["checkpoints"])
+                    if kind in {"breath", "cut"}:
+                        assert 0 < challenge["period"] <= 10
+                        assert 0 <= challenge["window"][0] < challenge["window"][1] < challenge["period"]
+                        assert 1 <= challenge.get("cycles", 1) <= 10
+            for hazard in story.get("hazards", []):
+                assert vector(hazard["position"]) and vector(hazard["size"]) and all(n > 0 for n in hazard["size"])
+                assert 0 < hazard["windup"] < hazard["windup"] + hazard["active"] < hazard["period"]
+                assert 0 <= hazard["offset"] < hazard["period"] and 0 < hazard["damage"] <= 20
     assert sum(c["group"] == "Hashira" for c in d["characters"].values()) == 9
     assert "thunder_2" not in d["characters"]["zenitsu"]["moves"]
     assert "thunder_1" not in d["characters"]["kaigaku"]["moves"]

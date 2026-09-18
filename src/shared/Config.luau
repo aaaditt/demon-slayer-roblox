@@ -1,5 +1,5 @@
 return {
-    Version = "0.2.0",
+    Version = "0.3.0",
     MaxHealth = 160,
     MaxEnergy = 100,
     EnergyRegen = 18,

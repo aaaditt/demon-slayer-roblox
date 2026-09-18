@@ -2,6 +2,7 @@ local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local Content=require(ReplicatedStorage.Shared.Content)
 local Rig=require(script.Parent.Rig)
 local World=require(script.Parent.World)
+local Training=require(script.Parent.Training)
 local Story={}
 Story.__index=Story
 
@@ -25,17 +26,17 @@ function Story.new(gameService,player,mission)
         if definition.scale then model:ScaleTo(definition.scale) end
         model.Head.Nameplate:Destroy() -- Speaker names and prompts identify noncombat story actors.
         local bamboo=model:FindFirstChild("Bamboo")
-        if bamboo then bamboo.Transparency=1 end
+        if bamboo and self.data.id=="kamado_prologue" then bamboo.Transparency=1 end
+        if self.data.map=="sagiri" then Rig.storyWeapon(model,nil) end
         root.Anchored=true;humanoid.DisplayDistanceType=Enum.HumanoidDisplayDistanceType.None
         for _,p in ipairs(model:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end
         model:SetAttribute("ActorKind","story");self.npcs[definition.id]=model
+        visible(model,definition.visible~=false)
     end
     local entry=gameService.players[player]
     entry.actor.storyLocked=true
-    for _,name in ipairs({"Blade","Hilt","Guard","Scabbard"}) do
-        local p=entry.actor.model:FindFirstChild(name)
-        if p then p.Transparency=1 end
-    end
+    Rig.storyWeapon(entry.actor.model,nil)
+    self:setCarry(self.data.initialCarry or "none")
     return self
 end
 
@@ -50,6 +51,7 @@ function Story:setCarry(kind)
     local previous=actor.model:FindFirstChild("StoryCarry")
     if previous then previous:Destroy() end
     self.carry=kind;actor.model:SetAttribute("Carrying",kind~="none")
+    if kind=="nezuko" then visible(self.npcs.nezuko,false) end
     if kind=="none" then return end
     local carry=Instance.new("Model");carry.Name="StoryCarry";carry.Parent=actor.model
     local torso=actor.model.Torso
@@ -66,7 +68,7 @@ function Story:setCarry(kind)
         piece("NezukoRobe",Vector3.new(1.5,1.9,0.75),CFrame.new(0,0.5,1.05),Color3.fromRGB(231,137,163))
         piece("NezukoHead",Vector3.new(1.4,0.8,0.85),CFrame.new(0,1.8,1.05),Color3.fromRGB(235,197,171))
         piece("NezukoHair",Vector3.new(1.5,1.65,0.5),CFrame.new(0,1.15,1.6),Color3.fromRGB(32,27,41))
-        if self.encounter then piece("Bamboo",Vector3.new(0.9,0.18,0.18),CFrame.new(0,1.55,0.58),Color3.fromRGB(112,153,93)) end
+        if self.encounter or self.data.id~="kamado_prologue" then piece("Bamboo",Vector3.new(0.9,0.18,0.18),CFrame.new(0,1.55,0.58),Color3.fromRGB(112,153,93)) end
         for _,side in ipairs({-1,1}) do
             piece("NezukoArm",Vector3.new(0.55,0.65,1.8),CFrame.new(side*0.9,0.8,0.5),Color3.fromRGB(231,137,163))
             piece("NezukoLeg",Vector3.new(0.6,0.65,1.5),CFrame.new(side*0.9,-0.55,0.8),Color3.fromRGB(73,51,63))
@@ -91,16 +93,41 @@ function Story:clearPrompt()
     if self.promptConnection then self.promptConnection:Disconnect();self.promptConnection=nil end
 end
 
+function Story:applyActors(states)
+    for id,state in pairs(states or {}) do
+        local model=self.npcs[id]
+        if model then
+            if state.position then
+                local r=state.rotation or {0,0,0}
+                model:PivotTo(CFrame.new(self.mission.room.center+Vector3.new(table.unpack(state.position)))*CFrame.Angles(math.rad(r[1]),math.rad(r[2]),math.rad(r[3])))
+            end
+            if state.visible~=nil then visible(model,state.visible and not (id=="nezuko" and self.carry=="nezuko")) end
+        end
+    end
+end
+
+function Story:mark(anchor,message)
+    if self.marker then self.marker:Destroy() end
+    local marker=Instance.new("BillboardGui");marker.Name="StoryWaypoint";marker.Adornee=anchor
+    marker.Size=UDim2.fromOffset(170,52);marker.StudsOffset=Vector3.new(0,5,0);marker.AlwaysOnTop=true;marker.MaxDistance=450;marker.Parent=anchor
+    local label=Instance.new("TextLabel");label.Size=UDim2.fromScale(1,1);label.BackgroundTransparency=1
+    label.Text="◆  "..message;label.TextColor3=Color3.fromRGB(255,219,135);label.TextStrokeTransparency=0.25
+    label.TextSize=16;label.Font=Enum.Font.GothamMedium;label.TextWrapped=true;label.Parent=marker;self.marker=marker
+end
+
 function Story:advance()
     if self.closed then return end
     self:clearPrompt();self:freeze(false)
     self.stepIndex+=1;self.line=0;self.serial+=1;self.phase="objective"
     local step=self.data.steps[self.stepIndex]
     if not step then self.game:completeMission(self.player,self.mission);return end
-    self.step=step
-    for _,name in ipairs({"mother","takeo","hanako","shigeru","rokuta"}) do visible(self.npcs[name],not step.tragedy) end
-    visible(self.npcs.giyu,self.encounter==true)
-    visible(self.npcs.nezuko,self.carry~="nezuko")
+    self.step=step;self.sceneLines=step.scene;self.resultScene=false;self.clockOverride=nil
+    if self.data.id=="kamado_prologue" then
+        for _,name in ipairs({"mother","takeo","hanako","shigeru","rokuta"}) do visible(self.npcs[name],not step.tragedy) end
+        visible(self.npcs.giyu,self.encounter==true)
+        visible(self.npcs.nezuko,self.carry~="nezuko")
+    end
+    self:applyActors(step.actors)
     if step.tragedy and not self.encounter then
         local m=self.npcs.nezuko
         m:PivotTo(CFrame.new(self.mission.room.center+Vector3.new(5,1.2,-103))*CFrame.Angles(0,0,math.pi/2))
@@ -113,11 +140,7 @@ function Story:advance()
     prompt.KeyboardKeyCode=Enum.KeyCode.E;prompt.GamepadKeyCode=Enum.KeyCode.ButtonX;prompt.Parent=anchor
     self.prompt=prompt
     self.promptConnection=prompt.Triggered:Connect(function(player) self:interact(player,step.target) end)
-    local marker=Instance.new("BillboardGui");marker.Name="StoryWaypoint";marker.Adornee=anchor
-    marker.Size=UDim2.fromOffset(170,52);marker.StudsOffset=Vector3.new(0,5,0);marker.AlwaysOnTop=true;marker.MaxDistance=450;marker.Parent=anchor
-    local label=Instance.new("TextLabel");label.Size=UDim2.fromScale(1,1);label.BackgroundTransparency=1
-    label.Text="◆  "..step.action;label.TextColor3=Color3.fromRGB(255,219,135);label.TextStrokeTransparency=0.25
-    label.TextSize=16;label.Font=Enum.Font.GothamMedium;label.TextWrapped=true;label.Parent=marker;self.marker=marker
+    self:mark(anchor,step.action)
     self.game:push(self.player)
 end
 
@@ -137,7 +160,7 @@ end
 
 function Story:showLine()
     self.serial+=1;self.changedAt=workspace:GetServerTimeNow()
-    local line=self.step.scene[self.line]
+    local line=self.sceneLines[self.line]
     local actor=self:actor()
     if not actor then return end
     self:pose(actor.model,line.playerPose)
@@ -156,9 +179,16 @@ function Story:showLine()
     self.game:push(self.player)
 end
 
-function Story:startScene()
+function Story:startScene(result)
     self:clearPrompt();self.phase="scene";self.line=1
-    if self.step.carryOnScene then self:setCarry(self.step.carryOnScene) end
+    self.resultScene=result==true;self.sceneLines=result and self.step.outro or self.step.scene
+    if result then
+        self.clockOverride=self.step.resultClock
+        self:applyActors(self.step.resultActors)
+    else
+        if self.step.carryOnScene then self:setCarry(self.step.carryOnScene) end
+        self:applyActors(self.step.actors)
+    end
     if self.step.encounter then
         self.encounter=true
         local actor=self:actor();local center=self.mission.room.center
@@ -173,28 +203,58 @@ end
 function Story:continue(skip)
     local actor=self:actor()
     if self.closed or not actor or not actor.alive or self.phase~="scene" or workspace:GetServerTimeNow()-self.changedAt<0.6 then return false end
-    if skip or self.line>=#self.step.scene then
+    if skip or self.line>=#self.sceneLines then
         self.slide=nil
         if self.encounter then self.npcs.giyu:PivotTo(CFrame.new(self.mission.room.center+Vector3.new(13,3,8))) end
         self:pose(actor.model,nil);self:pose(self.npcs.giyu,nil);self:pose(self.npcs.nezuko,nil)
-        if self.step.carryAfter then self:setCarry(self.step.carryAfter) end
-        self:advance()
+        if self.step.challenge and not self.resultScene then self:startChallenge()
+        else
+            if self.step.carryAfter then self:setCarry(self.step.carryAfter) end
+            self:advance()
+        end
     else self.line+=1;self:showLine() end
     return true
 end
 
+function Story:startChallenge()
+    self:clearPrompt();self.phase="challenge";self:freeze(false)
+    local npc=self.npcs[self.step.challenge.enemy]
+    if npc then visible(npc,false) end
+    self.challenge=Training.new(self)
+    self.game:push(self.player)
+end
+
+function Story:finishChallenge()
+    if not self.challenge or self.closed then return end
+    self.challenge:destroy();self.challenge=nil
+    local npc=self.npcs[self.step.challenge.enemy]
+    if npc then visible(npc,true) end
+    if self.step.splitBoulder then
+        self.boulderSplitStart=workspace:GetServerTimeNow()
+        self.mission.room.boulderRope.Transparency=1
+    end
+    self:startScene(true)
+end
+
 function Story:snapshot()
-    local line=self.phase=="scene" and self.step.scene[self.line] or nil
+    local line=self.phase=="scene" and self.sceneLines[self.line] or nil
     local shot=line and self.data.shots[line.shot] or nil
     local target=self.step.target and self.mission.room.anchors[self.step.target]
     return {id=self.data.id,serial=self.serial,step=self.stepIndex,total=#self.data.steps,title=self.step.title,
-        objective=self.step.objective,phase=self.phase,line=self.line,lines=#self.step.scene,clock=self.step.clock,
-        speaker=line and line.speaker,text=line and line.text,position=target and target.Position,
+        objective=self.step.objective,phase=self.phase,line=self.line,lines=#self.sceneLines,clock=self.clockOverride or self.step.clock,
+        challenge=self.challenge and self.challenge:snapshot(),canBasic=self.challenge and self:actor().storyCanBasic or false,
+        speaker=line and line.speaker,text=line and line.text,position=self.challenge and self.challenge:position() or target and target.Position,
         cameraFrom=shot and self.mission.room.center+Vector3.new(table.unpack(shot.from)),
         cameraTo=shot and self.mission.room.center+Vector3.new(table.unpack(shot.to))}
 end
 
 function Story:tick(now)
+    if self.challenge then self.challenge:tick(now) end
+    if self.boulderSplitStart then
+        local alpha=math.clamp((now-self.boulderSplitStart)/0.8,0,1)
+        for _,half in ipairs(self.mission.room.boulder) do half.part.CFrame=half.closed:Lerp(half.open,alpha) end
+        if alpha>=1 then self.boulderSplitStart=nil end
+    end
     if self.slide then
         local slide=self.slide
         local progress=math.clamp((now-slide.start)/slide.duration,0,1)
@@ -205,6 +265,7 @@ end
 
 function Story:destroy()
     if self.closed then return end
+    if self.challenge then self.challenge:destroy();self.challenge=nil end
     self.closed=true;self:clearPrompt();self:freeze(false)
     self:setCarry("none")
     for _,model in pairs(self.npcs) do model:Destroy() end

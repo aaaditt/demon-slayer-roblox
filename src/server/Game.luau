@@ -235,6 +235,11 @@ function Game:handle(player, action, payload)
         if entry.mission and entry.mission.story then entry.mission.story:continue(action == "StorySkip") end
         return
     end
+    if action == "Focus" then
+        local story=entry.mission and entry.mission.story
+        if story and story.challenge then story.challenge:focus(player) end
+        return
+    end
     local function direction()
         if typeof(payload) == "Vector3" and Rules.finite(payload.X) and Rules.finite(payload.Y) and Rules.finite(payload.Z) and payload.Magnitude < 100000 then
             local flat = Vector3.new(payload.X, 0, payload.Z)

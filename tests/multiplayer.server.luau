@@ -125,6 +125,126 @@ return function(session)
             assert(not e.mission and not session.slots[slot])
             client(p1,"story",{scene=false})
         end)
+        check("Sagiri exercises validate progress, retry safely and unlock Final Selection",function()
+            client(p1,"action",{name="Story",payload=2})
+            local e=session.players[p1]
+            local mission=e.mission;local story=mission and mission.story
+            assert(story and story.data.id=="sagiri_training","training chapter did not start")
+            local before=e.profile.data.xp
+            local function place(a,position)
+                session.combat:stopMotion(a);a.root.Anchored=true
+                a.model:PivotTo(CFrame.new(position));a.root.AssemblyLinearVelocity=Vector3.zero
+                a.lastPosition=a.root.Position;a.motionTime=workspace:GetServerTimeNow()
+            end
+            local function skip()
+                story.changedAt=workspace:GetServerTimeNow()-1
+                assert(story:continue(true),"scene skip failed")
+            end
+            for stage=1,#story.data.steps do
+                assert(story.stepIndex==stage,"training order changed at "..stage)
+                if story.phase=="objective" then
+                    assert(not story:interact(p2,story.step.target),"other player advanced training")
+                    place(e.actor,mission.room.anchors[story.step.target].Position)
+                    assert(story:interact(p1,story.step.target))
+                end
+                skip()
+                local exercise=story.challenge
+                if exercise then
+                    print("TRAINING_STAGE "..stage.." "..exercise.data.kind)
+                    local d=exercise.data
+                    assert(not story:continue(true),"scene skip bypassed exercise")
+                    assert(not session.combat:cast(e.actor,require(ReplicatedStorage.Shared.Content).moves.water_1,-Vector3.zAxis),"training form admitted")
+                    if d.kind=="route" then
+                        -- Wrong-order markers cannot advance. Trap contact is tested with a controlled clock.
+                        place(e.actor,mission.room.anchors.hut.Position);exercise:tick(workspace:GetServerTimeNow())
+                        assert(exercise.routeIndex==1)
+                        local h=mission.room.hazards[1].definition
+                        local now=workspace:GetServerTimeNow()
+                        exercise.started=now-h.windup-0.1-h.offset;e.actor.invulnerableUntil=0
+                        place(e.actor,mission.room.center+Vector3.new(table.unpack(h.position)))
+                        local hp=e.actor.humanoid.Health;exercise:hazards(now,e.actor)
+                        assert(e.actor.humanoid.Health==hp-h.damage,"active trap did not damage")
+                        exercise:hazards(now+0.1,e.actor);assert(e.actor.humanoid.Health==hp-h.damage,"trap tick bypassed immunity")
+                        e.actor.humanoid.Health=1;exercise:tick(now)
+                        assert(exercise.attempt==2 and e.actor.humanoid.Health==e.actor.humanoid.MaxHealth,"training retry failed")
+                        for _,id in ipairs(d.checkpoints) do
+                            place(e.actor,mission.room.anchors[id].Position)
+                            exercise.lastCheckpoint=workspace:GetServerTimeNow()-1
+                            exercise:tick(workspace:GetServerTimeNow())
+                        end
+                    else
+                        place(e.actor,mission.room.center+Vector3.new(table.unpack(d.start)))
+                        if exercise.enemy then
+                            exercise.enemy.target=nil;exercise.enemy.root.Anchored=true;exercise.enemy.invulnerableUntil=0
+                            local c=exercise.count
+                            session.combat:damage(session.players[p2].actor,exercise.enemy,10,"none")
+                            assert(exercise.count==c,"other player's damage advanced training")
+                            if d.kind=="survive" then
+                                client(p1,"training",{weapon="AxeHead"})
+                                place(e.actor,exercise.enemy.root.Position+Vector3.new(0,0,6))
+                                e.actor.busyUntil=0;e.actor.stunUntil=0;e.actor.cooldowns.basic=0
+                                client(p1,"action",{name="Basic",payload=-Vector3.zAxis,wait=0.5})
+                                assert(exercise.count==1,"remote axe strike did not count")
+                                for _=2,d.hits do session.combat:damage(e.actor,exercise.enemy,10,"none") end
+                                exercise:tick(workspace:GetServerTimeNow())
+                                assert(story.challenge==exercise,"survival requirement bypassed")
+                                exercise.started=workspace:GetServerTimeNow()-d.duration
+                            elseif d.kind=="cut" then
+                                session.combat:damage(e.actor,exercise.enemy,10,"none")
+                                assert(exercise.count==0,"unfocused boulder hit counted")
+                            else
+                                client(p1,"training",{weapon="PracticeBlade"})
+                                for _=1,d.hits do session.combat:damage(e.actor,exercise.enemy,10,"none") end
+                            end
+                        end
+                        if d.kind=="breath" or d.kind=="cut" then
+                            place(e.actor,mission.room.center+Vector3.new(table.unpack(d.start)))
+                            assert(not exercise:focus(p2),"other player's focus admitted")
+                            exercise.started=workspace:GetServerTimeNow();exercise.nextFocus=0
+                            assert(not exercise:focus(p1),"early breath admitted")
+                            for cycle=0,(d.cycles or 1)-1 do
+                                exercise.started=workspace:GetServerTimeNow()-(cycle*d.period+1.85);exercise.nextFocus=0
+                                if cycle==0 and d.kind=="breath" then
+                                    client(p1,"sceneKey")
+                                    assert(exercise.count==1,"E did not activate the breathing input")
+                                else assert(exercise:focus(p1),"valid breath rejected") end
+                                exercise.nextFocus=0;assert(not exercise:focus(p1),"duplicate breath admitted")
+                            end
+                            if d.kind=="cut" then session.combat:damage(e.actor,exercise.enemy,10,"none") end
+                        end
+                        exercise:tick(workspace:GetServerTimeNow())
+                    end
+                    assert(story.phase=="scene" and story.resultScene and not story.challenge,"exercise did not enter result scene")
+                    assert(not e.actor.storyCanBasic and not e.actor.healthFloor and not mission.enemy,"exercise state leaked")
+                    if story.step.splitBoulder then
+                        story:tick(workspace:GetServerTimeNow()+1)
+                        assert((mission.room.boulder[1].part.Position-mission.room.boulder[1].closed.Position).Magnitude>3,"boulder did not open")
+                    end
+                    skip()
+                end
+            end
+            assert(not e.mission and e.profile.data.chapter==3 and e.profile.data.xp==before+130,"training progression/reward failed")
+            assert(e.actor.characterId=="giyu" and not e.actor.storyCanBasic and not e.actor.healthFloor)
+            for _,model in pairs(story.npcs) do assert(not model.Parent,"training NPC leaked") end
+            assert(not mission.room.folder.Parent)
+            client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+130)
+            client(p1,"story",{scene=false})
+        end)
+        check("leaving active training removes its enemy and restores normal controls",function()
+            local e=session.players[p1]
+            if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
+            session:startMission(p1,2)
+            local story=e.mission.story
+            story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            e.actor.model:PivotTo(CFrame.new(e.mission.room.anchors.temple.Position))
+            assert(story:interact(p1,"temple"))
+            story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            local enemy=story.challenge.enemy;local slot=e.mission.slot
+            client(p1,"action",{name="Hub"})
+            assert(not e.mission and not session.slots[slot] and not enemy.model.Parent and not session.combat.actors[enemy.model])
+            assert(not e.actor.storyCanBasic and not e.actor.healthFloor and not e.actor.root.Anchored)
+            client(p1,"story",{scene=false})
+        end)
         check("locked chapters cannot be started by forged remote requests",function()
             client(p2,"action",{name="Story",payload=20})
             assert(session.players[p2].mission==nil)
@@ -161,9 +281,21 @@ return function(session)
             task.wait(3)
             session.players[p1].actor.lastCombat=0
             client(p1,"action",{name="Hub"})
-            client(p1,"action",{name="Story",payload=1})
-            print("VISUAL_REVIEW_READY")
-            task.wait(60)
+            client(p1,"action",{name="Story",payload=args.visualSagiri and 2 or 1})
+            if args.visualSagiri then
+                -- Isolated review staging only; production does not expose stage-jump actions.
+                local e=session.players[p1];local story=e.mission.story
+                story.stepIndex=3;story:advance()
+                e.actor.model:PivotTo(CFrame.new(e.mission.room.anchors.hut.Position))
+                story:interact(p1,"hut")
+                print("VISUAL_SAGIRI_HOUSE_READY");task.wait(45)
+                story.stepIndex=6;story:advance()
+                e.actor.model:PivotTo(CFrame.new(e.mission.room.anchors.waterfall.Position))
+                story:interact(p1,"waterfall")
+                story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+                client(p1,"visual")
+                print("VISUAL_SAGIRI_WATERFALL_READY");task.wait(45)
+            else print("VISUAL_REVIEW_READY");task.wait(60) end
         end
     end)
     if not ok then table.insert(results,{name="test harness",ok=false,error=tostring(err)}) end

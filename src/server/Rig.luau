@@ -33,6 +33,31 @@ local function motor(parent, name, a, b, c0, c1)
     return m
 end
 
+function Rig.storyWeapon(model, kind)
+    local previous = model:FindFirstChild("StoryWeapon")
+    if previous then previous:Destroy() end
+    model:SetAttribute("HasSheath", false)
+    for _, name in ipairs({"Blade", "Hilt", "Guard", "Scabbard"}) do
+        local item = model:FindFirstChild(name)
+        if item then item.Transparency = 1 end
+    end
+    if not kind then return end
+    local weapon = Instance.new("Model"); weapon.Name = "StoryWeapon"; weapon.Parent = model
+    local hand = model["Right Arm"]
+    local function piece(name, size, offset, color)
+        local item = part(weapon, name, size, color)
+        weld(hand, item, offset)
+    end
+    local brown = Color3.fromRGB(163, 119, 71)
+    if kind == "axe" then
+        piece("AxeHandle", Vector3.new(0.22,0.22,2.8), CFrame.new(0,-0.9,-1), brown)
+        piece("AxeHead", Vector3.new(1.15,0.18,0.8), CFrame.new(0.35,-0.9,-2.3), Color3.fromRGB(147,157,158))
+    else
+        piece("PracticeBlade", Vector3.new(0.23,0.2,4.1), CFrame.new(0,-0.9,-1.5), brown)
+        piece("WoodGuard", Vector3.new(0.6,0.5,0.14), CFrame.new(0,-0.9,-0.6), Color3.fromRGB(107,76,45))
+    end
+end
+
 function Rig.create(parent, position, definition, actorName)
     local model = Instance.new("Model")
     model.Name = actorName or definition.name
@@ -106,6 +131,17 @@ function Rig.create(parent, position, definition, actorName)
         weld(head, hat, CFrame.new(0, 0.65, 0))
         local crown = part(model, "HatCrown", Vector3.new(1.7, 0.5, 1.2), hat.Color)
         weld(head, crown, CFrame.new(0, 0.95, 0))
+    elseif definition.id == "urokodaki" then
+        local mask=part(model,"TenguMask",Vector3.new(1.75,1.05,0.25),Color3.fromRGB(153,56,43))
+        weld(head,mask,CFrame.new(0,-0.05,-0.6))
+        local nose=part(model,"TenguNose",Vector3.new(0.25,0.25,0.8),mask.Color)
+        weld(head,nose,CFrame.new(0,-0.05,-1))
+    elseif definition.id == "sabito" or definition.id == "makomo" then
+        if definition.id == "sabito" then hair.Color=Color3.fromRGB(201,142,116) end
+        local mask=part(model,"FoxMask",Vector3.new(0.85,1,0.25),Color3.fromRGB(236,228,207))
+        weld(head,mask,CFrame.new(0.8,0.25,-0.62)*CFrame.Angles(0,0,-0.25))
+        local marking=part(model,"MaskMark",Vector3.new(0.55,0.12,0.08),Color3.fromRGB(151,69,56))
+        weld(head,marking,CFrame.new(0.75,0.35,-0.8)*CFrame.Angles(0,0,-0.25))
     end
 
     local function weaponPiece(name, size, offset, hand, color)

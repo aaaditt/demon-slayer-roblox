@@ -44,6 +44,10 @@ local function direction(dodge)
 end
 local function canAct() return not storyPlayer.activeScene and not ui.shade.Visible and UserInputService:GetFocusedTextBox()==nil end
 local function canFight() return canAct() and not (ui.state and ui.state.story) end
+local function canBasic()
+    local story=ui.state and ui.state.story
+    return canAct() and (not story or story.canBasic)
+end
 local function overButton()
     local mouse=UserInputService:GetMouseLocation()
     for _,item in ipairs(player.PlayerGui:GetGuiObjectsAtPosition(mouse.X,mouse.Y)) do
@@ -64,12 +68,12 @@ local function bind(name,callback,touch,...)
 end
 bind("WisteriaAttack",function(s,input)
     if input.UserInputType==Enum.UserInputType.MouseButton1 and overButton() then return false end
-    if s==Enum.UserInputState.Begin and canFight() then send("Basic",direction(false));return true end
+    if s==Enum.UserInputState.Begin and canBasic() then send("Basic",direction(false));return true end
     return false
 end,true,Enum.UserInputType.MouseButton1,Enum.KeyCode.ButtonR2)
 bind("WisteriaGuard",function(s)
     if s==Enum.UserInputState.End or s==Enum.UserInputState.Cancel then send("Guard",false);return true end
-    if s==Enum.UserInputState.Begin and canFight() then send("Guard",true);return true end
+    if s==Enum.UserInputState.Begin and canBasic() then send("Guard",true);return true end
     return false
 end,true,Enum.KeyCode.F,Enum.KeyCode.ButtonL2)
 bind("WisteriaDodge",function(s)
@@ -83,7 +87,7 @@ end,true,Enum.KeyCode.R,Enum.KeyCode.DPadRight)
 local keyboard={Enum.KeyCode.One,Enum.KeyCode.Two,Enum.KeyCode.Three,Enum.KeyCode.Four}
 local controller={Enum.KeyCode.ButtonX,Enum.KeyCode.ButtonY,Enum.KeyCode.ButtonB,Enum.KeyCode.ButtonL1}
 for i=1,4 do
-    bind("WisteriaSkill"..i,function(s) if s==Enum.UserInputState.Begin and canAct() then ui.onSkill(i);return true end return false end,false,keyboard[i],controller[i])
+    bind("WisteriaSkill"..i,function(s) if s==Enum.UserInputState.Begin and canFight() then ui.onSkill(i);return true end return false end,false,keyboard[i],controller[i])
 end
 bind("WisteriaMenu",function(s) if s==Enum.UserInputState.Begin and not UserInputService:GetFocusedTextBox() then ui:toggle();return true end return false end,false,Enum.KeyCode.M,Enum.KeyCode.DPadUp)
 ContextActionService:SetTitle("WisteriaAttack","Attack")

@@ -109,7 +109,7 @@ function Animator.start()
             set("Neck",CFrame.Angles(-lean*0.6,-twist*0.2,0))
             local grip=rig.motors.WeaponGrip
             if grip and model:FindFirstChild("Right Arm") then
-                local drawn=model:GetAttribute("WeaponDrawn")
+                local drawn=model:GetAttribute("HasSheath") and model:GetAttribute("WeaponDrawn")
                 local sheath=CFrame.new(-1.05,-0.8,0.3)*CFrame.Angles(0,math.pi, -0.18)
                 local hand=rig.torso.CFrame:ToObjectSpace(model["Right Arm"].CFrame*CFrame.new(0,-0.9,-0.15))
                 grip.C0=grip.C0:Lerp(drawn and hand or sheath,1-math.exp(-14*math.min(dt,0.1)))

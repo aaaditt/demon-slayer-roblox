@@ -32,3 +32,5 @@ Four equipped techniques chosen from each character's library; Q dodge; F guard;
 ## Story-first continuation (2026-09-17)
 
 Owner review found missing visible locomotion, a teleport-like dash and an opening with no house or narrative. Prioritize a chronological story experience and readable movement before more roster breadth or public release settings. The current work builds the Kamado prologue and repairs shared movement/sword handling. See STORY_PRODUCTION.md for the part-by-part route, acceptance boundaries and next Sagiri session. The remaining full game objective is unchanged.
+
+2026-09-18: the second staged chapter now spans the temple through Urokodaki's training, Sabito/Makomo and the boulder test. Final Selection is the next chronological implementation slice. Keep chapter review, authored animation and persistent lesson checkpoints on the production backlog; twenty later chapters remain encounter previews.

@@ -59,6 +59,43 @@ local function actor(id,kind,position)
     return a
 end
 
+check("Sagiri contains accessible interiors, course surfaces and a splittable boulder",function()
+    local chapter=Content.chapters[2]
+    local room=World.mission(1,Content.locations[chapter.location],chapter.story)
+    assert(room.folder:FindFirstChild("MountainTemple") and room.folder:FindFirstChild("UrokodakiHouse"))
+    local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Include;params.FilterDescendantsInstances={room.folder};params.RespectCanCollide=true
+    for _,door in ipairs({Vector3.new(-112,4,63),Vector3.new(-48,4,107)}) do
+        assert(not workspace:Blockcast(CFrame.new(room.center+door),Vector3.new(2,4,2),Vector3.new(0,0,-19),params),"blocked doorway")
+    end
+    for id,anchor in pairs(room.anchors) do
+        assert(World.inside(room,anchor.Position),id)
+        local floor=workspace:Raycast(anchor.Position+Vector3.yAxis*3,-Vector3.yAxis*12,params)
+        assert(floor and floor.Normal.Y>0.8,"objective has no walkable floor: "..id)
+    end
+    assert(#room.hazards==3 and #room.boulder==2)
+    for _,half in ipairs(room.boulder) do assert((half.open.Position-half.closed.Position).Magnitude>3) end
+    World.remove(1)
+end)
+
+check("training admits basic strikes, rejects forms and cannot kill the sparring partner",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    local b=actor("sabito","npc",Vector3.new(0,4,8))
+    a.storyLocked=true;a.storyCanBasic=true;a.basicStyle="practice"
+    Rig.storyWeapon(a.model,"axe")
+    assert(a.model.StoryWeapon:FindFirstChild("AxeHead") and not a.model:GetAttribute("HasSheath"))
+    assert(not combat:cast(a,Content.moves.water_1,-Vector3.zAxis))
+    assert(combat:basic(a,-Vector3.zAxis));task.wait(0.2)
+    assert(b.humanoid.Health<160,"training strike missed")
+    b.healthFloor=1;b.humanoid.Health=4
+    local calls=0;b.onDamaged=function(source,damage) assert(source==a and damage==3);calls+=1 end
+    combat:damage(a,b,50,"none")
+    assert(b.humanoid.Health==1 and b.alive and calls==1,"nonlethal floor failed")
+    Rig.storyWeapon(a.model,"practice")
+    assert(a.model.StoryWeapon:FindFirstChild("PracticeBlade") and not a.model.StoryWeapon:FindFirstChild("AxeHead"))
+    Rig.storyWeapon(a.model,nil);assert(not a.model:FindFirstChild("StoryWeapon"))
+    combat:remove(a);combat:remove(b)
+end)
+
 check("server cast damages an in-range enemy and rejects a cooldown replay",function()
     local a=actor("tanjiro","player",Vector3.new(0,4,0))
     local b=actor("akaza","npc",Vector3.new(0,4,-7))

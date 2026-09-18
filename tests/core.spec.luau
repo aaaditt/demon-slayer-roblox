@@ -98,4 +98,23 @@ test("active save lease prevents a second server overwriting progression", funct
     assert(Rules.claimLease(record, "serverB", 281, 180))
 end)
 
+test("breathing windows reject early, late and repeated beats", function()
+    assert(not Rules.focusWindow(0.5,3.2,1.4,2.5,-1))
+    assert(Rules.focusWindow(1.8,3.2,1.4,2.5,-1))
+    assert(not Rules.focusWindow(1.9,3.2,1.4,2.5,0))
+    assert(not Rules.focusWindow(2.7,3.2,1.4,2.5,-1))
+    local accepted,cycle=Rules.focusWindow(5,3.2,1.4,2.5,0)
+    assert(accepted and cycle==1)
+    assert(not Rules.focusWindow(0/0,3.2,1.4,2.5,-1))
+    assert(not Rules.focusWindow(1.8,0,1.4,2.5,-1))
+end)
+
+test("training damage preserves life without granting healing", function()
+    assert(Rules.trainingDamage(160,12,1)==12)
+    assert(Rules.trainingDamage(5,12,1)==4)
+    assert(Rules.trainingDamage(1,12,1)==0)
+    assert(Rules.trainingDamage(0,12,1)==0)
+    assert(Rules.trainingDamage(5,12)==5)
+end)
+
 print(string.format("%d core tests passed", passed))

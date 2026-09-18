@@ -114,6 +114,14 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             assert(labels>30,"UI did not populate")
             assert(#failures==0,table.concat(failures,"\n"))
             return labels
+        elseif command=="training" then
+            task.wait(0.4)
+            local gui=player.PlayerGui.StoryUI
+            assert(gui.Training.Visible and gui.Objective.Visible and not gui.Cutscene.Visible,"training HUD missing")
+            assert(workspace.CurrentCamera.CameraType==Enum.CameraType.Custom,"camera still locked")
+            if args.weapon then assert(player.Character.StoryWeapon:FindFirstChild(args.weapon),"training weapon did not replicate") end
+            assert(#failures==0,table.concat(failures,"\n"))
+            return true
         elseif command=="tabs" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
             local gui=player.PlayerGui.WisteriaUI
@@ -141,7 +149,9 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             return true
         elseif command=="visual" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
-            input:SendKey(true,Enum.KeyCode.M,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.M,false)
+            if player.PlayerGui.WisteriaUI.MenuShade.Visible then
+                input:SendKey(true,Enum.KeyCode.M,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.M,false)
+            end
             local root=player.Character.HumanoidRootPart
             workspace.CurrentCamera.CameraType=Enum.CameraType.Scriptable
             workspace.CurrentCamera.CFrame=CFrame.lookAt(root.Position+Vector3.new(18,14,26),root.Position+Vector3.new(0,2,-12))

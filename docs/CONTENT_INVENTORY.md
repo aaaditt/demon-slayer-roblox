@@ -528,3 +528,10 @@ Dark pools and abrupt surfacing attacks.
 | Swamp Dive | descriptive | evade; none | [source](https://kimetsu-no-yaiba.fandom.com/wiki/Swamp_Demon) |
 | Underwater Claws | descriptive | barrage; none | [source](https://kimetsu-no-yaiba.fandom.com/wiki/Swamp_Demon) |
 | Three-Body Assault | descriptive | summon; none | [source](https://kimetsu-no-yaiba.fandom.com/wiki/Swamp_Demon) |
+
+## Training Fundamentals
+
+Original basic axe and practice-sword feedback for the pre-Corps story. No elemental breathing attack is implied.
+
+| Technique | Scope | Implementation | Reference |
+|---|---|---|---|

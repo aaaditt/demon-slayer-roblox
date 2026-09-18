@@ -26,6 +26,16 @@ function StoryPlayer.new(send,ui)
     self.objectivePanel=panel
     self.title=text(panel,"",UDim2.new(1,-24,0,23),UDim2.fromOffset(12,6),13,Color3.fromRGB(246,200,123))
     self.objective=text(panel,"",UDim2.new(1,-24,0,47),UDim2.fromOffset(12,28),15)
+    local exercise=make("Frame",gui,{Name="Training",Size=UDim2.new(0.72,0,0,98),Position=UDim2.fromOffset(16,174),BackgroundColor3=Color3.fromRGB(18,26,37),BackgroundTransparency=0.1,BorderSizePixel=0,Visible=false})
+    make("UISizeConstraint",exercise,{MaxSize=Vector2.new(520,98)});make("UICorner",exercise,{CornerRadius=UDim.new(0,8)})
+    self.exercise=exercise
+    self.progress=text(exercise,"",UDim2.new(1,-24,0,27),UDim2.fromOffset(12,3),14)
+    self.breathBar=make("Frame",exercise,{Size=UDim2.new(1,-24,0,12),Position=UDim2.fromOffset(12,34),BackgroundColor3=Color3.fromRGB(49,59,73),BorderSizePixel=0})
+    self.window=make("Frame",self.breathBar,{Size=UDim2.fromScale(0.3,1),BackgroundColor3=Color3.fromRGB(175,142,78),BorderSizePixel=0})
+    self.cursor=make("Frame",self.breathBar,{Size=UDim2.new(0,4,1,4),Position=UDim2.fromOffset(0,-2),BackgroundColor3=Color3.fromRGB(255,248,223),BorderSizePixel=0})
+    self.focusButton=make("TextButton",exercise,{Text="BREATHE  [E / X]",Size=UDim2.new(1,-24,0,34),Position=UDim2.fromOffset(12,55),BackgroundColor3=Color3.fromRGB(38,48,61),TextColor3=Color3.fromRGB(245,226,189),Font=Enum.Font.GothamMedium,TextSize=14,BorderSizePixel=0})
+    make("UICorner",self.focusButton,{CornerRadius=UDim.new(0,6)})
+    self.focusButton.Activated:Connect(function() self:focus() end)
     self.cinema=make("Frame",gui,{Name="Cutscene",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Visible=false})
     make("Frame",self.cinema,{Size=UDim2.new(1,0,0,42),BackgroundColor3=Color3.new(),BorderSizePixel=0})
     local footer=make("Frame",self.cinema,{Name="Dialogue",Size=UDim2.new(1,0,0,155),Position=UDim2.new(0,0,1,-155),BackgroundColor3=Color3.fromRGB(10,14,22),BackgroundTransparency=0.04,BorderSizePixel=0})
@@ -50,9 +60,37 @@ function StoryPlayer.new(send,ui)
         if state==Enum.UserInputState.Begin then self:request(true) end
         return Enum.ContextActionResult.Sink
     end,false,4000,Enum.KeyCode.Y,Enum.KeyCode.ButtonY)
+    ContextActionService:BindActionAtPriority("StoryFocus",function(_,state)
+        if not self:canFocus() then return Enum.ContextActionResult.Pass end
+        if state==Enum.UserInputState.Begin then self:focus() end
+        return Enum.ContextActionResult.Sink
+    end,false,4000,Enum.KeyCode.E,Enum.KeyCode.ButtonX)
     RunService.RenderStepped:Connect(function()
         if not self.state then return end
         self.objectivePanel.Visible=self.state.phase~="scene" and not self.ui.shade.Visible
+        local challenge=self.state.challenge
+        self.exercise.Visible=challenge~=nil and not self.ui.shade.Visible
+        if challenge then
+            local focus=challenge.kind=="breath" or challenge.kind=="cut"
+            self.breathBar.Visible=focus;self.focusButton.Visible=focus
+            self.exercise.Size=UDim2.new(0.72,0,0,focus and 98 or 36)
+            local progress=challenge.kind=="route" and ("Course markers: "..math.min(challenge.routeIndex-1,challenge.routeTotal).." / "..challenge.routeTotal)
+                or ("Controlled hits: "..challenge.count.." / "..challenge.goal)
+            if challenge.kind=="breath" then progress="Steady breaths: "..challenge.count.." / "..challenge.goal end
+            if challenge.kind=="cut" then progress="Stand still. Breathe in gold, then strike." end
+            if challenge.kind=="survive" then progress..="  ·  Hold out: "..challenge.surviveRemaining.."s" end
+            self.progress.Text=progress.."  ·  "..challenge.remaining.."s"
+            if focus then
+                local now=workspace:GetServerTimeNow()
+                local phase=(now-challenge.started)%challenge.period
+                local ready=phase>=challenge.window[1] and phase<=challenge.window[2]
+                self.window.Position=UDim2.fromScale(challenge.window[1]/challenge.period,0)
+                self.window.Size=UDim2.fromScale((challenge.window[2]-challenge.window[1])/challenge.period,1)
+                self.window.BackgroundColor3=ready and Color3.fromRGB(255,214,129) or Color3.fromRGB(175,142,78)
+                self.cursor.Position=UDim2.new(phase/challenge.period,-2,0,-2)
+                self.focusButton.Text=challenge.kind=="cut" and now<challenge.focusUntil and ("STRIKE NOW  ·  "..math.ceil(challenge.focusUntil-now).."s") or "BREATHE IN GOLD  [E / X]"
+            end
+        end
         local character=Players.LocalPlayer.Character
         local root=character and character:FindFirstChild("HumanoidRootPart")
         local distance=root and self.state.position and math.floor((root.Position-self.state.position).Magnitude) or nil
@@ -66,6 +104,15 @@ function StoryPlayer.new(send,ui)
     self.cameraValue=Instance.new("CFrameValue")
     Players.LocalPlayer.CharacterAdded:Connect(function() self:releaseCamera() end)
     return self
+end
+
+function StoryPlayer:canFocus()
+    local challenge=self.state and self.state.challenge
+    return challenge and (challenge.kind=="breath" or challenge.kind=="cut") and not self.ui.shade.Visible and not UserInputService:GetFocusedTextBox()
+end
+
+function StoryPlayer:focus()
+    if self:canFocus() then self.send("Focus") end
 end
 
 function StoryPlayer:request(skip)
@@ -94,7 +141,11 @@ function StoryPlayer:update(state)
     self.ui.top.Visible=not scene;self.ui.hint.Visible=not scene
     if scene then self.ui.toastFrame.Visible=false end
     self.ui.skillbar.Visible=story==nil
-    self.ui.status.Visible=story==nil
+    self.ui.status.Visible=story==nil or story.phase=="challenge"
+    self.exercise.Visible=story~=nil and story.challenge~=nil
+    if story and story.challenge then
+        self.ui.hint.Text=story.canBasic and "Click / RT: strike   •   F / LT: guard   •   Q / RB: dash   •   E / X: breathe" or "WASD / stick: move   •   Space / A: jump   •   Q / RB: dash   •   E / X: breathe"
+    end
     self.objectivePanel.Visible=story~=nil and story.phase~="scene"
     if not story then
         self:releaseCamera();self.state=nil

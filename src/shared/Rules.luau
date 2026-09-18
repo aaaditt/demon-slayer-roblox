@@ -9,6 +9,18 @@ function Rules.integer(value, minimum, maximum)
     return Rules.finite(value) and value % 1 == 0 and value >= minimum and value <= maximum
 end
 
+-- Timing comes from the server clock, never from a client-provided timestamp.
+function Rules.focusWindow(elapsed, period, opens, closes, lastCycle)
+    if not Rules.finite(elapsed) or not Rules.finite(period) or elapsed < 0 or period <= 0 then return false, -1, 0 end
+    local cycle = math.floor(elapsed/period)
+    local phase = elapsed-cycle*period
+    return cycle > lastCycle and phase >= opens and phase <= closes, cycle, phase
+end
+
+function Rules.trainingDamage(health, amount, floor)
+    return math.min(amount, math.max(0, health-(floor or 0)))
+end
+
 function Rules.spend(state, move, now)
     if now < state.busyUntil or now < state.stunUntil then return false, "Recovering" end
     if (state.cooldowns[move.id] or 0) > now then return false, "Cooling down" end
