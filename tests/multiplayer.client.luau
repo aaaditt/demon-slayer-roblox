@@ -78,9 +78,15 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             local start=root.Position;local previous=start;local largest=0;local animated=false
             input:SendKey(true,Enum.KeyCode.Q,false)
             local deadline=os.clock()+0.5
+            local pressed=workspace:GetServerTimeNow();local frames={}
+            local function sample()
+                local delta=(root.Position-previous).Magnitude
+                if delta>2 then table.insert(frames,string.format("%.3f:%.2f",workspace:GetServerTimeNow()-pressed,delta)) end
+                largest=math.max(largest,delta);previous=root.Position
+            end
             repeat
                 RunService.RenderStepped:Wait()
-                largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
+                sample()
                 animated=animated or model:GetAttribute("MotionState")=="evade" or string.sub(model:GetAttribute("Anim") or "",1,5)=="dash_"
             until os.clock()>deadline
             input:SendKey(false,Enum.KeyCode.Q,false);input:SendKey(false,Enum.KeyCode.W,false)
@@ -89,12 +95,13 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             deadline=os.clock()+0.65
             repeat
                 RunService.RenderStepped:Wait()
-                largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
+                sample()
             until os.clock()>deadline
+            print("DASH_FRAMES "..table.concat(frames," "))
             assert(animated,"Q was not admitted while holding W")
             assert((root.Position-start).Magnitude>10,"dash failed to travel: "..(root.Position-start).Magnitude.."; largest frame "..largest)
-            assert(largest<12,"dash jumped an entire frame: "..largest)
-            return {distance=(root.Position-start).Magnitude,largestFrame=largest}
+            assert(largest<12,"dash jumped an entire frame: "..largest.." frames "..table.concat(frames," "))
+            return {distance=(root.Position-start).Magnitude,largestFrame=largest,frames=table.concat(frames," "),pressed=pressed}
         elseif command=="weapon" then
             local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
             assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")
@@ -172,6 +179,16 @@ bridge.OnClientEvent:Connect(function(token,command,args)
                 assert(opened(),"tab click failed: "..tab)
             end
             assert(#failures==0,table.concat(failures,"\n"))
+            return true
+        elseif command=="combatView" then
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            if player.PlayerGui.WisteriaUI.MenuShade.Visible then
+                input:SendKey(true,Enum.KeyCode.M,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.M,false)
+            end
+            local root=player.Character.HumanoidRootPart
+            local cf=root.CFrame
+            workspace.CurrentCamera.CameraType=Enum.CameraType.Scriptable
+            workspace.CurrentCamera.CFrame=CFrame.lookAt((cf*CFrame.new(5,2.2,-8)).Position,root.Position+Vector3.new(0,0.4,0))
             return true
         elseif command=="visual" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()

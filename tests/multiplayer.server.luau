@@ -46,7 +46,17 @@ return function(session)
             local actor=session.players[p1].actor
             actor.model:PivotTo(CFrame.new(0,4,35));actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow()
             task.wait(0.6)
+            local timeline={};local started=workspace:GetServerTimeNow()
+            print(string.format("DASH_EPOCH %.3f",started))
+            local state=""
+            local probe=game:GetService("RunService").Heartbeat:Connect(function()
+                local owner=actor.root:GetNetworkOwner()
+                local now=(actor.motion and "motion" or "idle").."/"..(owner==p1 and "client" or "server")
+                if now~=state then state=now;table.insert(timeline,string.format("%.3f %s",workspace:GetServerTimeNow()-started,now)) end
+            end)
             local ok,result=pcall(function() return client(p1,"dashInput") end)
+            probe:Disconnect()
+            print("DASH_TIMELINE "..table.concat(timeline," | "))
             local motion=session.players[p1].actor.lastMotion
             print("DASH_DIAGNOSTIC "..game:GetService("HttpService"):JSONEncode(motion or {}))
             assert(ok,result)
@@ -284,6 +294,26 @@ return function(session)
         end)
         check("client UI survives mission and arena character respawns",function() client(p1,"ui");client(p2,"ui") end)
         local args=StudioTestService:GetTestArgs()
+        if type(args)=="table" and args.visualCombat then
+            -- Review staging for the R15 sword kit: sheathed, drawn, then repeated M1 strings.
+            client(p1,"action",{name="Hub"})
+            task.wait(1)
+            client(p1,"action",{name="Select",payload="tanjiro"})
+            task.wait(1.5)
+            local a=session.players[p1].actor
+            a.model:PivotTo(CFrame.new(0,4,40));a.lastPosition=a.root.Position;a.motionTime=workspace:GetServerTimeNow()
+            client(p1,"combatView")
+            print("VISUAL_COMBAT_SHEATHED");task.wait(10)
+            session.combat:weapon(a,true)
+            task.wait(1);print("VISUAL_COMBAT_DRAWN");task.wait(10)
+            print("VISUAL_COMBAT_SWINGS")
+            local deadline=os.clock()+30
+            while os.clock()<deadline do
+                a.chain=nil;a.busyUntil=0
+                for _=1,4 do session.combat:basic(a,a.root.CFrame.LookVector);task.wait(0.45) end
+                task.wait(1.4)
+            end
+        end
         if type(args)=="table" and args.visual then
             task.wait(3)
             session.players[p1].actor.lastCombat=0

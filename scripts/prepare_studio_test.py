@@ -25,10 +25,10 @@ client.Name="RuntimeTests";client.Source=CLIENT_SOURCE;client.Parent=StarterPlay
 ServerScriptService.Server.Bootstrap.Source=[[local Game=require(script.Parent.Game)
 local session=Game.new():start()
 require(script.Parent.RuntimeTests)(session)]]
-local result=game:GetService("StudioTestService"):ExecuteMultiplayerTestAsync(2,{suite="Wisteria",visual=__VISUAL_ARG__,visualSagiri=__SAGIRI_ARG__,virtualInput=__INPUT_ARG__})
+local result=game:GetService("StudioTestService"):ExecuteMultiplayerTestAsync(2,{suite="Wisteria",visual=__VISUAL_ARG__,visualSagiri=__SAGIRI_ARG__,visualCombat=__COMBAT_ARG__,virtualInput=__INPUT_ARG__})
 print("RUNTIME_JSON "..game:GetService("HttpService"):JSONEncode(result))
 assert(result and result.failures==0,"Multiplayer tests failed")
-'''.replace("SERVER_SOURCE", long_string(server)).replace("CLIENT_SOURCE", long_string(client)).replace("__VISUAL_ARG__", "true" if "--visual" in sys.argv or "--visual-sagiri" in sys.argv else "false").replace("__SAGIRI_ARG__", "true" if "--visual-sagiri" in sys.argv else "false").replace("__INPUT_ARG__", "true" if "--virtual-input" in sys.argv else "false")
+'''.replace("SERVER_SOURCE", long_string(server)).replace("CLIENT_SOURCE", long_string(client)).replace("__VISUAL_ARG__", "true" if "--visual" in sys.argv or "--visual-sagiri" in sys.argv else "false").replace("__SAGIRI_ARG__", "true" if "--visual-sagiri" in sys.argv else "false").replace("__COMBAT_ARG__", "true" if "--visual-combat" in sys.argv else "false").replace("__INPUT_ARG__", "true" if "--virtual-input" in sys.argv else "false")
 (ROOT / "build").mkdir(exist_ok=True)
 (ROOT / "build/run-multiplayer.luau").write_text(runner,encoding="utf-8")
 print("Prepared build/run-multiplayer.luau")
