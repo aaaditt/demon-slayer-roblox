@@ -151,6 +151,8 @@ end)
 
 ### Task 3: Animation data
 
+> Layout amended during execution: data lives in `src/shared/Anims/Tanjiro.luau` (no requires, so plain `luau` and Roblox both load it); `src/shared/AnimData.luau` helpers take the set table (`AnimData.get(set, id)`, `AnimData.prepare(set)` fills `anim.joints`); a Roblox-only `src/shared/AnimSets.luau` maps set names to data.
+
 **Files:** Create `src/shared/AnimData/init.luau`, `src/shared/AnimData/Tanjiro.luau`; Test `tests/core.spec.luau`.
 
 **Interfaces (Produces):**

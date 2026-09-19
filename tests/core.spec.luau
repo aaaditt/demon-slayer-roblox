@@ -3,6 +3,8 @@ local Content = require("../src/shared/Content")
 local Config = require("../src/shared/Config")
 local MeleeRules = require("../src/shared/MeleeRules")
 local Swords = require("../src/shared/Swords")
+local AnimData = require("../src/shared/AnimData")
+local TanjiroAnims = AnimData.prepare(require("../src/shared/Anims/Tanjiro"))
 local passed = 0
 local function test(name, run)
     run()
@@ -184,6 +186,36 @@ test("tanjiro sword variants follow story progress and are fully defined", funct
     assert(Swords.definitions.tanjiro_black.tsuba.shape == "wheel")
     assert(Swords.definitions.tanjiro_yoriichi.tsuba.shape == "flame")
     assert(Swords.definitions.tanjiro_yoriichi.blade.engraving == "滅")
+end)
+
+test("tanjiro animation data is complete, ordered and samples within bounds", function()
+    local required = {"idle_sheathed","idle_drawn","draw","sheathe","m1_1","m1_2","m1_3","m1_4","dash_f","dash_b","dash_l","dash_r","hit_l","hit_r","knockback","getup","block","clash_recoil"}
+    local joints = {}
+    for _, j in ipairs(AnimData.JOINTS) do joints[j] = true; assert(AnimData.PARENT[j], j) end
+    for _, id in ipairs(required) do
+        local a = AnimData.get(TanjiroAnims, id)
+        assert(a and a.duration > 0 and #a.keyframes >= 2 and a.priority, id)
+        local last = -1
+        for _, key in ipairs(a.keyframes) do
+            assert(key.t > last and key.t <= a.duration, id .. " keyframe order")
+            last = key.t
+            for joint, v in pairs(key.pose) do assert(joints[joint] and (#v == 3 or #v == 6), id .. " " .. joint) end
+        end
+        for name, time in pairs(a.markers) do assert(time >= 0 and time <= a.duration, id .. " " .. name) end
+        for _, joint in ipairs(a.mask or {}) do assert(joints[joint], id .. " mask " .. joint) end
+    end
+    for i = 1, 4 do
+        local a = AnimData.get(TanjiroAnims, "m1_" .. i)
+        assert(a.hitbox and a.markers.Hit < a.markers.CanChain and a.markers.CanChain <= a.markers.End, "m1_" .. i)
+    end
+    assert(AnimData.get(TanjiroAnims, "m1_4").finisher)
+    assert(AnimData.marker(TanjiroAnims, "draw", "Grip") and AnimData.marker(TanjiroAnims, "sheathe", "Release"))
+    local m1 = AnimData.get(TanjiroAnims, "m1_1")
+    local start, mid = AnimData.sample(m1, 0), AnimData.sample(m1, 0.15)
+    assert(#mid.RightShoulder == 6 and start.RightShoulder[1] == 48)
+    assert(mid.RightShoulder[1] < 150 and mid.RightShoulder[1] > 38, "interpolates between wind-up and cut")
+    local idle = AnimData.get(TanjiroAnims, "idle_drawn")
+    assert(math.abs(AnimData.sample(idle, 2.5).RightShoulder[1] - AnimData.sample(idle, 0.5).RightShoulder[1]) < 1e-6, "loops wrap")
 end)
 
 print(string.format("%d core tests passed", passed))
