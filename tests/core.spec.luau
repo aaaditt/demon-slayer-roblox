@@ -2,6 +2,7 @@ local Rules = require("../src/shared/Rules")
 local Content = require("../src/shared/Content")
 local Config = require("../src/shared/Config")
 local MeleeRules = require("../src/shared/MeleeRules")
+local Swords = require("../src/shared/Swords")
 local passed = 0
 local function test(name, run)
     run()
@@ -165,6 +166,24 @@ test("dash kind from local direction", function()
     assert(MeleeRules.dashKind(0, -1) == "front" and MeleeRules.dashKind(0, 1) == "back")
     assert(MeleeRules.dashKind(-1, 0) == "left" and MeleeRules.dashKind(1, 0.2) == "right")
     assert(MeleeRules.dashKind(0, 0) == "front")
+end)
+
+test("tanjiro sword variants follow story progress and are fully defined", function()
+    assert(Swords.variantFor("tanjiro", 1) == "urokodaki_steel")
+    assert(Swords.variantFor("tanjiro", 3) == "urokodaki_steel")
+    assert(Swords.variantFor("tanjiro", 4) == "tanjiro_black")
+    assert(Swords.variantFor("tanjiro", 14) == "tanjiro_black")
+    assert(Swords.variantFor("tanjiro", 15) == "tanjiro_yoriichi")
+    assert(Swords.variantFor("tanjiro", 23) == "tanjiro_yoriichi")
+    assert(Swords.variantFor("zenitsu", 5) == nil)
+    for _, id in ipairs({"urokodaki_steel", "tanjiro_black", "tanjiro_yoriichi"}) do
+        local d = Swords.definitions[id]
+        assert(d and d.id == id and d.blade.length > 2 and #d.blade.color == 3 and #d.blade.edge == 3, id)
+        assert(d.tsuba.shape and #d.tsuba.color == 3 and d.saya.length > d.blade.length, id)
+    end
+    assert(Swords.definitions.tanjiro_black.tsuba.shape == "wheel")
+    assert(Swords.definitions.tanjiro_yoriichi.tsuba.shape == "flame")
+    assert(Swords.definitions.tanjiro_yoriichi.blade.engraving == "滅")
 end)
 
 print(string.format("%d core tests passed", passed))

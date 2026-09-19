@@ -126,7 +126,7 @@ end)
 
 **Interfaces (Produces):**
 - `Swords.definitions[id] = {id, blade={length, width, thickness, color={r,g,b}, edge={r,g,b}, engraving=string|nil}, tsuba={shape="round"|"wheel"|"flame", color, accent}, tsuka={length, wrap, diamond}, saya={color, length}}` (colors are `{r,g,b}` 0–255 arrays).
-- `Swords.variantFor(characterId, chapter) -> id|nil` — tanjiro: chapter ≤ 3 → `urokodaki_steel` (Final Selection uses Urokodaki's sword), 4–8 → `tanjiro_black`, 9–13 → `tanjiro_metsu` (after Swordsmith Village chapter index from catalog), ≥14 → `tanjiro_flame`; other characters → nil. Chapter thresholds are constants `Swords.TanjiroThresholds = {black = 4, metsu = 9, flame = 14}`, checked against catalog chapter names in the test.
+- `Swords.variantFor(characterId, chapter) -> id|nil` — tanjiro: chapter ≤ 3 → `urokodaki_steel` (Final Selection uses Urokodaki's sword), 4–14 → `tanjiro_black`, ≥ 15 → `tanjiro_yoriichi` (Swordsmith Village is chapters 13–14; its blade comes with Rengoku's tsuba); other characters → nil. Thresholds: `Swords.TanjiroThresholds = {black = 4, yoriichi = 15}`.
 
 - [ ] **Step 1: failing test**
 
@@ -135,15 +135,15 @@ test("tanjiro sword variants follow story progress and are fully defined", funct
     assert(Swords.variantFor("tanjiro", 1) == "urokodaki_steel")
     assert(Swords.variantFor("tanjiro", 3) == "urokodaki_steel")
     assert(Swords.variantFor("tanjiro", 4) == "tanjiro_black")
-    assert(Swords.variantFor("tanjiro", 23) == "tanjiro_flame")
+    assert(Swords.variantFor("tanjiro", 15) == "tanjiro_yoriichi")
     assert(Swords.variantFor("zenitsu", 5) == nil)
-    for _, id in ipairs({"urokodaki_steel", "tanjiro_black", "tanjiro_metsu", "tanjiro_flame"}) do
+    for _, id in ipairs({"urokodaki_steel", "tanjiro_black", "tanjiro_yoriichi"}) do
         local d = Swords.definitions[id]
         assert(d and d.blade.length > 2 and #d.blade.color == 3 and d.tsuba.shape and d.saya.length > d.blade.length, id)
     end
     assert(Swords.definitions.tanjiro_black.tsuba.shape == "wheel")
-    assert(Swords.definitions.tanjiro_flame.tsuba.shape == "flame")
-    assert(Swords.definitions.tanjiro_metsu.blade.engraving == "滅")
+    assert(Swords.definitions.tanjiro_yoriichi.tsuba.shape == "flame")
+    assert(Swords.definitions.tanjiro_yoriichi.blade.engraving == "滅")
 end)
 ```
 

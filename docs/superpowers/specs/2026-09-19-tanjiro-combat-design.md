@@ -24,14 +24,13 @@ Combat data is keyed by **sword definition + breathing style + animation set**, 
 
 Each sword definition = blade (length, width, color, edge-line color, curvature, engraving), tsuba (shape builder id + color), tsuka (wrap color, diamond color), habaki, saya (color, hip side). Built from parts, welded; blade carries two attachments + `SwordTrail`.
 
-Tanjiro variants, selected by story progress (a `swordVariant` on the profile/story state):
+Tanjiro variants (corrected 2026-09-19: the Swordsmith Village blade arrives already fitted with Rengoku's tsuba, so it is one variant, not two), selected by story progress (a `swordVariant` on the profile/story state):
 
 | Variant | When | Blade | Tsuba | Notes |
 |---|---|---|---|---|
 | `urokodaki_steel` | Training (ch. 1–2) | plain steel | simple round | Urokodaki's sword |
 | `tanjiro_black` | after Final Selection | black, lighter edge line | black wagon-wheel (ring + spokes) | wrap black over red diamonds; black saya |
-| `tanjiro_metsu` | after Swordsmith Village | black | wagon-wheel | 滅 engraved near habaki |
-| `tanjiro_flame` | after Senjuro gives Rengoku's tsuba | black | Rengoku's flame tsuba (red/orange flame ring) | final look |
+| `tanjiro_yoriichi` | from ch. 15 (after Swordsmith Village) | black; Yoriichi's ~300-year-old blade restored by Haganezuka, 滅 engraving (verify) | Rengoku's flame tsuba (red/orange flame ring), fitted by the smiths | final look |
 
 Note on canon: the blue "water" seen in the anime is the Water Breathing effect, not the blade colour. Replica-sourced details (wrap colours, pommel) must be checked against anime screenshots before sign-off and recorded in `docs/RESEARCH.md`.
 
