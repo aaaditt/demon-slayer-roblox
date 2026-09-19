@@ -23,4 +23,20 @@ return {
     MaxMissionRooms = 12,
     RemoteRate = 16,
     RemoteBurst = 24,
+    -- R15 sword kit (Tanjiro template). Timings of individual swings live in AnimData.
+    Melee = {
+        ChainWindow = 0.5, EndLag = 0.9,
+        Damage = 9, FinisherDamage = 14,
+        Hitstun = 0.45, KnockbackDistance = 25, KnockbackLift = 45, Knockdown = 0.8,
+        GuardBreakStun = 1.0, ParryWindow = 0.18, ParryStagger = 0.6, BlockFrontDot = 0.3,
+        SwingSpeedScale = 0.5, StunSpeedScale = 0.3,
+        ClashWindow = 0.25, ClashPush = 10, ClashLoserScale = 0.5,
+        DashDuration = 0.28, TargetLockRange = 20,
+        Dash = {
+            front = {distance = 20, cooldown = 2.5},
+            back = {distance = 12, cooldown = 1.5},
+            left = {distance = 14, cooldown = 1.5},
+            right = {distance = 14, cooldown = 1.5},
+        },
+    },
 }

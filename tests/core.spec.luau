@@ -1,5 +1,7 @@
 local Rules = require("../src/shared/Rules")
 local Content = require("../src/shared/Content")
+local Config = require("../src/shared/Config")
+local MeleeRules = require("../src/shared/MeleeRules")
 local passed = 0
 local function test(name, run)
     run()
@@ -115,6 +117,54 @@ test("training damage preserves life without granting healing", function()
     assert(Rules.trainingDamage(1,12,1)==0)
     assert(Rules.trainingDamage(0,12,1)==0)
     assert(Rules.trainingDamage(5,12)==5)
+end)
+
+test("m1 chain continues inside window, restarts outside, end lag after finisher", function()
+    local cfg = Config.Melee
+    local s = {step = 0, lastEnd = 0, busyUntil = 0}
+    assert(MeleeRules.nextChain(s, 1, cfg) == 1)
+    s.step = 1; s.lastEnd = 1.3; s.busyUntil = 1.3
+    assert(MeleeRules.nextChain(s, 1.2, cfg) == nil)
+    assert(MeleeRules.nextChain(s, 1.5, cfg) == 2)
+    assert(MeleeRules.nextChain(s, 2.0, cfg) == 1)
+    s.step = 4; s.lastEnd = 5; s.busyUntil = 5
+    assert(MeleeRules.nextChain(s, 5.5, cfg) == nil)
+    assert(MeleeRules.nextChain(s, 5.95, cfg) == 1)
+end)
+
+test("sword hitbox accepts front targets only within reach and tolerance", function()
+    local box = {length = 8, width = 7, height = 6, forwardOffset = 4, tolerance = 1.5}
+    assert(MeleeRules.inHitbox(5, 0, 0, box))
+    assert(MeleeRules.inHitbox(9.4, 3, 2, box))
+    assert(not MeleeRules.inHitbox(9.6, 0, 0, box))
+    assert(not MeleeRules.inHitbox(-1, 0, 0, box))
+    assert(not MeleeRules.inHitbox(4, 3.6, 0, box))
+    assert(not MeleeRules.inHitbox(4, 0, 3.1, box))
+end)
+
+test("block stops frontal m1s, not techniques; finisher breaks guard; early block parries", function()
+    local cfg = Config.Melee
+    assert(MeleeRules.blockOutcome(false, 1, 1, false, false, cfg) == "hit")
+    assert(MeleeRules.blockOutcome(true, 1, 1, false, false, cfg) == "block")
+    assert(MeleeRules.blockOutcome(true, -1, 1, false, false, cfg) == "hit")
+    assert(MeleeRules.blockOutcome(true, 1, 1, false, true, cfg) == "hit")
+    assert(MeleeRules.blockOutcome(true, 1, 1, true, false, cfg) == "guardbreak")
+    assert(MeleeRules.blockOutcome(true, 1, 0.1, true, false, cfg) == "parry")
+end)
+
+test("technique tiers and clash resolution", function()
+    assert(MeleeRules.tier({damage = 12}) == 1 and MeleeRules.tier({damage = 24}) == 2 and MeleeRules.tier({damage = 40}) == 3)
+    assert(MeleeRules.tier({damage = 40, tier = 1}) == 1)
+    assert(MeleeRules.clash(1, 1.3, 2, 2, 0.25) == nil)
+    assert(MeleeRules.clash(1, 1.2, 2, 2, 0.25) == "cancel")
+    assert(MeleeRules.clash(1, 1.1, 3, 1, 0.25) == "a")
+    assert(MeleeRules.clash(1, 1.1, 1, 2, 0.25) == "b")
+end)
+
+test("dash kind from local direction", function()
+    assert(MeleeRules.dashKind(0, -1) == "front" and MeleeRules.dashKind(0, 1) == "back")
+    assert(MeleeRules.dashKind(-1, 0) == "left" and MeleeRules.dashKind(1, 0.2) == "right")
+    assert(MeleeRules.dashKind(0, 0) == "front")
 end)
 
 print(string.format("%d core tests passed", passed))
