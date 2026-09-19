@@ -2,14 +2,58 @@
   "name": "WisteriaChronicles",
   "tree": {
     "$className": "DataModel",
-    "ReplicatedStorage": {"Shared": {"$path": "src/shared"}},
-    "ServerScriptService": {"Server": {"$path": "src/server"}},
-    "StarterPlayer": {
-      "$properties": {"CameraMaxZoomDistance": 36, "CameraMinZoomDistance": 8},
-      "StarterPlayerScripts": {"Client": {"$path": "src/client"}}
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      }
     },
-    "Workspace": {"$properties": {"Gravity": 150, "FallenPartsDestroyHeight": -100}},
-    "Lighting": {"$properties": {"ClockTime": 0, "Brightness": 2, "Ambient": [0.22, 0.24, 0.34], "OutdoorAmbient": [0.3, 0.33, 0.44]}},
-    "SoundService": {"$properties": {"RespectFilteringEnabled": true}}
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 36,
+        "CameraMinZoomDistance": 8
+      },
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "Gravity": 150,
+        "FallenPartsDestroyHeight": -100
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "ClockTime": 0,
+        "Brightness": 2,
+        "Ambient": [
+          0.22,
+          0.24,
+          0.34
+        ],
+        "OutdoorAmbient": [
+          0.3,
+          0.33,
+          0.44
+        ]
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    },
+    "ServerStorage": {
+      "AnimSources": {
+        "$path": "build/AnimSources.rbxmx"
+      }
+    }
   }
 }

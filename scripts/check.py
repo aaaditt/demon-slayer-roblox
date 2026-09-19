@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 from generate_content import generate
+from build_keyframes import build as build_keyframes
+from generate_clothing import generate as generate_clothing
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -99,6 +101,8 @@ def validate():
 def main():
     validate()
     generate()
+    generate_clothing()
+    build_keyframes()
     compiler = tool("luau", "luau-compile")
     files = sorted(ROOT.glob("src/**/*.luau")) + sorted(ROOT.glob("tests/*.luau"))
     for path in files:
