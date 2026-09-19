@@ -27,9 +27,9 @@ return {
     Melee = {
         ChainWindow = 0.5, EndLag = 0.9,
         Damage = 9, FinisherDamage = 14,
-        Hitstun = 0.45, KnockbackDistance = 25, KnockbackLift = 45, Knockdown = 0.8,
+        Hitstun = 0.45, KnockbackDistance = 25, KnockbackLift = 30, Knockdown = 0.8,
         GuardBreakStun = 1.0, ParryWindow = 0.18, ParryStagger = 0.6, BlockFrontDot = 0.3,
-        SwingSpeedScale = 0.5, StunSpeedScale = 0.3,
+        SwingSpeedScale = 0.5,
         ClashWindow = 0.25, ClashPush = 10, ClashLoserScale = 0.5,
         DashDuration = 0.28, TargetLockRange = 20,
         Dash = {

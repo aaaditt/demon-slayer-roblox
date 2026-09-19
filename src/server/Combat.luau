@@ -4,6 +4,9 @@ local Config = require(Shared.Config)
 local Rules = require(Shared.Rules)
 local Content = require(Shared.Content)
 local Rig = require(script.Parent.Rig)
+local MeleeRules = require(Shared.MeleeRules)
+local Melee = require(script.Parent.Melee)
+local M = Config.Melee
 local Combat = {}
 Combat.__index = Combat
 
@@ -89,7 +92,8 @@ function Combat:stopMotion(actor, reason)
     end
 end
 
-function Combat:move(actor, direction, distance, duration)
+-- forced motion (knockback, clash push) is not cancelled by the mover being stunned.
+function Combat:move(actor, direction, distance, duration, forced)
     if distance <= 0 then return 0 end
     self:stopMotion(actor)
     local parameters = RaycastParams.new()
@@ -124,31 +128,43 @@ function Combat:move(actor, direction, distance, duration)
     actor.root.CFrame = CFrame.lookAt(origin, origin+direction)
     pcall(function() actor.root:SetNetworkOwner(nil) end)
     actor.motion = {attachment=attachment,velocity=velocity,origin=origin,direction=direction,distance=travel,
-        ends=workspace:GetServerTimeNow()+duration,speed=travel/duration,parameters=parameters,token=actor.castToken}
+        ends=workspace:GetServerTimeNow()+duration,speed=travel/duration,parameters=parameters,token=actor.castToken,forced=forced}
     return duration
 end
 
-function Combat:damage(actor, target, amount, status)
+-- info (optional): {source = "m1", finisher, swing, step} for sword-kit strikes. Returns damage, result.
+function Combat:damage(actor, target, amount, status, info)
     local now = workspace:GetServerTimeNow()
     if not actor.alive or not target.alive or not Rules.canDamage(actor, target) then return end
     if actor.kind == "player" and actor.mode == "Arena" and not actor.arenaActive then return end
     if target.kind == "player" and target.mode == "Arena" and not target.arenaActive then return end
     local offset = actor.root.Position-target.root.Position
-    local frontal = offset.Magnitude < 0.01 or target.root.CFrame.LookVector:Dot(offset.Unit) > 0.15
-    local damage, result, energyCost = Rules.resolveDamage(amount, target, now, frontal, Config.GuardEnergyCost, Config.GuardReduction, Config.ParryWindow)
+    local facing = offset.Magnitude < 0.01 and 1 or target.root.CFrame.LookVector:Dot(offset.Unit)
+    local frontal = facing > 0.15
+    local damage, result, energyCost
+    if info and info.source == "m1" and target.invulnerableUntil <= now and target.guardUntil <= now then
+        result = MeleeRules.blockOutcome(target.blocking, facing, now - target.blockStarted, info.finisher, false, M)
+        damage, energyCost = result == "hit" and amount or 0, 0
+    else
+        -- The R15 sword kit's block only answers M1s: techniques reach a blocking sword-kit fighter.
+        if Melee.isR15(target) then frontal = false end
+        damage, result, energyCost = Rules.resolveDamage(amount, target, now, frontal, Config.GuardEnergyCost, Config.GuardReduction, Config.ParryWindow)
+    end
     if target.healthFloor then damage = Rules.trainingDamage(target.humanoid.Health, damage, target.healthFloor) end
     target.energy = math.max(0, target.energy-energyCost)
     actor.lastCombat = now; target.lastCombat = now
     if result == "parry" or result == "counter" then
-        actor.stunUntil = math.max(actor.stunUntil, now+0.65)
+        actor.stunUntil = math.max(actor.stunUntil, now+(info and M.ParryStagger or 0.65))
         actor.castToken += 1
     elseif result == "break" then
         target.blocking = false; target.stunUntil = now+0.9; target.castToken += 1
+    elseif result == "guardbreak" then
+        target.blocking = false; target.stunUntil = now+M.GuardBreakStun; target.castToken += 1
     end
     if damage > 0 then
         target.lastAttacker = actor
         -- Only status-free hits receive ordinary brief stagger. Control status has an immunity window.
-        if result == "hit" and now >= target.controlImmuneUntil then
+        if result == "hit" and not info and now >= target.controlImmuneUntil then
             target.stunUntil = math.max(target.stunUntil, now+0.12)
         end
         target.humanoid:TakeDamage(damage)
@@ -168,7 +184,11 @@ function Combat:damage(actor, target, amount, status)
             end
         end
     end
-    self:emit(target, "hit", {position = target.root.Position, amount = math.floor(damage+0.5), result = result})
+    local toward = offset.Magnitude > 0.01 and offset.Unit or Vector3.zero
+    self:emit(target, "hit", {position = target.root.Position, amount = math.floor(damage+0.5), result = result,
+        attacker = actor.model, contact = target.root.Position+toward*0.8+Vector3.new(0, 0.6, 0),
+        source = info and info.source or "technique", finisher = info and info.finisher or false, swing = info and info.swing})
+    return damage, result
 end
 
 function Combat:fieldCenter(actor, origin, direction, range)
@@ -209,6 +229,11 @@ function Combat:cast(actor, move, direction)
     actor.root.CFrame = CFrame.lookAt(origin, origin+direction)
     actor.castToken += 1
     local token = actor.castToken
+    if move.id ~= "basic" and move.damage > 0 and not field then
+        actor.activeCast = {token = token, activeAt = now+move.windup, move = move, origin = origin, direction = direction}
+        if self:clashCheck(actor) then return true end
+    end
+    if Melee.isR15(actor) then Melee.techniquePose(actor, move.pattern, now) end
     actor.model:SetAttribute("Pose", move.pattern)
     actor.model:SetAttribute("PoseStart", now)
     actor.model:SetAttribute("PoseDuration", actor.busyUntil-now)
@@ -250,11 +275,53 @@ function Combat:cast(actor, move, direction)
             end
             if hitIndex < move.hits then task.wait(0.09) end
         end
+        if actor.activeCast and actor.activeCast.token == token then actor.activeCast = nil end
     end)
     return true
 end
 
+local function reaches(cast, position)
+    local localPoint = CFrame.lookAt(cast.origin, cast.origin+cast.direction):PointToObjectSpace(position)
+    return math.abs(localPoint.Y) < 10 and Rules.inShape(cast.move.pattern, -localPoint.Z, localPoint.X, cast.move.range+cast.move.dash, cast.move.width)
+end
+
+-- Two opposing techniques that can reach each other and go active within Config.Melee.ClashWindow clash.
+function Combat:clashCheck(actor)
+    local mine = actor.activeCast
+    for _, other in pairs(self.actors) do
+        local theirs = other.activeCast
+        if other ~= actor and other.alive and theirs and theirs.token == other.castToken and Rules.canDamage(actor, other)
+            and reaches(mine, other.root.Position) and reaches(theirs, actor.root.Position) then
+            local outcome = MeleeRules.clash(mine.activeAt, theirs.activeAt, MeleeRules.tier(mine.move), MeleeRules.tier(theirs.move), M.ClashWindow)
+            if outcome then self:resolveClash(actor, other, outcome); return true end
+        end
+    end
+    return false
+end
+
+function Combat:resolveClash(a, b, outcome)
+    local now = workspace:GetServerTimeNow()
+    local aMove, bMove = a.activeCast.move, b.activeCast.move
+    a.activeCast = nil; b.activeCast = nil
+    a.castToken += 1; b.castToken += 1
+    a.busyUntil = math.max(a.busyUntil, now+0.45); b.busyUntil = math.max(b.busyUntil, now+0.45)
+    local apart = Vector3.new(b.root.Position.X-a.root.Position.X, 0, b.root.Position.Z-a.root.Position.Z)
+    apart = apart.Magnitude > 0.1 and apart.Unit or a.root.CFrame.LookVector
+    local winner, loser, winnerMove
+    if outcome == "a" then winner, loser, winnerMove = a, b, aMove elseif outcome == "b" then winner, loser, winnerMove = b, a, bMove end
+    for _, fighter in ipairs({a, b}) do
+        if fighter ~= winner then
+            self:move(fighter, fighter == a and -apart or apart, M.ClashPush, 0.25, true)
+            if Melee.isR15(fighter) then Melee.play(fighter, "clash_recoil", now) end
+        end
+    end
+    self:emit(a, "clash", {position = (a.root.Position+b.root.Position)/2, outcome = outcome, a = a.model, b = b.model,
+        color = Content.styles[(winnerMove or aMove).style].color})
+    if winner then self:damage(winner, loser, winnerMove.damage*M.ClashLoserScale*(winner.damageScale or 1), "none") end
+end
+
 function Combat:basic(actor, direction)
+    if Melee.isR15(actor) then return Melee.basic(self, actor, direction) end
     local now = workspace:GetServerTimeNow()
     local combo = now-actor.comboTime < 1.2 and actor.combo%3+1 or 1
     local style = actor.basicStyle or Content.characters[actor.characterId].styles[1] or "demon"
@@ -266,6 +333,7 @@ function Combat:basic(actor, direction)
 end
 
 function Combat:guard(actor, enabled)
+    if Melee.isR15(actor) then return Melee.guard(self, actor, enabled) end
     local now = workspace:GetServerTimeNow()
     if not enabled then actor.blocking = false; return end
     if not actor.alive or (actor.storyLocked and not actor.storyCanBasic) or actor.model:GetAttribute("InCutscene") or actor.blocking or now < actor.busyUntil or now < actor.stunUntil then return end
@@ -274,6 +342,7 @@ function Combat:guard(actor, enabled)
 end
 
 function Combat:weapon(actor, drawn)
+    if Melee.isR15(actor) then return Melee.weapon(self, actor, drawn) end
     local now = workspace:GetServerTimeNow()
     if not actor.alive or actor.storyLocked or not actor.model:GetAttribute("HasSheath") or now < actor.busyUntil or now < actor.stunUntil then return false end
     if drawn == nil then drawn = not actor.model:GetAttribute("WeaponDrawn") end
@@ -285,6 +354,7 @@ function Combat:weapon(actor, drawn)
 end
 
 function Combat:dodge(actor, direction)
+    if Melee.isR15(actor) then return Melee.dash(self, actor, direction) end
     local now = workspace:GetServerTimeNow()
     if actor.model:GetAttribute("InCutscene") then return end
     if not actor.alive or now < actor.stunUntil or now < actor.busyUntil or (actor.cooldowns.dodge or 0)>now or actor.energy<Config.DodgeCost then return end
@@ -317,11 +387,12 @@ function Combat:tick(dt)
             local hit = workspace:Blockcast(actor.root.CFrame, Vector3.new(3, 4, 2), m.direction*(m.speed*dt+0.6), m.parameters)
             if hit then self:stopMotion(actor, "collision: "..hit.Instance.Name)
             elseif now >= m.ends or traveled >= m.distance then self:stopMotion(actor, "finished")
-            elseif now < actor.stunUntil or actor.castToken ~= m.token then self:stopMotion(actor, "interrupted") end
+            elseif not m.forced and (now < actor.stunUntil or actor.castToken ~= m.token) then self:stopMotion(actor, "interrupted") end
         end
         local stunned = now<actor.stunUntil
         local frozen = stunned or actor.motion ~= nil or (actor.motionReleaseAt and now<actor.motionReleaseAt) or actor.model:GetAttribute("InCutscene")
-        actor.humanoid.WalkSpeed = frozen and 0 or actor.blocking and Config.GuardSpeed or actor.status.chill and 14 or Config.WalkSpeed
+        local swinging = actor.swingUntil and now<actor.swingUntil
+        actor.humanoid.WalkSpeed = frozen and 0 or actor.blocking and Config.GuardSpeed or swinging and Config.WalkSpeed*M.SwingSpeedScale or actor.status.chill and 14 or Config.WalkSpeed
         actor.humanoid.JumpPower = (frozen or actor.blocking) and 0 or Config.JumpPower
         actor.model:SetAttribute("Blocking", actor.blocking)
         actor.model:SetAttribute("Invulnerable", now<actor.invulnerableUntil or now<actor.guardUntil)

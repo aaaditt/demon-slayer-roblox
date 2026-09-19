@@ -205,5 +205,136 @@ check("tanjiro spawns as R15 with sword on left hip and draws to right hand",fun
     flame:Destroy()
 end)
 
+-- R15 sword kit (Tanjiro). combat:tick runs from Heartbeat here so forced motion and stuns resolve as in play.
+do
+    local RunService=game:GetService("RunService")
+    local CharacterBody=require(ServerScriptService.Server.CharacterBody)
+    local SwordBuilder=require(ServerScriptService.Server.SwordBuilder)
+    local AnimSets=require(ReplicatedStorage.Shared.AnimSets)
+    local Config=require(ReplicatedStorage.Shared.Config)
+    local M=Config.Melee
+    local events={}
+    local meleeCombat=Combat.new({FireAllClients=function(_,e) table.insert(events,e) end})
+    local ticking=RunService.Heartbeat:Connect(function(dt) meleeCombat:tick(dt) end)
+    local base=World.Hub.center+Vector3.new(40,4,40)
+    local function swordsman(offset,kind)
+        local model,humanoid,root=CharacterBody.create(World.Actors,base+offset,Content.characters.tanjiro,"Swordsman"..kind)
+        local a=meleeCombat:register(model,humanoid,root,{kind=kind,mode="Story",zone="melee",characterId="tanjiro",room=World.Hub})
+        a.invulnerableUntil=0
+        return a
+    end
+    local function dummy(offset)
+        local model,humanoid,root=Rig.create(World.Actors,base+offset,Content.characters.akaza)
+        local a=meleeCombat:register(model,humanoid,root,{kind="npc",mode="Story",zone="melee",characterId="akaza",room=World.Hub})
+        a.invulnerableUntil=0
+        return a
+    end
+    local function face(a,b)
+        local p=a.root.Position
+        a.root.CFrame=CFrame.lookAt(p,Vector3.new(b.root.Position.X,p.Y,b.root.Position.Z))
+    end
+    local function lastHit(target)
+        for i=#events,1,-1 do if events[i].kind=="hit" and events[i].actor==target.model then return events[i] end end
+    end
+
+    check("sword kit M1 string lands four cuts and the finisher launches",function()
+        local a=swordsman(Vector3.zero,"player")
+        local b=dummy(Vector3.new(0,0,-5))
+        a.root.Anchored=true;face(a,b)
+        assert(meleeCombat:basic(a,a.root.CFrame.LookVector),"draw then swing admitted")
+        task.wait(AnimSets.Tanjiro.draw.markers.End+0.05)
+        local health=b.humanoid.Health
+        for i=1,4 do
+            local anim=AnimSets.Tanjiro["m1_"..i]
+            if i>1 then assert(meleeCombat:basic(a,a.root.CFrame.LookVector),"swing "..i.." admitted") end
+            assert(a.model:GetAttribute("Anim")=="m1_"..i,"anim m1_"..i)
+            task.wait(i<4 and anim.markers.CanChain+0.03 or anim.markers.Hit+0.03)
+            local hit=lastHit(b)
+            assert(hit and hit.result=="hit" and hit.source=="m1","cut "..i.." connected")
+            if i<4 then assert(b.stunUntil>workspace:GetServerTimeNow(),"hitstun "..i) end
+        end
+        assert(math.abs((health-b.humanoid.Health)-(3*M.Damage+M.FinisherDamage))<0.01,"damage "..(health-b.humanoid.Health))
+        -- Edit-mode runs do not simulate physics; verify the server launched a forced knockback away from the attacker.
+        local m=b.motion
+        assert(m and m.forced and m.distance>=15 and m.direction:Dot(a.root.CFrame.LookVector)>0.9,"finisher knockback motion")
+        assert(not meleeCombat:basic(a,a.root.CFrame.LookVector),"end lag after finisher")
+        meleeCombat:remove(a);meleeCombat:remove(b)
+    end)
+
+    check("sword kit misses targets behind the swordsman",function()
+        local a=swordsman(Vector3.zero,"player")
+        local b=dummy(Vector3.new(0,0,-5))
+        a.root.Anchored=true;b.root.Anchored=true
+        face(a,b);a.root.CFrame*=CFrame.Angles(0,math.pi,0)
+        SwordBuilder.setDrawn(a.model,true)
+        local health=b.humanoid.Health
+        assert(meleeCombat:basic(a,a.root.CFrame.LookVector))
+        task.wait(AnimSets.Tanjiro.m1_1.markers.End)
+        assert(b.humanoid.Health==health,"hit behind")
+        meleeCombat:remove(a);meleeCombat:remove(b)
+    end)
+
+    check("block stops frontal M1s, finisher breaks guard, techniques pass block",function()
+        local a=swordsman(Vector3.zero,"player")
+        local b=swordsman(Vector3.new(0,0,-5),"npc")
+        a.root.Anchored=true;b.root.Anchored=true
+        face(a,b);face(b,a)
+        SwordBuilder.setDrawn(a.model,true)
+        meleeCombat:guard(b,true)
+        assert(b.blocking and b.model:GetAttribute("Anim")=="block")
+        task.wait(M.ParryWindow+0.05)
+        local health=b.humanoid.Health
+        for i=1,3 do
+            assert(meleeCombat:basic(a,a.root.CFrame.LookVector),"swing "..i)
+            task.wait(AnimSets.Tanjiro["m1_"..i].markers.CanChain+0.03)
+            assert(lastHit(b).result=="block","cut "..i.." blocked")
+        end
+        assert(b.humanoid.Health==health,"blocked M1s dealt damage")
+        assert(meleeCombat:basic(a,a.root.CFrame.LookVector))
+        task.wait(AnimSets.Tanjiro.m1_4.markers.Hit+0.05)
+        assert(lastHit(b).result=="guardbreak" and not b.blocking and b.stunUntil>workspace:GetServerTimeNow()+0.5,"guard break")
+        task.wait(1.2)
+        b.stunUntil=0;meleeCombat:guard(b,true);task.wait(M.ParryWindow+0.05)
+        a.busyUntil=0;a.cooldowns={};a.energy=100
+        local before=b.humanoid.Health
+        assert(meleeCombat:cast(a,Content.moves.water_1,a.root.CFrame.LookVector))
+        task.wait(Content.moves.water_1.windup+0.2)
+        assert(b.humanoid.Health<before,"technique was stopped by an M1-only block")
+        meleeCombat:remove(a);meleeCombat:remove(b)
+    end)
+
+    check("directional dashes travel, keep facing, use separate cooldowns and grant no invulnerability",function()
+        local a=swordsman(Vector3.zero,"player")
+        local look=a.root.CFrame.LookVector
+        assert(meleeCombat:dodge(a,look),"front dash")
+        assert(a.model:GetAttribute("Anim")=="dash_f" and a.invulnerableUntil<=workspace:GetServerTimeNow(),"no i-frames")
+        assert(a.motion and a.motion.distance>=18 and a.motion.direction:Dot(look)>0.95,"front dash motion")
+        assert(a.root.CFrame.LookVector:Dot(look)>0.95,"facing kept")
+        task.wait(M.DashDuration+0.1);meleeCombat:stopMotion(a);a.busyUntil=0
+        assert(not meleeCombat:dodge(a,look),"front dash cooldown")
+        assert(meleeCombat:dodge(a,a.root.CFrame.RightVector) and a.model:GetAttribute("Anim")=="dash_r","side dash on its own cooldown")
+        meleeCombat:remove(a)
+    end)
+
+    check("opposing techniques within the window clash and cancel",function()
+        local a=swordsman(Vector3.zero,"player")
+        local b=swordsman(Vector3.new(0,0,-8),"npc")
+        a.root.Anchored=true;b.root.Anchored=true
+        face(a,b);face(b,a)
+        for _,f in ipairs({a,b}) do SwordBuilder.setDrawn(f.model,true) end
+        local ha,hb=a.humanoid.Health,b.humanoid.Health
+        assert(meleeCombat:cast(b,Content.moves.water_1,b.root.CFrame.LookVector))
+        task.wait(0.05)
+        assert(meleeCombat:cast(a,Content.moves.water_1,a.root.CFrame.LookVector))
+        local clash
+        for _,e in ipairs(events) do if e.kind=="clash" then clash=e end end
+        assert(clash and clash.outcome=="cancel","clash event")
+        task.wait(Content.moves.water_1.windup+0.3)
+        assert(a.humanoid.Health==ha and b.humanoid.Health==hb,"clashed techniques dealt damage")
+        meleeCombat:remove(a);meleeCombat:remove(b)
+    end)
+    ticking:Disconnect()
+end
+
 print(string.format("STUDIO_RESULT %d passed / %d failed",passed,#failures))
 if #failures>0 then error(table.concat(failures,"\n")) end
