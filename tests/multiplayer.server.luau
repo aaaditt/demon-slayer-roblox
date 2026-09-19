@@ -54,11 +54,15 @@ return function(session)
             assert(motion and motion.distance>8,"server dash did not travel: "..(motion and motion.reason or "missing motion"))
         end)
         check("sword sheathe and draw replicate to both clients",function()
+            -- R6 rigs spawn drawn, R15 sword-kit bodies spawn sheathed: each toggle must flip and replicate.
+            local model=session.players[p1].actor.model
+            local initial=model:GetAttribute("WeaponDrawn")==true
             client(p1,"action",{name="Weapon",wait=0.55})
-            assert(not session.players[p1].actor.model:GetAttribute("WeaponDrawn"))
-            client(p2,"weapon",{name=p1.Name,drawn=false})
+            assert(model:GetAttribute("WeaponDrawn")==not initial,"first toggle did not flip")
+            client(p2,"weapon",{name=p1.Name,drawn=not initial})
             client(p1,"action",{name="Weapon",wait=0.55})
-            client(p2,"weapon",{name=p1.Name,drawn=true})
+            assert(model:GetAttribute("WeaponDrawn")==initial,"second toggle did not flip")
+            client(p2,"weapon",{name=p1.Name,drawn=initial})
         end)
         -- VirtualInput delivers InputBegan without activating buttons in this Studio environment.
         -- Keep this diagnostic opt-in; desktop mouse navigation is checked separately (docs/QA.md).
@@ -261,6 +265,9 @@ return function(session)
             local before=b.humanoid.Health
             client(p1,"action",{name="Basic",payload=Vector3.new(0,0,-1),wait=0.6})
             assert(b.humanoid.Health<before,"PvP basic hit failed")
+            if b.model:GetAttribute("RigKind")=="R15" then
+                client(p1,"hitFlash",{name=p2.Name});client(p2,"hitFlash",{name=p2.Name})
+            end
             assert(session.round.active and a.arenaActive and b.arenaActive)
         end)
         check("elimination scoring, respawn and five-point round winner",function()

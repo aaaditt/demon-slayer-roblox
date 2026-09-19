@@ -110,7 +110,9 @@ def build():
         assert set(animations.get(name, {})) == set(anims), f"data/animations.json ids differ from AnimData for {name}"
     for ids in animations.values():
         assert all(re.fullmatch(r"\d*", v) for v in ids.values()), "animation IDs must be digits or empty"
-    for character in assets.values():
+    for key, value in assets["sounds"].items():
+        assert key.startswith("_") or re.fullmatch(r"\d*", value), f"sound {key} must be digits or empty"
+    for character in assets["characters"].values():
         for key in ("shirt", "pants", "face"):
             assert re.fullmatch(r"\d*", character[key]), f"{key} asset ID must be digits or empty"
         assert all(re.fullmatch(r"\d+", a) for a in character["accessories"]), "accessory IDs must be digits"

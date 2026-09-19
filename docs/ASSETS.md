@@ -6,7 +6,7 @@ The game runs without any of these: every empty ID falls back to part-built look
 
 1. Run `python scripts/check.py` (or `python scripts/generate_clothing.py`). It writes `assets/clothing/tanjiro_shirt.png` and `tanjiro_pants.png` (585×559 classic templates).
 2. Upload each in Creator Hub → Creations → Avatar Items → Shirts / Pants (or Studio → Avatar → Create classic clothing). Uploading clothing may charge a small Robux fee.
-3. Copy each item's numeric ID into `data/assets.json` → `tanjiro.shirt` / `tanjiro.pants`.
+3. Copy each item's numeric ID into `data/assets.json` → `characters.tanjiro.shirt` / `characters.tanjiro.pants`.
 
 ## 2. Hair, earrings, scar
 
@@ -15,9 +15,13 @@ Pick from the Creator Store (free items, R15-compatible):
 - Earrings: hanafuda (white card with a red rising sun) if one exists; otherwise leave empty (the fallback adds part earrings).
 - Face: a face decal with the forehead scar, or leave empty.
 
-Put accessory IDs in `tanjiro.accessories` and the face in `tanjiro.face`; record each item's URL under `provenance`.
+Put accessory IDs in `characters.tanjiro.accessories` and the face in `characters.tanjiro.face`; record each item's URL under `provenance`.
 
-## 3. Animations
+## 3. Combat sounds
+
+Roblox ships no sword sounds, so hits currently use pitched built-in sounds. Put Creator Store sound IDs (sword swing, flesh cut, heavy impact, metal block, blade clash, unsheathe) into `data/assets.json` → `sounds` to replace them.
+
+## 4. Animations
 
 1. Run `python scripts/check.py`; open `build/WisteriaChronicles.rbxlx` in Studio.
 2. In Explorer, `ServerStorage → AnimSources → Tanjiro` has one KeyframeSequence per animation (`m1_1`, `draw`, `dash_f`, …).

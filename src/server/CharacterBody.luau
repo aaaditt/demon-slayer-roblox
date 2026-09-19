@@ -81,7 +81,7 @@ end
 
 function CharacterBody.create(parent, position, definition, actorName, options)
     local kit = CharacterBody.KITS[definition.id]
-    local appearance = Assets[definition.id]
+    local appearance = Assets.characters[definition.id]
     if not kit or not appearance then return nil end
     local ok, model = pcall(function()
         return Players:CreateHumanoidModelFromDescription(describe(appearance), Enum.HumanoidRigType.R15)

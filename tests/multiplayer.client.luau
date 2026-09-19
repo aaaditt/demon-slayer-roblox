@@ -36,19 +36,31 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             controls:Disable()
             local model=player.Character
             local humanoid=model:FindFirstChildOfClass("Humanoid")
-            local hip=model.Torso["Right Hip"]
-            local original=hip.C0
+            local r15=model:GetAttribute("RigKind")=="R15"
+            local hip=r15 and model.RightUpperLeg.RightHip or model.Torso["Right Hip"]
+            local function pose() return r15 and hip.Transform or hip.C0 end
+            local original=pose()
             local changed=false
             local deadline=os.clock()+0.5
             repeat
                 humanoid:Move(Vector3.new(-1,0,0),false)
                 RunService.RenderStepped:Wait()
-                if (hip.C0.Position-original.Position).Magnitude>0.01 or hip.C0.LookVector:Dot(original.LookVector)<0.99 then changed=true end
+                local now=pose()
+                if (now.Position-original.Position).Magnitude>0.01 or now.LookVector:Dot(original.LookVector)<0.99 then changed=true end
             until os.clock()>deadline
-            humanoid:Move(Vector3.zero);humanoid.Jump=true
             local states={}
+            local connection=humanoid.StateChanged:Connect(function(_,new)
+                if new==Enum.HumanoidStateType.Jumping then states.jump=true
+                elseif new==Enum.HumanoidStateType.Freefall then states.fall=true
+                elseif new==Enum.HumanoidStateType.Landed then states.land=true end
+            end)
+            humanoid:Move(Vector3.zero);humanoid.Jump=true
             deadline=os.clock()+1.5
-            repeat RunService.RenderStepped:Wait();states[model:GetAttribute("MotionState") or "missing"]=true until os.clock()>deadline
+            repeat
+                RunService.RenderStepped:Wait()
+                if not r15 then states[model:GetAttribute("MotionState") or "missing"]=true end
+            until os.clock()>deadline
+            connection:Disconnect()
             controls:Enable()
             assert(changed,"walking did not change the leg joint")
             assert(states.jump and states.fall and states.land,"missing jump, fall or landing poses")
@@ -69,7 +81,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             repeat
                 RunService.RenderStepped:Wait()
                 largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
-                animated=animated or model:GetAttribute("MotionState")=="evade"
+                animated=animated or model:GetAttribute("MotionState")=="evade" or string.sub(model:GetAttribute("Anim") or "",1,5)=="dash_"
             until os.clock()>deadline
             input:SendKey(false,Enum.KeyCode.Q,false);input:SendKey(false,Enum.KeyCode.W,false)
             -- Ownership changes and snapshots can trail input under a four-Studio test load.
@@ -86,8 +98,22 @@ bridge.OnClientEvent:Connect(function(token,command,args)
         elseif command=="weapon" then
             local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
             assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")
-            assert(model:FindFirstChild("Scabbard") and model.Torso:FindFirstChild("WeaponGrip"))
-            assert(model.Blade.LocalTransparencyModifier==(args.drawn and 0 or 1),"blade visibility incorrect")
+            if model:GetAttribute("RigKind")=="R15" then
+                local grip=model.Sword.SwordGrip
+                assert(grip.Part0==(args.drawn and model.RightHand or model.LowerTorso),"sword grip not replicated")
+                assert(model.Sword.Blade.Transparency==(args.drawn and 0 or 1),"blade visibility incorrect")
+                assert(model.Sword.Saya:IsDescendantOf(model),"saya missing")
+            else
+                assert(model:FindFirstChild("Scabbard") and model.Torso:FindFirstChild("WeaponGrip"))
+                assert(model.Blade.LocalTransparencyModifier==(args.drawn and 0 or 1),"blade visibility incorrect")
+            end
+            return true
+        elseif command=="hitFlash" then
+            local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
+            local deadline=os.clock()+1
+            repeat task.wait(0.05) until model:FindFirstChild("HitFlash") or os.clock()>deadline
+            local flash=model:FindFirstChild("HitFlash")
+            assert(flash and flash:IsA("Highlight") and flash.Adornee==model,"white hit flash missing on "..args.name)
             return true
         elseif command=="sceneKey" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
