@@ -182,5 +182,28 @@ check("all move patterns execute without runtime errors",function()
     end
 end)
 
+check("tanjiro spawns as R15 with sword on left hip and draws to right hand",function()
+    local CharacterBody=require(ServerScriptService.Server.CharacterBody)
+    local SwordBuilder=require(ServerScriptService.Server.SwordBuilder)
+    local model,humanoid,root=CharacterBody.create(World.Actors,Vector3.new(0,6,0),Content.characters.tanjiro,"TanjiroTest",{swordVariant="tanjiro_black"})
+    assert(model and humanoid.RigType==Enum.HumanoidRigType.R15 and model.PrimaryPart==root,"R15 body")
+    assert(model:GetAttribute("RigKind")=="R15" and model:GetAttribute("HasSheath") and not model:GetAttribute("WeaponDrawn"))
+    print("R15 Animate script present:",model:FindFirstChild("Animate")~=nil)
+    local grip=model.Sword.SwordGrip
+    assert(grip.Part0==model.LowerTorso,"sheathed on hip")
+    local saya=model.Sword.Saya
+    assert(model.LowerTorso.CFrame:PointToObjectSpace(saya.Position).X<0,"saya on left hip")
+    assert(model.Sword.Blade.Transparency==1 and not model.Sword.Blade.CanQuery)
+    SwordBuilder.setDrawn(model,true)
+    assert(grip.Part0==model.RightHand and model:GetAttribute("WeaponDrawn") and model.Sword.Blade.Transparency==0,"drawn to right hand")
+    assert(model.Sword:FindFirstChild("TsubaSpoke"),"wagon-wheel tsuba")
+    assert(model:FindFirstChild("FallbackLook"),"fallback look without uploaded assets")
+    assert(CharacterBody.create(World.Actors,Vector3.zero,Content.characters.zenitsu,"Z",{})==nil,"only kits get R15")
+    model:Destroy()
+    local flame=CharacterBody.create(World.Actors,Vector3.new(0,6,0),Content.characters.tanjiro,"TanjiroFlame",{swordVariant="tanjiro_yoriichi"})
+    assert(flame.Sword:FindFirstChild("TsubaFlame"),"Rengoku flame tsuba")
+    flame:Destroy()
+end)
+
 print(string.format("STUDIO_RESULT %d passed / %d failed",passed,#failures))
 if #failures>0 then error(table.concat(failures,"\n")) end

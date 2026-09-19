@@ -5,7 +5,7 @@ function Rig.draw(model, drawn)
     model:SetAttribute("WeaponChanged", workspace:GetServerTimeNow())
 end
 
-local function part(parent, name, size, color, cf, collide)
+function Rig.part(parent, name, size, color, cf, collide)
     local p = Instance.new("Part")
     p.Name = name
     p.Size = size
@@ -20,18 +20,19 @@ local function part(parent, name, size, color, cf, collide)
     return p
 end
 
-local function weld(a, b, offset)
+function Rig.weld(a, b, offset)
     b.CFrame = a.CFrame * offset
     local w = Instance.new("WeldConstraint")
     w.Part0 = a; w.Part1 = b; w.Parent = b
 end
 
-local function motor(parent, name, a, b, c0, c1)
+function Rig.motor(parent, name, a, b, c0, c1)
     local m = Instance.new("Motor6D")
     m.Name = name; m.Part0 = a; m.Part1 = b
     m.C0 = c0; m.C1 = c1; m.Parent = parent
     return m
 end
+local part, weld, motor = Rig.part, Rig.weld, Rig.motor
 
 function Rig.storyWeapon(model, kind)
     local previous = model:FindFirstChild("StoryWeapon")
@@ -56,6 +57,24 @@ function Rig.storyWeapon(model, kind)
         piece("PracticeBlade", Vector3.new(0.23,0.2,4.1), CFrame.new(0,-0.9,-1.5), brown)
         piece("WoodGuard", Vector3.new(0.6,0.5,0.14), CFrame.new(0,-0.9,-0.6), Color3.fromRGB(107,76,45))
     end
+end
+
+-- Overhead name and health bar shared by R6 rigs and R15 bodies.
+function Rig.nameplate(head, humanoid, name, color)
+    local board = Instance.new("BillboardGui")
+    board.Name = "Nameplate"; board.Size = UDim2.fromOffset(190, 48)
+    board.StudsOffset = Vector3.new(0, 3.2, 0); board.MaxDistance = 95
+    board.AlwaysOnTop = false; board.Adornee = head; board.Parent = head
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromScale(1, 0.6); label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamMedium; label.TextSize = 13
+    label.TextColor3 = Color3.fromRGB(242, 234, 219); label.TextStrokeTransparency = 0.4
+    label.Text = name; label.Parent = board
+    local hp = Instance.new("Frame")
+    hp.Position = UDim2.fromScale(0.15, 0.72); hp.Size = UDim2.fromScale(0.7, 0.08)
+    hp.BorderSizePixel = 0; hp.BackgroundColor3 = color; hp.Name = "Health"; hp.Parent = board
+    humanoid.HealthChanged:Connect(function(health) hp.Size = UDim2.fromScale(0.7 * math.max(0, health / humanoid.MaxHealth), 0.08) end)
+    return board
 end
 
 function Rig.create(parent, position, definition, actorName)
@@ -201,19 +220,7 @@ function Rig.create(parent, position, definition, actorName)
         local ball = weaponPiece("Temari", Vector3.new(1.1, 1.1, 1.1), CFrame.new(0, -1.25, -0.3), ra, accent)
         ball.Shape = Enum.PartType.Ball
     end
-    local board = Instance.new("BillboardGui")
-    board.Name = "Nameplate"; board.Size = UDim2.fromOffset(190, 48)
-    board.StudsOffset = Vector3.new(0, 3.2, 0); board.MaxDistance = 95
-    board.AlwaysOnTop = false; board.Adornee = head; board.Parent = head
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.fromScale(1, 0.6); label.BackgroundTransparency = 1
-    label.Font = Enum.Font.GothamMedium; label.TextSize = 13
-    label.TextColor3 = Color3.fromRGB(242, 234, 219); label.TextStrokeTransparency = 0.4
-    label.Text = definition.name; label.Parent = board
-    local hp = Instance.new("Frame")
-    hp.Position = UDim2.fromScale(0.15, 0.72); hp.Size = UDim2.fromScale(0.7, 0.08)
-    hp.BorderSizePixel = 0; hp.BackgroundColor3 = accent; hp.Name = "Health"; hp.Parent = board
-    humanoid.HealthChanged:Connect(function(health) hp.Size = UDim2.fromScale(0.7 * math.max(0, health / humanoid.MaxHealth), 0.08) end)
+    Rig.nameplate(head, humanoid, definition.name, accent)
     model.Parent = parent
     return model, humanoid, root
 end

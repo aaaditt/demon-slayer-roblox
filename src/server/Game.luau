@@ -6,6 +6,8 @@ local Content = require(Shared.Content)
 local Config = require(Shared.Config)
 local Rules = require(Shared.Rules)
 local Rig = require(script.Parent.Rig)
+local CharacterBody = require(script.Parent.CharacterBody)
+local Swords = require(Shared.Swords)
 local World = require(script.Parent.World)
 local Combat = require(script.Parent.Combat)
 local Profiles = require(script.Parent.Profiles)
@@ -69,7 +71,12 @@ function Game:spawn(player, mode)
         local angle = math.random()*math.pi*2
         position = room.center+Vector3.new(math.cos(angle)*60, 4, math.sin(angle)*60)
     end
-    local model, humanoid, root = Rig.create(World.Actors, position, definition, player.Name)
+    -- R15 kits cover hub and arena; staged story chapters still rely on R6 part names (Story/Training).
+    local model, humanoid, root
+    if mode ~= "Story" then
+        model, humanoid, root = CharacterBody.create(World.Actors, position, definition, player.Name, {swordVariant = Swords.variantFor(characterId, p.chapter)})
+    end
+    if not model then model, humanoid, root = Rig.create(World.Actors, position, definition, player.Name) end
     player.Character = model
     local actor = self.combat:register(model, humanoid, root, {
         kind = "player", mode = mode, zone = mode == "Arena" and "arena" or mode == "Story" and "story_" .. player.UserId or "hub",
