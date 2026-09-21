@@ -28,34 +28,75 @@ local function describe(appearance)
     return d
 end
 
-local function checker(parent, anchor, name, columns, rows, cell, origin, facing)
-    for r = 0, rows - 1 do
-        for c = 0, columns - 1 do
-            local offset = origin * CFrame.new(c * cell, -r * cell, 0) * facing
-            local p = Rig.part(parent, name, Vector3.new(cell, cell, 0.04), (r + c) % 2 == 0 and GREEN or CHECK_BLACK, anchor.CFrame * offset)
-            p.CanQuery = false; p.CastShadow = false
-            Rig.weld(anchor, p, offset)
+local WRAP, BUTTON, SCAR = Color3.fromRGB(236, 234, 226), Color3.fromRGB(201, 170, 96), Color3.fromRGB(150, 52, 44)
+local FACES = {Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right}
+
+-- Outfits are drawn onto the body with SurfaceGuis instead of uploaded clothing: no asset, no Robux,
+-- and sharper than stacking small parts. Uploaded Shirt/Pants IDs still win when they are configured.
+local function surface(part, face, base)
+    local gui = Instance.new("SurfaceGui")
+    gui.Name = "Weave"; gui.Face = face; gui.Adornee = part
+    gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud; gui.PixelsPerStud = 64
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; gui.Parent = part
+    local panel = Instance.new("Frame")
+    panel.Size = UDim2.fromScale(1, 1); panel.BorderSizePixel = 0
+    panel.BackgroundColor3 = base or UNIFORM; panel.BackgroundTransparency = base and 0 or 1
+    panel.Parent = gui
+    return panel
+end
+
+local function square(parent, x, y, width, height, color, rotation)
+    local frame = Instance.new("Frame")
+    frame.BorderSizePixel = 0; frame.BackgroundColor3 = color
+    frame.Size = UDim2.fromScale(width, height); frame.Position = UDim2.fromScale(x, y)
+    frame.Rotation = rotation or 0; frame.Parent = parent
+    return frame
+end
+
+-- Ichimatsu (checkerboard) weave of the haori.
+local function ichimatsu(parent, columns, rows, phase)
+    for row = 0, rows - 1 do
+        for column = 0, columns - 1 do
+            local green = (row + column + (phase or 0)) % 2 == 0
+            square(parent, column / columns, row / rows, 1 / columns, 1 / rows, green and GREEN or CHECK_BLACK)
         end
     end
+end
+
+local function haoriSleeve(part)
+    for _, face in ipairs(FACES) do ichimatsu(surface(part, face, CHECK_BLACK), 3, 6) end
 end
 
 -- Part-built stand-ins for uploaded clothing/hair so an unconfigured place still reads as Tanjiro.
 local function fallback(model, appearance)
     local folder = Instance.new("Folder"); folder.Name = "FallbackLook"; folder.Parent = model
-    local upper, head = model.UpperTorso, model.Head
-    local w, h, depth = upper.Size.X, upper.Size.Y, upper.Size.Z
-    local cell = w / 6
+    local head = model.Head
     if appearance.shirt == "" then
         for _, name in ipairs({"RightUpperArm", "RightLowerArm", "LeftUpperArm", "LeftLowerArm"}) do model[name].Color = UNIFORM end
-        -- Haori: checkered back and open front panels over the black uniform; checkered sleeves.
-        checker(folder, upper, "HaoriBack", 6, math.floor(h / cell), cell, CFrame.new(-w / 2 + cell / 2, h / 2 - cell / 2, depth / 2 + 0.03), CFrame.identity)
-        for _, side in ipairs({-1, 1}) do
-            local x = side * (w / 2 - cell)
-            checker(folder, upper, "HaoriFront", 2, math.floor(h / cell), cell, CFrame.new(x - cell / 2, h / 2 - cell / 2, -depth / 2 - 0.03), CFrame.identity)
-            local arm = model[side == 1 and "RightUpperArm" or "LeftUpperArm"]
-            local sleeve = Rig.part(folder, "HaoriSleeve", arm.Size + Vector3.new(0.06, -0.1, 0.06), GREEN, arm.CFrame)
-            sleeve.CanQuery = false
-            Rig.weld(arm, sleeve, CFrame.new(0, 0.05, 0))
+        -- Haori: checkered back and sides, open at the front over the buttoned black uniform.
+        ichimatsu(surface(model.UpperTorso, Enum.NormalId.Back, CHECK_BLACK), 6, 6)
+        ichimatsu(surface(model.UpperTorso, Enum.NormalId.Left, CHECK_BLACK), 3, 6)
+        ichimatsu(surface(model.UpperTorso, Enum.NormalId.Right, CHECK_BLACK), 3, 6)
+        local front = surface(model.UpperTorso, Enum.NormalId.Front, UNIFORM)
+        ichimatsu(square(front, 0, 0, 0.26, 1, CHECK_BLACK), 2, 6)
+        ichimatsu(square(front, 0.74, 0, 0.26, 1, CHECK_BLACK), 2, 6, 1)
+        for i = 0, 3 do
+            local button = square(front, 0.47, 0.12 + i * 0.2, 0.06, 0.05, BUTTON)
+            local round = Instance.new("UICorner"); round.CornerRadius = UDim.new(1, 0); round.Parent = button
+        end
+        haoriSleeve(model.RightUpperArm); haoriSleeve(model.LeftUpperArm)
+        -- Obi at the waist.
+        for _, face in ipairs(FACES) do square(surface(model.LowerTorso, face, UNIFORM), 0, 0.1, 1, 0.55, WRAP) end
+    end
+    if appearance.pants == "" then
+        for _, name in ipairs({"RightUpperLeg", "LeftUpperLeg", "RightLowerLeg", "LeftLowerLeg"}) do model[name].Color = UNIFORM end
+        -- Kyahan wraps from the shin down, with cross-bound ties.
+        for _, name in ipairs({"RightLowerLeg", "LeftLowerLeg"}) do
+            for _, face in ipairs(FACES) do
+                local panel = surface(model[name], face, UNIFORM)
+                square(panel, 0, 0.35, 1, 0.65, WRAP)
+                for i = 0, 2 do square(panel, 0, 0.45 + i * 0.16, 1, 0.03, Color3.fromRGB(196, 192, 182), 6) end
+            end
         end
     end
     if #appearance.accessories == 0 then
@@ -73,9 +114,10 @@ local function fallback(model, appearance)
         end
     end
     if appearance.face == "" then
-        local scar = Rig.part(folder, "ForeheadScar", Vector3.new(0.34, 0.12, 0.03), Color3.fromRGB(150, 52, 44), head.CFrame)
-        scar.CanQuery = false
-        Rig.weld(head, scar, CFrame.new(-0.18, head.Size.Y * 0.28, -head.Size.Z / 2 - 0.01) * CFrame.Angles(0, 0, math.rad(-18)))
+        -- Burn scar over the left brow.
+        local brow = surface(head, Enum.NormalId.Front)
+        square(brow, 0.2, 0.2, 0.2, 0.05, SCAR, -20)
+        square(brow, 0.26, 0.28, 0.12, 0.04, SCAR, 25)
     end
 end
 

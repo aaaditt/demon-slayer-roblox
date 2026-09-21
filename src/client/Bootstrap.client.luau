@@ -12,11 +12,13 @@ local Effects=require(script.Parent.Effects)
 local Animator=require(script.Parent.Animator)
 local KeyframePlayer=require(script.Parent.KeyframePlayer)
 local HitFeedback=require(script.Parent.HitFeedback)
+local TestPanel=require(script.Parent.TestPanel)
 local UI=require(script.Parent.UI)
 local StoryPlayer=require(script.Parent.StoryPlayer)
 local function send(name,payload) action:FireServer(name,payload) end
 local ui=UI.new(send,Effects)
 local storyPlayer=StoryPlayer.new(send,ui)
+local testPanel=TestPanel.new(send)
 local function direction(dodge)
     local character=player.Character
     local root=character and character:FindFirstChild("HumanoidRootPart")
@@ -111,10 +113,11 @@ local function characterAdded(character)
 end
 player.CharacterAdded:Connect(characterAdded)
 if player.Character then task.spawn(characterAdded,player.Character) end
-stateRemote.OnClientEvent:Connect(function(state) ui:update(state);storyPlayer:update(state) end)
+stateRemote.OnClientEvent:Connect(function(state) ui:update(state);storyPlayer:update(state);if testPanel then testPanel:update(state) end end)
 effectRemote.OnClientEvent:Connect(function(event)
     Effects.play(event)
     HitFeedback.play(event,Effects)
+    if testPanel then testPanel:onEffect(event) end
 end)
 Animator.start()
 KeyframePlayer.start()

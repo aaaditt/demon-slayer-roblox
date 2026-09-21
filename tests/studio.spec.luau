@@ -198,6 +198,21 @@ check("tanjiro spawns as R15 with sword on left hip and draws to right hand",fun
     assert(grip.Part0==model.RightHand and model:GetAttribute("WeaponDrawn") and model.Sword.Blade.Transparency==0,"drawn to right hand")
     assert(model.Sword:FindFirstChild("TsubaSpoke"),"wagon-wheel tsuba")
     assert(model:FindFirstChild("FallbackLook"),"fallback look without uploaded assets")
+    -- Free code-drawn outfit: SurfaceGui panels instead of paid classic clothing.
+    local function weave(part,face)
+        for _,gui in ipairs(part:GetChildren()) do
+            if gui:IsA("SurfaceGui") and gui.Face==face and #gui:GetChildren()>0 then return true end
+        end
+        return false
+    end
+    for _,face in ipairs({Enum.NormalId.Front,Enum.NormalId.Back,Enum.NormalId.Left,Enum.NormalId.Right}) do
+        assert(weave(model.UpperTorso,face),"haori panel missing on "..face.Name)
+        assert(weave(model.RightUpperArm,face) and weave(model.LeftUpperArm,face),"sleeve missing on "..face.Name)
+        assert(weave(model.LowerTorso,face),"obi missing on "..face.Name)
+        assert(weave(model.RightLowerLeg,face) and weave(model.LeftLowerLeg,face),"leg wrap missing on "..face.Name)
+    end
+    assert(weave(model.Head,Enum.NormalId.Front),"scar missing")
+    assert(model.RightLowerArm.Color==model.UpperTorso.Color,"sleeves and uniform should share the dark colour")
     assert(CharacterBody.create(World.Actors,Vector3.zero,Content.characters.zenitsu,"Z",{})==nil,"only kits get R15")
     model:Destroy()
     local flame=CharacterBody.create(World.Actors,Vector3.new(0,6,0),Content.characters.tanjiro,"TanjiroFlame",{swordVariant="tanjiro_yoriichi"})

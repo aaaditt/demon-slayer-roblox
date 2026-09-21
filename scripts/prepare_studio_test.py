@@ -22,7 +22,8 @@ local server=Instance.new("ModuleScript")
 server.Name="RuntimeTests";server.Source=SERVER_SOURCE;server.Parent=ServerScriptService.Server
 local client=Instance.new("LocalScript")
 client.Name="RuntimeTests";client.Source=CLIENT_SOURCE;client.Parent=StarterPlayer.StarterPlayerScripts
-ServerScriptService.Server.Bootstrap.Source=[[local Game=require(script.Parent.Game)
+ServerScriptService.Server.Bootstrap.Source=[[game:SetAttribute("WisteriaAutomatedTest",true)
+local Game=require(script.Parent.Game)
 local session=Game.new():start()
 require(script.Parent.RuntimeTests)(session)]]
 local result=game:GetService("StudioTestService"):ExecuteMultiplayerTestAsync(2,{suite="Wisteria",visual=__VISUAL_ARG__,visualSagiri=__SAGIRI_ARG__,visualCombat=__COMBAT_ARG__,virtualInput=__INPUT_ARG__})

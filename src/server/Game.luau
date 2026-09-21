@@ -12,6 +12,7 @@ local World = require(script.Parent.World)
 local Combat = require(script.Parent.Combat)
 local Profiles = require(script.Parent.Profiles)
 local Story = require(script.Parent.Story)
+local TrainingRange = require(script.Parent.TrainingRange)
 local Game = {}
 Game.__index = Game
 
@@ -255,7 +256,8 @@ function Game:handle(player, action, payload)
         local flat = Vector3.new(actor.root.CFrame.LookVector.X, 0, actor.root.CFrame.LookVector.Z)
         return flat.Magnitude>0.01 and flat.Unit or Vector3.new(0,0,-1)
     end
-    if action == "Basic" then self.combat:basic(actor, direction())
+    if action == "Range" then if self.range then self.range:command(player, payload) end; return
+    elseif action == "Basic" then self.combat:basic(actor, direction())
     elseif action == "Dodge" then self.combat:dodge(actor, direction())
     elseif action == "Weapon" then self.combat:weapon(actor)
     elseif action == "Guard" then if type(payload)=="boolean" then self.combat:guard(actor, payload) end
@@ -320,6 +322,7 @@ function Game:start()
     Players.CharacterAutoLoads = false
     self:addDummy(Vector3.new(-32,4,-30))
     self:addDummy(Vector3.new(32,4,-30))
+    self.range = TrainingRange.start(self)
     self.action.OnServerEvent:Connect(function(player, action, payload) self:handle(player, action, payload) end)
     Players.PlayerAdded:Connect(function(player) self:addPlayer(player) end)
     Players.PlayerRemoving:Connect(function(player)
@@ -340,6 +343,7 @@ function Game:start()
         self.accumulated += dt
         if self.accumulated<0.2 then return end
         self.accumulated = 0
+        if self.range then self.range:tick() end
         local now = workspace:GetServerTimeNow()
         self:updateArena(now)
         for player, entry in pairs(self.players) do

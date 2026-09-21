@@ -218,4 +218,16 @@ test("tanjiro animation data is complete, ordered and samples within bounds", fu
     assert(math.abs(AnimData.sample(idle, 2.5).RightShoulder[1] - AnimData.sample(idle, 0.5).RightShoulder[1]) < 1e-6, "loops wrap")
 end)
 
+test("studio sparring partners trade damage with players only", function()
+    local player = {mode = "Hub", zone = "hub", kind = "player"}
+    local spar = {mode = "Hub", zone = "hub", kind = "sparring"}
+    assert(Rules.canDamage(player, spar) and Rules.canDamage(spar, player))
+    assert(not Rules.canDamage(spar, {mode = "Hub", zone = "hub", kind = "dummy"}))
+    assert(not Rules.canDamage(spar, {mode = "Hub", zone = "hub", kind = "sparring"}))
+    assert(not Rules.canDamage(spar, {mode = "Hub", zone = "elsewhere", kind = "player"}))
+    -- Ordinary hub rules are unchanged.
+    assert(Rules.canDamage(player, {mode = "Hub", zone = "hub", kind = "dummy"}))
+    assert(not Rules.canDamage(player, {mode = "Hub", zone = "hub", kind = "player"}))
+end)
+
 print(string.format("%d core tests passed", passed))

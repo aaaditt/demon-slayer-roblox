@@ -408,7 +408,7 @@ function Combat:tick(dt)
             actor.lastPosition = actor.root.Position; actor.motionTime = now
         end
         if actor.root.Position.Y < -15 then actor.humanoid.Health = 0 end
-        if actor.kind == "npc" and actor.target and actor.target.alive and now>=actor.nextAI then
+        if (actor.kind == "npc" or actor.kind == "sparring") and actor.target and actor.target.alive and now>=actor.nextAI then
             local target = actor.target
             local delta = target.root.Position-actor.root.Position
             local flat = Vector3.new(delta.X, 0, delta.Z)

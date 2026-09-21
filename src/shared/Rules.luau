@@ -41,6 +41,10 @@ end
 
 function Rules.canDamage(attacker, defender)
     if attacker == defender or attacker.zone ~= defender.zone then return false end
+    -- Studio-only sparring partners (src/server/TrainingRange.luau) trade damage with a player both ways.
+    if attacker.kind == "sparring" or defender.kind == "sparring" then
+        return attacker.kind ~= defender.kind and (attacker.kind == "player" or defender.kind == "player")
+    end
     if attacker.mode == "Arena" and defender.mode == "Arena" then
         return attacker.kind == "player" and defender.kind == "player"
     end
