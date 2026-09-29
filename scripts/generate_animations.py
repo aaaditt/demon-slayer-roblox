@@ -36,7 +36,8 @@ PRIORITY = {"Idle": 0, "Movement": 1, "Action": 2, "Action2": 3, "Action3": 4, "
 STYLES = {"Linear": 0, "Constant": 1, "Elastic": 2, "Cubic": 3, "Bounce": 4, "CubicV2": 5}
 DIRECTIONS = {"In": 0, "Out": 1, "InOut": 2}
 CATEGORIES = {"locomotion", "action", "attack", "story"}
-MARKERS = {"Hit", "End", "Grip", "Release", "TrailOn", "TrailOff", "Click", "Step"}
+# Grip/Clear drive the draw path, Seat/Release the sheathe path; Hit/End time-warp attacks onto server timings.
+MARKERS = {"Hit", "End", "Grip", "Clear", "Seat", "Release", "TrailOn", "TrailOff", "Click", "Step"}
 
 
 def rotation(rx, ry, rz):
@@ -120,6 +121,12 @@ def validate_clip(name, clip):
         assert "Hit" in marks and "End" in marks and 0 < marks["Hit"] < marks["End"] <= length, name + ": attack clips need Hit < End"
     if clip["category"] == "locomotion":
         assert clip.get("speed", 0) >= 0, name + ": speed"
+    marks = {m["name"]: m["t"] for m in clip.get("markers", [])}
+    leaf = name.split("/")[-1]
+    if leaf.startswith("draw"):
+        assert 0 < marks.get("Grip", -1) < marks.get("Clear", -1) < length, name + ": draws need Grip < Clear < end"
+    if leaf.startswith("sheathe"):
+        assert 0 < marks.get("Seat", -1) < marks.get("Release", -1) <= length, name + ": sheathes need Seat < Release"
     # "lower": while the sword is drawn only the legs and root play, so the upper body keeps its stance.
     assert clip.get("drawnMask") in (None, "lower"), name + ": drawnMask"
 
@@ -257,6 +264,9 @@ def generate(check_only=False):
         marks = clip.get("markerTimes") or {m["name"]: m["t"] for m in clip.get("markers", [])}
         if clip.get("drawnMask"):
             entry["drawnMask"] = clip["drawnMask"]
+        if marks:
+            # The server reads these (e.g. sheathe Seat/Release) so gameplay timing follows the clip data.
+            entry["markers"] = dict(sorted(marks.items()))
         if "Hit" in marks:
             entry["hit"], entry["finish"] = marks["Hit"], marks["End"]
         index[name] = entry

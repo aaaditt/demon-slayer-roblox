@@ -122,18 +122,74 @@ end
 
 local function actionClip(model, pose)
     local variant=model:GetAttribute("PoseVariant")
-    return (variant and Motion.clip("base/"..pose.."_"..variant)) or Motion.clip("base/"..pose)
+    return (variant and Motion.clip("base/"..variant)) or Motion.clip("base/"..pose)
 end
 
-local function markerHandler(model, rig)
+-- Markers of the live action clip. Grip/Seat start the procedural sword path (the blocky hand cannot reach
+-- the left hip, so the sword slides out of or into the saya along its own axis and is carried between hip
+-- and hand); Release returns it to the hip joint. Joint changes here are local until the server swap arrives.
+local function markerHandler(model, rig, action)
     return function(marker)
         local hip=model:FindFirstChild("LowerTorso") and model.LowerTorso:FindFirstChild("SwordHip")
         local hand=model:FindFirstChild("RightHand") and model.RightHand:FindFirstChild("SwordHand")
-        if marker.name=="Grip" and hip and hand then hip.Enabled=false;hand.Enabled=true
-        elseif marker.name=="Release" and hip and hand then hand.Enabled=false;hip.Enabled=true
+        local tsuka=model:FindFirstChild("Katana") and model.Katana:FindFirstChild("Tsuka")
+        local clip=action.clip
+        if marker.name=="Grip" and hip and hand and tsuka then
+            local from=model.LowerTorso.CFrame:ToObjectSpace(tsuka.CFrame)
+            hip.Enabled=false;hand.Enabled=true
+            rig.swordPath={kind="draw",key=action.key,from=from,t0=marker.t,clear=clip.markerAt.Clear or marker.t,t1=clip.length}
+        elseif marker.name=="Seat" and hip and hand then
+            hip.Enabled=false;hand.Enabled=true
+            rig.swordPath={kind="sheathe",key=action.key,t0=marker.t,t1=clip.markerAt.Release or clip.length}
+        elseif marker.name=="Release" and hip and hand then
+            hand.Transform=CFrame.identity;hand.Enabled=false;hip.Enabled=true
+            rig.swordPath=nil;rig.swordHold={inHand=false,untilTime=workspace:GetServerTimeNow()+0.8}
         elseif marker.name=="TrailOn" then rig.trail=true
         elseif marker.name=="TrailOff" then rig.trail=false end
     end
+end
+
+-- Drives SwordHand.Transform along the active sword path, or reconciles the joints with the server's
+-- SwordInHand once no path is active. Part1 = Part0*C0*Transform*C1^-1, so any desired sword frame is
+-- reachable through the hand joint.
+local function swordPath(model, rig, now)
+    local hip=model.LowerTorso:FindFirstChild("SwordHip")
+    local grip=model:FindFirstChild("RightHand") and model.RightHand:FindFirstChild("SwordHand")
+    if not hip or not grip or not hip.Part0 or not grip.Part0 then return end
+    local path=rig.swordPath
+    local top=rig.actions[#rig.actions]
+    if path and (not top or top.key~=path.key) then
+        -- Superseded (a dash, another action): hold the state the path was heading to until the server agrees.
+        rig.swordHold={inHand=path.kind=="draw",untilTime=now+0.8}
+        rig.swordPath=nil;path=nil
+    end
+    if path then
+        local t=top.time
+        local held=grip.Part0.CFrame*grip.C0*grip.C1:Inverse()
+        local length=model:GetAttribute("SwordDrawLength") or 3.5
+        local desired
+        if path.kind=="draw" then
+            -- Slide out along the blade axis from the grip, then sweep into the hand after the blade clears.
+            local u=math.clamp((t-path.t0)/math.max(path.t1-path.t0,1e-3),0,1)
+            local b=math.clamp((t-path.clear)/math.max(path.t1-path.clear,1e-3),0,1)
+            local slid=model.LowerTorso.CFrame*path.from*CFrame.new(0,0,length*MotionMath.ease("CubicV2","Out",u))
+            desired=slid:Lerp(held,MotionMath.ease("CubicV2","InOut",b))
+        else
+            -- First half: carry the blade from the hand to the saya line; second half: slide it in and seat it.
+            local mid=(path.t0+path.t1)/2
+            local b=math.clamp((t-path.t0)/math.max(mid-path.t0,1e-3),0,1)
+            local s=math.clamp((t-mid)/math.max(path.t1-mid,1e-3),0,1)
+            local seat=hip.Part0.CFrame*hip.C0*hip.C1:Inverse()
+            desired=held:Lerp(seat*CFrame.new(0,0,length*(1-MotionMath.ease("CubicV2","In",s))),MotionMath.ease("CubicV2","InOut",b))
+        end
+        grip.Transform=(grip.Part0.CFrame*grip.C0):Inverse()*desired*grip.C1
+        return
+    end
+    grip.Transform=CFrame.identity
+    local inHand=model:GetAttribute("SwordInHand")
+    local hold=rig.swordHold
+    if hold and now<hold.untilTime and inHand~=hold.inHand then inHand=hold.inHand else rig.swordHold=nil end
+    if inHand~=nil then hip.Enabled=not inHand;grip.Enabled=inHand end
 end
 
 -- Per-joint weighted blend of the base sources (clips, or the smoothed legacy locomotion pose).
@@ -216,8 +272,9 @@ function Animator.step(model, rig, now, dt)
     local wanting=dead or active or model:GetAttribute("Blocking") or model:GetAttribute("Carrying")
     -- A stack: a new action fades in over the previous one while that fades out, so clip-to-clip chains
     -- (combo 1 -> combo 2) blend instead of popping.
-    local wantClip=active and not dead and actionClip(model,pose) or nil
-    local wantKey=wanting and (wantClip and wantClip.name.."@"..tostring(model:GetAttribute("PoseStart")) or "legacy") or nil
+    local blocking=not active and not dead and model:GetAttribute("Blocking")
+    local wantClip=active and not dead and actionClip(model,pose) or blocking and Motion.clip("base/guard_hold") or nil
+    local wantKey=wanting and (wantClip and wantClip.name.."@"..(blocking and "block" or tostring(model:GetAttribute("PoseStart"))) or "legacy") or nil
     local top=rig.actions[#rig.actions]
     if wantKey and (not top or top.key~=wantKey) then
         top={key=wantKey,clip=wantClip,weight=0,time=0}
@@ -232,8 +289,13 @@ function Animator.step(model, rig, now, dt)
     for _, action in ipairs(rig.actions) do
         if action.clip and action.key==wantKey then
             local previous=action.time
-            action.time=MotionMath.actionTime(action.clip.entry,elapsed,duration,model:GetAttribute("PoseWindup"))
-            Motion.markers(action.clip,previous,action.time,markerHandler(model,rig))
+            if blocking then
+                -- Held guard is not a timed server pose: loop on local time.
+                action.time=(action.time+dt)%math.max(action.clip.length,1e-3)
+            else
+                action.time=MotionMath.actionTime(action.clip.entry,elapsed,duration,model:GetAttribute("PoseWindup"))
+            end
+            Motion.markers(action.clip,previous,action.time,markerHandler(model,rig,action))
         end
         local sample=action.clip and Motion.sample(action.clip,action.time,{})
         local lowerOnly=drawn and action.clip and action.clip.entry.drawnMask=="lower"
@@ -275,6 +337,8 @@ function Animator.step(model, rig, now, dt)
     end
     extra("CrowLeft",CFrame.Angles(0,0,math.sin(now*3)*0.12))
     extra("CrowRight",CFrame.Angles(0,0,-math.sin(now*3)*0.12))
+
+    if model:FindFirstChild("LowerTorso") then swordPath(model,rig,now) end
 
     -- Clips with TrailOn/TrailOff markers drive the trail; otherwise it shows during drawn legacy strikes.
     local katana=model:FindFirstChild("Katana")

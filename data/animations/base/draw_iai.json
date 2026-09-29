@@ -1,0 +1,201 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "note": "0.35 s draw used when a sheathed attack is requested: the draw flows into an extended forward cut instead of settling into the guard.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          4,
+          0,
+          6
+        ],
+        "RightElbow": [
+          12,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          26,
+          0,
+          15
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -3,
+          5,
+          0
+        ],
+        "Neck": [
+          2,
+          -5,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.04,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          55,
+          0,
+          -55
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          20
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -12,
+          40,
+          0
+        ],
+        "Neck": [
+          5,
+          -30,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.14,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          95,
+          0,
+          10
+        ],
+        "RightElbow": [
+          5,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -60,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          10
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          0,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          0,
+          0
+        ],
+        "Neck": [
+          3,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.35,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          90,
+          0,
+          -20
+        ],
+        "RightElbow": [
+          0,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -90,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          50,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          0,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          15,
+          0
+        ],
+        "Neck": [
+          4,
+          -12,
+          0
+        ]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.04,
+      "name": "Grip"
+    },
+    {
+      "t": 0.14,
+      "name": "Clear"
+    }
+  ]
+}

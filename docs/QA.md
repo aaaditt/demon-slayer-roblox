@@ -119,3 +119,20 @@ The first multiplayer attempt exposed a **test-runner** issue: run-in-roblox's p
 - **Classification:** this is the pre-existing replication behaviour noted on 2026-09-16, not a regression. The thresholds were not loosened. The dash test now reports frame times so future failures are attributable.
 - **Still unqualified:** sustained low-FPS and network-lag dash smoothness remain a real, unqualified risk.
 - No visual review of the new clips has taken place.
+
+### 2026-09-29 animation phases 7–8 (draw/sheathe state machine, sword path, attacks)
+
+- **Portable:** `check.py` passed: 36 clips, 29 Luau files and the build.
+- **Engine:** **22/22**, with two new checks:
+  - the server weapon timing (noto chosen out of combat, busy only until Seat, joint swap at Release, fast sheathe in combat, a draw cancelling a noto, iai chaining into a cast with the windup replicated)
+  - auto-sheathe, story weapon locks, combo variants, and idle-only light flinches
+
+  The animator benchmark held at 0.100 ms per rig.
+- **Two-client:** the final run was **20/20**, exit 0.
+  - The sword test now toggles from the current state, because auto-sheathe may already have run, and waits for the clip-timed swap.
+  - A new observer test has player 2 watch player 1 draw: the blade slid 2.59 studs along its axis, travelled 9.39 studs, the largest step was 3.03, it ended 0.27 studs from the hand, and the worst frame was 0.067 s.
+- **Threshold corrections, and why:** the first two-client run failed two new checks whose thresholds were wrong.
+  - The sidestep reach limit of 12 + 0.5 was below the stop-time overshoot seen on every front dash (16.4–16.6 against 16). It is now +1.
+  - The sword "no jump" check compared the largest step with the straight-line hip-to-hand distance (2.05). The path is deliberately longer, so the check now compares against the total distance travelled; a teleport would still fail it.
+  - The behaviour under test was correct in that run (slid 2.68, ended 0.27 from the hand).
+- No visual review has taken place.

@@ -1,0 +1,343 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "note": "1.4 s noto: chiburi (a sharp downward-right flick) by 0.35, then the hand carries the sword toward the left hip; the sword path aligns the blade with the saya mouth (Seat 0.35) and slides it in, seating at Release 1.25 with a Click at 1.3. The hands return to the sheathed rest.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          48,
+          0,
+          -40
+        ],
+        "RightElbow": [
+          15,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -42,
+          0,
+          30
+        ],
+        "LeftShoulder": [
+          40,
+          0,
+          35
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -20,
+          0,
+          0
+        ],
+        "Waist": [
+          -4,
+          -10,
+          0
+        ],
+        "Neck": [
+          4,
+          10,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.15,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightShoulder": [
+          120,
+          0,
+          30
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -10,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          40,
+          0,
+          35
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -20,
+          0,
+          0
+        ],
+        "Waist": [
+          -3,
+          -12,
+          0
+        ],
+        "Neck": [
+          3,
+          12,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.3,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          40,
+          0,
+          40
+        ],
+        "RightElbow": [
+          5,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -90,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          50,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          -5,
+          0
+        ],
+        "Neck": [
+          5,
+          5,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.35,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          38,
+          0,
+          40
+        ],
+        "RightElbow": [
+          5,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -88,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          28
+        ],
+        "LeftElbow": [
+          50,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          -5,
+          0
+        ],
+        "Neck": [
+          5,
+          5,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.8,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          45,
+          0,
+          -50
+        ],
+        "RightElbow": [
+          45,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          20
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -10,
+          35,
+          0
+        ],
+        "Neck": [
+          4,
+          -25,
+          0
+        ]
+      }
+    },
+    {
+      "t": 1.25,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          40,
+          0,
+          -55
+        ],
+        "RightElbow": [
+          50,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -25,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          20
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -10,
+          35,
+          0
+        ],
+        "Neck": [
+          4,
+          -25,
+          0
+        ]
+      }
+    },
+    {
+      "t": 1.4,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          4,
+          0,
+          6
+        ],
+        "RightElbow": [
+          12,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          26,
+          0,
+          15
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -3,
+          5,
+          0
+        ],
+        "Neck": [
+          2,
+          -5,
+          0
+        ]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.35,
+      "name": "Seat"
+    },
+    {
+      "t": 1.25,
+      "name": "Release"
+    },
+    {
+      "t": 1.3,
+      "name": "Click"
+    }
+  ]
+}

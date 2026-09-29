@@ -1,0 +1,201 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "note": "0.45 s draw. The right hand crosses toward the tsuka while the waist turns to the left hip and the left thumb pushes the tsuba (Grip 0.08). The blade slides out along the saya axis (procedural sword path, see ANIMATION.md), clears at 0.22 and is swept into the hand as the arm rises into the guard stance.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          4,
+          0,
+          6
+        ],
+        "RightElbow": [
+          12,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          26,
+          0,
+          15
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -3,
+          5,
+          0
+        ],
+        "Neck": [
+          2,
+          -5,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.08,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          55,
+          0,
+          -55
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          20
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -12,
+          40,
+          0
+        ],
+        "Neck": [
+          5,
+          -30,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.22,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          110,
+          0,
+          20
+        ],
+        "RightElbow": [
+          10,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -40,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          20,
+          0,
+          10
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          0,
+          0,
+          0
+        ],
+        "Waist": [
+          -6,
+          -10,
+          0
+        ],
+        "Neck": [
+          2,
+          8,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.45,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          48,
+          0,
+          -40
+        ],
+        "RightElbow": [
+          15,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -42,
+          0,
+          30
+        ],
+        "LeftShoulder": [
+          40,
+          0,
+          35
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -20,
+          0,
+          0
+        ],
+        "Waist": [
+          -4,
+          -10,
+          0
+        ],
+        "Neck": [
+          4,
+          10,
+          0
+        ]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.08,
+      "name": "Grip"
+    },
+    {
+      "t": 0.22,
+      "name": "Clear"
+    }
+  ]
+}

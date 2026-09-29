@@ -1,0 +1,201 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "note": "0.3 s combat re-sheathe: no flourish, the tip goes straight to the saya (Seat 0.02, Release 0.24).",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          48,
+          0,
+          -40
+        ],
+        "RightElbow": [
+          15,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -42,
+          0,
+          30
+        ],
+        "LeftShoulder": [
+          40,
+          0,
+          35
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -20,
+          0,
+          0
+        ],
+        "Waist": [
+          -4,
+          -10,
+          0
+        ],
+        "Neck": [
+          4,
+          10,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.12,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          45,
+          0,
+          -50
+        ],
+        "RightElbow": [
+          45,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          20
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          30,
+          0
+        ],
+        "Neck": [
+          3,
+          -20,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.24,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          45,
+          0,
+          -50
+        ],
+        "RightElbow": [
+          45,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          20
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          30,
+          0
+        ],
+        "Neck": [
+          3,
+          -20,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.3,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          4,
+          0,
+          6
+        ],
+        "RightElbow": [
+          12,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          26,
+          0,
+          15
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -3,
+          5,
+          0
+        ],
+        "Neck": [
+          2,
+          -5,
+          0
+        ]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.02,
+      "name": "Seat"
+    },
+    {
+      "t": 0.24,
+      "name": "Release"
+    }
+  ]
+}

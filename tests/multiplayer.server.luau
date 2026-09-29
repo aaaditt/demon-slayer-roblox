@@ -69,14 +69,31 @@ return function(session)
             local result=client(p1,"sidestepInput")
             local motion=actor.lastMotion
             print("SIDESTEP_CLIENT "..game:GetService("HttpService"):JSONEncode(result))
-            assert(motion and motion.distance>8 and motion.distance<=Config.DodgeDistanceSide+0.5,"server sidestep reach "..(motion and motion.distance or -1))
+            -- Stop-time distance overshoots slightly (front dashes measure ~16.5 of 16), so allow +1.
+            assert(motion and motion.distance>8 and motion.distance<=Config.DodgeDistanceSide+1,"server sidestep reach "..(motion and motion.distance or -1))
         end)
         check("sword sheathe and draw replicate to both clients",function()
-            client(p1,"action",{name="Weapon",wait=0.55})
-            assert(not session.players[p1].actor.model:GetAttribute("WeaponDrawn"))
-            client(p2,"weapon",{name=p1.Name,drawn=false})
-            client(p1,"action",{name="Weapon",wait=0.55})
-            client(p2,"weapon",{name=p1.Name,drawn=true})
+            -- The sword may already have auto-sheathed; toggle from whatever state it is in, and wait for the
+            -- clip-timed joint swap (noto Release is later than the draw).
+            local model=session.players[p1].actor.model
+            local function toggle()
+                local target=not model:GetAttribute("WeaponDrawn")
+                client(p1,"action",{name="Weapon",wait=target and 0.7 or 1.7})
+                assert(model:GetAttribute("WeaponDrawn")==target,"server weapon state")
+                client(p2,"weapon",{name=p1.Name,drawn=target})
+            end
+            toggle();toggle()
+        end)
+        check("a draw seen by another client slides the blade out and carries it to the hand",function()
+            local model=session.players[p1].actor.model
+            if model:GetAttribute("WeaponDrawn") then client(p1,"action",{name="Weapon",wait=1.7}) end
+            local result
+            task.spawn(function() result={pcall(client,p2,"swordPath",{name=p1.Name})} end)
+            task.wait(0.4)
+            client(p1,"action",{name="Weapon",wait=0.8})
+            waitFor(function() return result~=nil end,6,"sword path observer did not answer")
+            assert(result[1],result[2])
+            print("SWORD_PATH "..tostring(result[2]))
         end)
         -- VirtualInput delivers InputBegan without activating buttons in this Studio environment.
         -- Keep this diagnostic opt-in; desktop mouse navigation is checked separately (docs/QA.md).

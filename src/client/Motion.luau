@@ -40,9 +40,11 @@ function Motion.parse(name, sequence)
             table.insert(markers, {t = keyframe.Time, name = marker.Name, value = marker.Value})
         end
     end
+    local markerAt = {}
+    for _, marker in ipairs(markers) do markerAt[marker.name] = markerAt[marker.name] or marker.t end
     local length = #keyframes > 0 and keyframes[#keyframes].Time or 0
     local entry = AnimationIndex[name] or {category = "action", loop = sequence.Loop, length = length, speed = 0}
-    return {name = name, entry = entry, tracks = tracks, parts = parts, markers = markers, length = length}
+    return {name = name, entry = entry, tracks = tracks, parts = parts, markers = markers, markerAt = markerAt, length = length}
 end
 
 -- Parsed clip, or nil when no KeyframeSequence exists yet (callers fall back to procedural poses).

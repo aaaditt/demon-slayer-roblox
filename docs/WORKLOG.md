@@ -207,3 +207,24 @@
   - frame-time diagnostics in the dash test
 - **Results:** engine **20/20**; two-client final **19/19**, exit 0. Two earlier two-client runs failed intermittently at the dash ownership handoff under about 15 FPS load (see QA.md); investigated and classified as the pre-existing replication behaviour, with thresholds unchanged.
 - **Not done:** visual review of any clip.
+
+## 2026-09-29 — Animation phases 7–8: drawing, sheathing and sword attacks
+
+- **Generator:** new `Clear` and `Seat` markers; draws must have `Grip` < `Clear` and sheathes `Seat` < `Release`. Marker times are published in `AnimationIndex` so the server reads the clip timing.
+- **Clips (23 new):**
+  - draw and sheathe: `draw`, `draw_iai`, `sheathe_noto`, `sheathe_fast`
+  - basic combo: `combo_1`, `combo_2`, `combo_3`
+  - techniques: `slash`, `thrust`, `dash`, `spin`, `barrage`, `burst`, `projectile`, `trap`, `summon`
+  - defensive: `guard`, `guard_hold`, `parry`, `evade`, `heal`
+  - reactions: `hit_light`, `hit_heavy`
+- **Server:**
+  - `Combat:weapon(actor, drawn, style)` times itself from the clips, with delayed joint swaps cancelled by the `WeaponChanged` token.
+  - A sheathed attack draws with `draw_iai` before casting.
+  - Auto-sheathe runs in `Combat:tick` (tracking `weaponSince`).
+  - `Combat:react` adds light and heavy hit reactions, and a successful parry plays `parry`.
+  - Basic attacks carry `PoseVariant` combo clips.
+  - `Rig` gains `setWeapon`, `swapSword`, `SwordInHand` and `SwordDrawLength`.
+  - New Config values: `AutoSheatheSeconds = 8`, `FastSheatheWindow = 3`.
+- **Client:** the `Animator` combo lookup, a looping `guard_hold` while blocking, the marker-driven procedural sword path (`Grip`/`Clear`/`Seat`/`Release`), and reconciliation with `SwordInHand`. `Motion` exposes `markerAt`.
+- **Design finding:** the blocky hand cannot reach the left-hip tsuka (2.9 studs against 1.43 of reach). The draw and sheathe therefore slide the sword along the saya axis procedurally instead of carrying it by hand. See ANIMATION.md.
+- **Results:** engine **22/22**; two-client **20/20**, exit 0, after correcting two new-test thresholds (see QA.md). No visual review has taken place. The `Click` sound is deferred.

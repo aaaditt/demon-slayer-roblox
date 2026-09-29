@@ -4,6 +4,7 @@ local Config = require(Shared.Config)
 local Rules = require(Shared.Rules)
 local Content = require(Shared.Content)
 local MotionMath = require(Shared.MotionMath)
+local AnimationIndex = require(Shared.AnimationIndex)
 local Rig = require(script.Parent.Rig)
 local Combat = {}
 Combat.__index = Combat
@@ -18,7 +19,7 @@ function Combat:register(model, humanoid, root, options)
         model = model, humanoid = humanoid, root = root,
         energy = Config.MaxEnergy, busyUntil = 0, stunUntil = 0, cooldowns = {},
         invulnerableUntil = now+Config.SpawnProtection, guardUntil = 0,
-        blocking = false, blockStarted = 0, lastCombat = 0, combo = 0, comboTime = 0,
+        blocking = false, blockStarted = 0, lastCombat = 0, weaponSince = now, combo = 0, comboTime = 0,
         status = {}, controlImmuneUntil = 0, castToken = 0, alive = true,
         lastPosition = root.Position, motionTime = now, nextAI = now+1.5, nextAction = now+1.5,
     }
@@ -130,6 +131,17 @@ function Combat:move(actor, direction, distance, duration, keepFacing)
     return duration
 end
 
+-- Hit reactions are visual poses only. An idle target flinches; control effects override whatever is playing,
+-- since they interrupt it anyway. A light flinch never replaces a pose that is still running.
+function Combat:react(target, pose, duration)
+    local now = workspace:GetServerTimeNow()
+    local model = target.model
+    if not model.Parent or model:GetAttribute("InCutscene") then return end
+    if pose == "hit_light" and now < (model:GetAttribute("PoseStart") or 0)+(model:GetAttribute("PoseDuration") or 0) then return end
+    model:SetAttribute("PoseVariant", nil); model:SetAttribute("PoseWindup", nil)
+    model:SetAttribute("Pose", pose); model:SetAttribute("PoseStart", now); model:SetAttribute("PoseDuration", duration)
+end
+
 function Combat:damage(actor, target, amount, status)
     local now = workspace:GetServerTimeNow()
     if not actor.alive or not target.alive or not Rules.canDamage(actor, target) then return end
@@ -146,6 +158,7 @@ function Combat:damage(actor, target, amount, status)
     if result == "parry" or result == "counter" then
         actor.stunUntil = math.max(actor.stunUntil, now+0.65)
         actor.castToken += 1
+        self:react(target, "parry", 0.3)
     elseif result == "break" then
         target.blocking = false; target.stunUntil = now+0.9; target.castToken += 1
     end
@@ -169,8 +182,10 @@ function Combat:damage(actor, target, amount, status)
                 target.status[status] = {untilTime = now+duration}
                 target.castToken += 1
                 target.blocking = false
+                self:react(target, "hit_heavy", math.max(duration, 0.6))
             end
         end
+        if target.alive and result == "hit" and now >= target.busyUntil then self:react(target, "hit_light", 0.3) end
     end
     self:emit(target, "hit", {position = target.root.Position, amount = math.floor(damage+0.5), result = result})
 end
@@ -194,9 +209,10 @@ function Combat:cast(actor, move, direction)
     -- Draw first, then execute the requested strike if this actor has not been interrupted.
     if actor.model:GetAttribute("HasSheath") and not actor.model:GetAttribute("WeaponDrawn") then
         if now < actor.busyUntil or now < actor.stunUntil then return false, "Recovering" end
-        self:weapon(actor, true)
+        local drawn, duration = self:weapon(actor, true, "iai")
+        if not drawn then return false, "Recovering" end
         local token = actor.castToken
-        task.delay(0.46, function()
+        task.delay(duration+0.01, function()
             if actor.alive and actor.castToken == token then self:cast(actor, move, direction) end
         end)
         return true
@@ -213,8 +229,9 @@ function Combat:cast(actor, move, direction)
     actor.root.CFrame = CFrame.lookAt(origin, origin+direction)
     actor.castToken += 1
     local token = actor.castToken
-    -- Clients time-warp attack clips so their Hit marker lands on this windup.
+    -- Clients time-warp attack clips so their Hit marker lands on this windup; basics pick combo clips.
     actor.model:SetAttribute("PoseWindup", move.windup)
+    actor.model:SetAttribute("PoseVariant", move.variant)
     actor.model:SetAttribute("Pose", move.pattern)
     actor.model:SetAttribute("PoseStart", now)
     actor.model:SetAttribute("PoseDuration", actor.busyUntil-now)
@@ -265,7 +282,7 @@ function Combat:basic(actor, direction)
     local combo = now-actor.comboTime < 1.2 and actor.combo%3+1 or 1
     local style = actor.basicStyle or Content.characters[actor.characterId].styles[1] or "demon"
     local move = {id = "basic", style = style, pattern = combo==3 and "thrust" or "slash", status = "none", damage = combo==3 and 15 or 10,
-        cost = 0, cooldown = 0.42, windup = 0.12, recovery = 0.3, range = 9, width = 8, dash = 0, hits = 1}
+        cost = 0, cooldown = 0.42, windup = 0.12, recovery = 0.3, range = 9, width = 8, dash = 0, hits = 1, variant = "combo_"..combo}
     local ok, reason = self:cast(actor, move, direction)
     if ok then actor.combo = combo; actor.comboTime = now end
     return ok, reason
@@ -279,15 +296,38 @@ function Combat:guard(actor, enabled)
     actor.lastGuard = now; actor.blockStarted = now; actor.blocking = true
 end
 
-function Combat:weapon(actor, drawn)
+-- Draws or sheathes with the clip timing in AnimationIndex (generated from data/animations):
+--   draw / draw_iai: busy for the whole clip; the sword joint moves to the hand when it ends.
+--   sheathe_noto (out of combat) / sheathe_fast (within FastSheatheWindow of combat): busy only until Seat
+--   (after the chiburi), so attacking or drawing again cancels the rest; the joint returns to the hip at
+--   Release unless a newer weapon change superseded it.
+-- style: "iai" for a draw chained into an attack, "noto"/"fast" to force a sheathe style.
+-- Returns true and the clip duration when admitted.
+function Combat:weapon(actor, drawn, style)
     local now = workspace:GetServerTimeNow()
-    if not actor.alive or (actor.storyLocked and not actor.storyCanWeapon) or actor.model:GetAttribute("InCutscene") or not actor.model:GetAttribute("HasSheath") or now < actor.busyUntil or now < actor.stunUntil then return false end
-    if drawn == nil then drawn = not actor.model:GetAttribute("WeaponDrawn") end
-    actor.castToken += 1; actor.blocking = false; actor.busyUntil = now+0.45
-    Rig.draw(actor.model, drawn)
-    actor.model:SetAttribute("Pose", drawn and "draw" or "sheathe")
-    actor.model:SetAttribute("PoseStart", now); actor.model:SetAttribute("PoseDuration", 0.45)
-    return true
+    local model = actor.model
+    if not actor.alive or (actor.storyLocked and not actor.storyCanWeapon) or model:GetAttribute("InCutscene") or not model:GetAttribute("HasSheath") or now < actor.busyUntil or now < actor.stunUntil then return false end
+    if drawn == nil then drawn = not model:GetAttribute("WeaponDrawn") end
+    local clip
+    if drawn then clip = style == "iai" and "draw_iai" or "draw"
+    else clip = "sheathe_"..(style or (now-actor.lastCombat < Config.FastSheatheWindow and "fast" or "noto")) end
+    local entry = AnimationIndex["base/"..clip]
+    local duration = entry.length
+    local swapAt = drawn and duration or entry.markers.Release
+    actor.castToken += 1; actor.blocking = false
+    actor.busyUntil = now+(drawn and duration or entry.markers.Seat)
+    if drawn then actor.weaponSince = now end
+    local token = Rig.setWeapon(model, drawn, drawn and "drawing" or "sheathing")
+    model:SetAttribute("PoseVariant", nil); model:SetAttribute("PoseWindup", nil)
+    model:SetAttribute("Pose", clip)
+    model:SetAttribute("PoseStart", now); model:SetAttribute("PoseDuration", duration)
+    task.delay(swapAt, function()
+        if model.Parent and model:GetAttribute("WeaponChanged") == token then Rig.swapSword(model, drawn) end
+    end)
+    task.delay(duration, function()
+        if model.Parent and model:GetAttribute("WeaponChanged") == token then model:SetAttribute("WeaponState", drawn and "drawn" or "sheathed") end
+    end)
+    return true, duration
 end
 
 local DASHES = {
@@ -346,6 +386,12 @@ function Combat:tick(dt)
             if hit then self:stopMotion(actor, "collision: "..hit.Instance.Name)
             elseif now >= m.ends or traveled >= m.distance then self:stopMotion(actor, "finished")
             elseif now < actor.stunUntil or actor.castToken ~= m.token then self:stopMotion(actor, "interrupted") end
+        end
+        -- Auto-sheathe: a drawn sword returns with the full noto after AutoSheatheSeconds without dealing or
+        -- taking damage (Combat:weapon itself refuses during cutscenes and story weapon locks).
+        if actor.model:GetAttribute("HasSheath") and actor.model:GetAttribute("WeaponDrawn") and not actor.blocking and not actor.motion
+            and now >= actor.busyUntil and now >= actor.stunUntil and now-math.max(actor.lastCombat, actor.weaponSince) > Config.AutoSheatheSeconds then
+            self:weapon(actor, false, "noto")
         end
         local stunned = now<actor.stunUntil
         local frozen = stunned or actor.motion ~= nil or (actor.motionReleaseAt and now<actor.motionReleaseAt) or actor.model:GetAttribute("InCutscene")

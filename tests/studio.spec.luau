@@ -3,6 +3,7 @@
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local ServerScriptService=game:GetService("ServerScriptService")
 local Config=require(game:GetService("ReplicatedStorage").Shared.Config)
+local AnimationIndex=require(game:GetService("ReplicatedStorage").Shared.AnimationIndex)
 local Content=require(ReplicatedStorage.Shared.Content)
 local Rig=require(ServerScriptService.Server.Rig)
 local World=require(ServerScriptService.Server.World)
@@ -355,12 +356,81 @@ check("every nichirin sword sheathes inside its saya and uses its sourced fittin
     for _,m in ipairs({tanjiro,giyu,rengoku,kanao}) do m:Destroy() end
 end)
 
+check("draw, noto, fast sheathe, cancel and iai follow clip timing on the server",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    local model=a.model
+    local function inHand() return model.RightHand.SwordHand.Enabled and not model.LowerTorso.SwordHip.Enabled end
+    local function ready() a.busyUntil=0;a.stunUntil=0 end
+    local noto=AnimationIndex["base/sheathe_noto"]
+    -- Out of combat: the full noto. Busy only through the chiburi; the joint moves at Release.
+    local ok,duration=combat:weapon(a,false)
+    assert(ok and model:GetAttribute("Pose")=="sheathe_noto" and math.abs(duration-noto.length)<1e-4,"noto not chosen out of combat")
+    assert(math.abs(a.busyUntil-workspace:GetServerTimeNow()-noto.markers.Seat)<0.05 and model:GetAttribute("WeaponState")=="sheathing")
+    task.wait(noto.markers.Release-0.15)
+    assert(inHand(),"sword left the hand before Release")
+    task.wait(noto.length-noto.markers.Release+0.3)
+    assert(not inHand() and model:GetAttribute("SwordInHand")==false and model:GetAttribute("WeaponState")=="sheathed","noto did not seat the sword")
+    -- Draw: the hand takes the sword when the clip ends.
+    ready();ok,duration=combat:weapon(a,true)
+    assert(ok and model:GetAttribute("Pose")=="draw" and not inHand(),"draw swapped early")
+    task.wait(duration+0.15)
+    assert(inHand() and model:GetAttribute("WeaponState")=="drawn","draw did not grip")
+    -- In combat: the fast sheathe.
+    ready();a.lastCombat=workspace:GetServerTimeNow()
+    ok=combat:weapon(a,false)
+    assert(ok and model:GetAttribute("Pose")=="sheathe_fast","fast sheathe not chosen in combat")
+    task.wait(AnimationIndex["base/sheathe_fast"].length+0.15)
+    assert(not inHand(),"fast sheathe did not seat")
+    -- Drawing again during a noto cancels its Release.
+    ready();combat:weapon(a,true);task.wait(0.6);ready();a.lastCombat=0
+    assert(combat:weapon(a,false) and model:GetAttribute("Pose")=="sheathe_noto")
+    task.wait(noto.markers.Seat+0.05)
+    assert(combat:weapon(a,true),"draw could not cancel the noto after the chiburi")
+    task.wait(noto.markers.Release+0.2)
+    assert(inHand() and model:GetAttribute("WeaponDrawn"),"cancelled noto still sheathed the sword")
+    -- A sheathed attack draws with the iai clip, then casts with its windup replicated for time-warp.
+    ready();a.lastCombat=workspace:GetServerTimeNow();combat:weapon(a,false);task.wait(0.5);ready()
+    a.energy=100;a.cooldowns={}
+    assert(combat:cast(a,Content.moves.water_1,Vector3.xAxis) and model:GetAttribute("Pose")=="draw_iai","sheathed attack did not iai-draw")
+    task.wait(AnimationIndex["base/draw_iai"].length+0.1)
+    assert(model:GetAttribute("Pose")=="slash" and model:GetAttribute("PoseWindup")==Content.moves.water_1.windup and model:GetAttribute("PoseVariant")==nil,"chained cast pose")
+    combat:remove(a)
+end)
+
+check("auto-sheathe, story weapon locks, combo variants and hit reactions",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    local b=actor("tanjiro","enemy",Vector3.new(0,4,19))
+    local model=a.model
+    assert(model:GetAttribute("WeaponDrawn"),"spawned sheathed")
+    a.weaponSince=workspace:GetServerTimeNow()-(Config.AutoSheatheSeconds+1);a.lastCombat=0
+    a.storyLocked=true;a.storyCanWeapon=false
+    combat:tick(0.03)
+    assert(model:GetAttribute("WeaponDrawn"),"auto-sheathe ignored a story weapon lock")
+    a.storyLocked=false
+    combat:tick(0.03)
+    assert(not model:GetAttribute("WeaponDrawn") and model:GetAttribute("Pose")=="sheathe_noto","idle sword did not auto-sheathe")
+    Rig.draw(model,true);a.busyUntil=0;a.weaponSince=workspace:GetServerTimeNow()
+    for combo=1,3 do
+        a.busyUntil=0;a.cooldowns={}
+        assert(combat:basic(a,Vector3.new(0,0,1)),"basic "..combo)
+        assert(model:GetAttribute("PoseVariant")=="combo_"..combo,"combo variant "..tostring(model:GetAttribute("PoseVariant")))
+    end
+    -- An idle defender flinches; one mid-attack keeps its attack pose.
+    b.busyUntil=0;b.model:SetAttribute("PoseDuration",0)
+    combat:damage(a,b,5,"none")
+    assert(b.model:GetAttribute("Pose")=="hit_light","idle target did not flinch")
+    b.busyUntil=workspace:GetServerTimeNow()+1;b.model:SetAttribute("Pose","slash")
+    b.model:SetAttribute("PoseStart",workspace:GetServerTimeNow());b.model:SetAttribute("PoseDuration",1)
+    combat:damage(a,b,5,"none")
+    assert(b.model:GetAttribute("Pose")=="slash","flinch interrupted an attack pose")
+    combat:remove(a);combat:remove(b)
+end)
+
 check("sword draw state and story combat restrictions are server controlled",function()
     local a=actor("tanjiro","player",Vector3.new(0,4,15))
     assert(a.model:FindFirstChild("Saya") and a.model.LowerTorso:FindFirstChild("SwordHip") and a.model.RightHand:FindFirstChild("SwordHand"))
     assert(combat:weapon(a,false) and not a.model:GetAttribute("WeaponDrawn"))
-    assert(a.model.LowerTorso.SwordHip.Enabled and not a.model.RightHand.SwordHand.Enabled,"sheathe did not move the sword to the hip")
-    assert(not combat:weapon(a,true),"draw bypassed recovery")
+    assert(not combat:weapon(a,true),"draw bypassed the chiburi recovery")
     a.busyUntil=0;a.storyLocked=true
     assert(not combat:cast(a,Content.moves.water_1,Vector3.xAxis))
     assert(not combat:weapon(a,true))

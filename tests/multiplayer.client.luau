@@ -117,6 +117,31 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             assert(facing:Dot(flat)>math.cos(math.rad(12)),"sidestep did not face the camera: "..facing:Dot(flat))
             assert(moved.Magnitude>6 and moved.Unit:Dot(cameraLeft)>0.8,string.format("sidestep did not travel camera-left: moved %.2f, left dot %.2f",moved.Magnitude,moved.Magnitude>0 and moved.Unit:Dot(cameraLeft) or 0))
             return {distance=moved.Magnitude,facingDot=facing:Dot(flat)}
+        elseif command=="swordPath" then
+            -- Observed on another client: the draw must slide the blade out along its own axis and carry it
+            -- to the hand continuously, rather than teleporting from the hip when the server swaps joints.
+            local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
+            local deadline=os.clock()+4
+            repeat RunService.RenderStepped:Wait() until model:GetAttribute("Pose")=="draw" or os.clock()>deadline
+            assert(model:GetAttribute("Pose")=="draw","draw never started")
+            local tsuka,lower=model.Katana.Tsuka,model.LowerTorso
+            local start=lower.CFrame:ToObjectSpace(tsuka.CFrame)
+            local previous=start.Position;local largest,slid,worst,travelled=0,0,0,0
+            deadline=os.clock()+0.75
+            repeat
+                local frame=RunService.RenderStepped:Wait();worst=math.max(worst,frame)
+                local point=lower.CFrame:PointToObjectSpace(tsuka.Position)
+                local step=(point-previous).Magnitude;largest=math.max(largest,step);travelled+=step;previous=point
+                slid=math.max(slid,(point-start.Position):Dot(start.ZVector))
+            until os.clock()>deadline
+            local direct=(previous-start.Position).Magnitude
+            local gap=(tsuka.Position-model.RightHand.Position).Magnitude
+            local report=string.format("slid %.2f, largest step %.2f of %.2f travelled (direct %.2f), gap %.2f, worst frame %.3f",slid,largest,travelled,direct,gap,worst)
+            assert(slid>1.5,"blade did not slide out along the saya axis: "..report)
+            -- A teleport puts nearly all travel in one step; a path spreads it over frames even at low frame rates.
+            assert(largest<0.6*travelled,"sword jumped instead of travelling: "..report)
+            assert(gap<1.2,"sword did not end in the hand: "..report)
+            return report
         elseif command=="weapon" then
             local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
             assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")

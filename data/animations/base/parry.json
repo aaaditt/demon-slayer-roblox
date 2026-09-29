@@ -1,0 +1,145 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "note": "0.3 s successful parry: the guard snaps up and right, knocking the attack aside, then returns.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [
+          70,
+          0,
+          -30
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -20,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -5,
+          0,
+          0
+        ],
+        "Neck": [
+          3,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.08,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          100,
+          0,
+          20
+        ],
+        "RightElbow": [
+          20,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          60,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -3,
+          -15,
+          0
+        ],
+        "Neck": [
+          2,
+          10,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.3,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          70,
+          0,
+          -30
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -20,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -5,
+          0,
+          0
+        ],
+        "Neck": [
+          3,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

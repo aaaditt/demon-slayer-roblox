@@ -1,0 +1,146 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "loop": true,
+  "note": "Held guard (F): the vertical block with a slight breathing sway. Upper body only, so the legs keep walking at guard speed.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          70,
+          0,
+          -30
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -20,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -5,
+          0,
+          0
+        ],
+        "Neck": [
+          3,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.5,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          72,
+          0,
+          -30
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -21,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          72,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -6,
+          0,
+          0
+        ],
+        "Neck": [
+          4,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 1.0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [
+          70,
+          0,
+          -30
+        ],
+        "RightElbow": [
+          40,
+          0,
+          0
+        ],
+        "RightWrist": [
+          -20,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          30
+        ],
+        "LeftElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          -5,
+          0,
+          0
+        ],
+        "Neck": [
+          3,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

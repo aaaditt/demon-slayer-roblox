@@ -1,13 +1,29 @@
 local Content = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Content"))
 local Rig = {}
 
-function Rig.draw(model, drawn)
-    model:SetAttribute("WeaponDrawn", drawn)
-    model:SetAttribute("WeaponChanged", workspace:GetServerTimeNow())
-    -- Exactly one sword joint holds the katana: the hip mount when sheathed, the right hand when drawn.
+-- Exactly one sword joint holds the katana: the hip mount when sheathed, the right hand when drawn.
+-- SwordInHand mirrors that for clients reconciling after their local draw/sheathe sword path.
+function Rig.swapSword(model, inHand)
     local hip = model:FindFirstChild("LowerTorso") and model.LowerTorso:FindFirstChild("SwordHip")
     local hand = model:FindFirstChild("RightHand") and model.RightHand:FindFirstChild("SwordHand")
-    if hip and hand then hip.Enabled = not drawn; hand.Enabled = drawn end
+    if hip and hand then hip.Enabled = not inHand; hand.Enabled = inHand end
+    model:SetAttribute("SwordInHand", inHand)
+end
+
+-- Begins a weapon change: WeaponDrawn is the gameplay state from now on; the joints swap later (see
+-- Combat:weapon). WeaponChanged doubles as the token that cancels a superseded delayed swap.
+function Rig.setWeapon(model, drawn, state)
+    local now = workspace:GetServerTimeNow()
+    model:SetAttribute("WeaponDrawn", drawn)
+    model:SetAttribute("WeaponChanged", now)
+    model:SetAttribute("WeaponState", state)
+    return now
+end
+
+-- Instant change (spawning, story setup): no animation.
+function Rig.draw(model, drawn)
+    Rig.setWeapon(model, drawn, drawn and "drawn" or "sheathed")
+    Rig.swapSword(model, drawn)
 end
 
 local function part(parent, name, size, color, cf, collide)
@@ -190,6 +206,8 @@ function Rig.buildSword(model, definition)
     local grip = motor(hand, "SwordHand", hand, tsuka, CFrame.new(0, -0.05, 0), CFrame.new(0, 0, GRIP_Z-TSUKA_Z))
     hip.Enabled = true; grip.Enabled = false
     model:SetAttribute("HasSheath", true)
+    -- Distance the sword travels along its axis to clear the saya: blade from BLADE_Z, 0.32 kissaki, less the mouth, plus margin.
+    model:SetAttribute("SwordDrawLength", -BLADE_Z+spec.length+0.32+MOUTH_Z+0.1)
     return spec
 end
 

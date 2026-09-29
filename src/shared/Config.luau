@@ -14,6 +14,8 @@ return {
     DodgeIFramesFront = 0.28,
     DodgeIFramesSide = 0.24,
     DodgeIFramesBack = 0.26,
+    AutoSheatheSeconds = 8,
+    FastSheatheWindow = 3,
     DodgeDuration = 0.32,
     ParryWindow = 0.18,
     GuardReduction = 0.75,
