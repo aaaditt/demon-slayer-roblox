@@ -18,12 +18,21 @@ local effects={FireAllClients=function() end}
 local world=World.init()
 local combat=Combat.new(effects)
 
-check("all character rigs have required R6 joints and humanoids",function()
+check("all character rigs have blocky R15 joints, humanoids and grounded feet",function()
+    local joints={"Root","Waist","Neck","RightShoulder","LeftShoulder","RightElbow","LeftElbow","RightWrist","LeftWrist","RightHip","LeftHip","RightKnee","LeftKnee","RightAnkle","LeftAnkle"}
     for _,c in pairs(Content.characters) do
         if c.playable then
             local model,humanoid,root=Rig.create(World.Actors,Vector3.new(0,4,0),c)
-            assert(model.PrimaryPart==root and humanoid.RigType==Enum.HumanoidRigType.R6,c.id)
-            assert(model.Torso:FindFirstChild("Right Shoulder") and root:FindFirstChild("RootJoint"),c.id)
+            assert(model.PrimaryPart==root and humanoid.RigType==Enum.HumanoidRigType.R15,c.id)
+            local found={}
+            for _,item in ipairs(model:GetDescendants()) do if item:IsA("Motor6D") then found[item.Name]=item end end
+            for _,name in ipairs(joints) do assert(found[name] and found[name].Part0 and found[name].Part1,c.id.." missing "..name) end
+            -- The Humanoid floats the root base HipHeight above the floor; the soles must sit exactly there.
+            local floor=root.Position.Y-root.Size.Y/2-humanoid.HipHeight
+            for _,side in ipairs({"Right","Left"}) do
+                local foot=model[side.."Foot"]
+                assert(math.abs(foot.Position.Y-foot.Size.Y/2-floor)<0.02,c.id.." "..side.." sole off floor")
+            end
             model:Destroy()
         end
     end
@@ -124,7 +133,7 @@ check("Hand Demon guarding, telegraphed damage and recovery windows are authorit
         finishChallenge=function() finished+=1 end,game={combat=combat,toast=function() end,push=function() end}}
     local encounter=Encounter.new(story)
     local boss=encounter.enemy;boss.invulnerableUntil=0
-    assert(boss.model.Torso:FindFirstChild("HandArm6"),"multi-arm rig missing")
+    assert(boss.model.UpperTorso:FindFirstChild("HandArm6"),"multi-arm rig missing")
     local hp=boss.humanoid.Health
     combat:damage(a,boss,50,"none");assert(boss.humanoid.Health==hp,"guarded neck took damage")
     a.root.CFrame=CFrame.new(boss.root.Position+Vector3.new(0,0,12));a.invulnerableUntil=0
@@ -243,7 +252,7 @@ end)
 
 check("sword draw state and story combat restrictions are server controlled",function()
     local a=actor("tanjiro","player",Vector3.new(0,4,15))
-    assert(a.model:FindFirstChild("Scabbard") and a.model.Torso:FindFirstChild("WeaponGrip"))
+    assert(a.model:FindFirstChild("Scabbard") and a.model.LowerTorso:FindFirstChild("WeaponGrip"))
     assert(combat:weapon(a,false) and not a.model:GetAttribute("WeaponDrawn"))
     assert(not combat:weapon(a,true),"draw bypassed recovery")
     a.busyUntil=0;a.storyLocked=true

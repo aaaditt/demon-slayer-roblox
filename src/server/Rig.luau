@@ -33,6 +33,28 @@ local function motor(parent, name, a, b, c0, c1)
     return m
 end
 
+-- Cosmetic offsets are authored in the classic frame: origin at the old 2x2 torso centre, or the old 2-stud arm centre.
+local TORSO_SPLIT, UPPER_Y, LOWER_Y, HAND_Y = -0.4, 0.3, -0.7, -0.825
+
+-- Returns the torso part covering a classic-frame offset and the offset converted into that part's space.
+function Rig.torsoFrame(model, offset)
+    local lower = offset.Position.Y < TORSO_SPLIT
+    return lower and model.LowerTorso or model.UpperTorso, CFrame.new(0, -(lower and LOWER_Y or UPPER_Y), 0)*offset
+end
+
+local function torsoWeld(model, item, offset)
+    local body, converted = Rig.torsoFrame(model, offset)
+    weld(body, item, converted)
+end
+
+local function handWeld(hand, item, offset)
+    weld(hand, item, CFrame.new(0, -HAND_Y, 0)*offset)
+end
+
+local function paintTorso(model, color)
+    model.UpperTorso.Color = color; model.LowerTorso.Color = color
+end
+
 function Rig.storyWeapon(model, kind)
     local previous = model:FindFirstChild("StoryWeapon")
     if previous then previous:Destroy() end
@@ -43,10 +65,10 @@ function Rig.storyWeapon(model, kind)
     end
     if not kind then return end
     local weapon = Instance.new("Model"); weapon.Name = "StoryWeapon"; weapon.Parent = model
-    local hand = model["Right Arm"]
+    local hand = model.RightHand
     local function piece(name, size, offset, color)
         local item = part(weapon, name, size, color)
-        weld(hand, item, offset)
+        handWeld(hand, item, offset)
     end
     local brown = Color3.fromRGB(163, 119, 71)
     if kind == "axe" then
@@ -69,7 +91,7 @@ end
 
 function Rig.swampBody(model, index)
     if model:FindFirstChild("SwampHorn") then return end
-    model.Torso.Color=Color3.fromRGB(49,58,64)
+    paintTorso(model,Color3.fromRGB(49,58,64))
     for i=1,math.clamp(index,1,3) do
         local horn=part(model,"SwampHorn",Vector3.new(0.24,0.75,0.25),Color3.fromRGB(219,214,177))
         weld(model.Head,horn,CFrame.new((i-(index+1)/2)*0.5,0.65,-0.2)*CFrame.Angles(-0.3,0,0))
@@ -85,12 +107,12 @@ end
 
 function Rig.uniform(model)
     if model:FindFirstChild("CorpsBelt") then return end
-    model.Torso.Color=Color3.fromRGB(29,33,40)
+    paintTorso(model,Color3.fromRGB(29,33,40))
     local belt=part(model,"CorpsBelt",Vector3.new(2.06,0.2,1.08),Color3.fromRGB(226,220,204))
-    weld(model.Torso,belt,CFrame.new(0,-0.8,0))
+    torsoWeld(model,belt,CFrame.new(0,-0.8,0))
     for i=1,3 do
         local button=part(model,"UniformButton",Vector3.new(0.12,0.12,0.08),Color3.fromRGB(198,170,91))
-        weld(model.Torso,button,CFrame.new(0,0.6-i*0.3,-0.56))
+        torsoWeld(model,button,CFrame.new(0,0.6-i*0.3,-0.56))
     end
 end
 
@@ -98,7 +120,7 @@ function Rig.crow(model)
     if model:FindFirstChild("MessengerCrow") then return end
     local crow=Instance.new("Model");crow.Name="MessengerCrow";crow.Parent=model
     local body=part(crow,"Body",Vector3.new(0.65,0.65,1.2),Color3.fromRGB(29,31,40))
-    weld(model.Torso,body,CFrame.new(-1.3,1.15,0.05))
+    torsoWeld(model,body,CFrame.new(-1.3,1.15,0.05))
     local head=part(crow,"Head",Vector3.new(0.55,0.55,0.55),body.Color)
     weld(body,head,CFrame.new(0,0.25,-0.5))
     local beak=part(crow,"Beak",Vector3.new(0.18,0.16,0.5),Color3.fromRGB(111,101,70))
@@ -110,12 +132,12 @@ function Rig.crow(model)
 end
 
 function Rig.handDemon(model)
-    local torso=model.Torso
+    local torso=model.UpperTorso
     for i=1,6 do
         local side=i%2==0 and 1 or -1
         local row=math.floor((i-1)/2)
         local arm=part(model,"ExtraArm"..i,Vector3.new(0.75,2,0.75),Color3.fromRGB(117,139,105))
-        motor(torso,"HandArm"..i,torso,arm,CFrame.new(side*(1.3+row*0.28),0.7-row*0.7,0.1)*CFrame.Angles(-0.6,0,side*(0.45+row*0.22)),CFrame.new(0,0.8,0))
+        motor(torso,"HandArm"..i,torso,arm,CFrame.new(side*(1.3+row*0.28),0.7-row*0.7-UPPER_Y,0.1)*CFrame.Angles(-0.6,0,side*(0.45+row*0.22)),CFrame.new(0,0.8,0))
         local palm=part(model,"ExtraPalm"..i,Vector3.new(1.1,0.55,0.95),arm.Color)
         weld(arm,palm,CFrame.new(0,-1.1,-0.1))
         for finger=-1,1 do
@@ -136,19 +158,37 @@ function Rig.create(parent, position, definition, actorName)
     local origin = CFrame.new(position)
     local root = part(model, "HumanoidRootPart", Vector3.new(2, 2, 1), dark, origin)
     root.Transparency = 1; root.Massless = false
-    local torso = part(model, "Torso", Vector3.new(2, 2, 1), dark, origin, true)
+    -- Blocky R15: same 5-stud silhouette as the classic rig, split at the waist, elbows, wrists, knees and ankles.
+    local lower = part(model, "LowerTorso", Vector3.new(2, 0.6, 1), dark, origin * CFrame.new(0, LOWER_Y, 0), true)
+    local upper = part(model, "UpperTorso", Vector3.new(2, 1.4, 1), dark, origin * CFrame.new(0, UPPER_Y, 0), true)
     local head = part(model, "Head", Vector3.new(2, 1, 1), skin, origin * CFrame.new(0, 1.5, 0))
-    local ra = part(model, "Right Arm", Vector3.new(1, 2, 1), accent, origin * CFrame.new(1.5, 0, 0))
-    local la = part(model, "Left Arm", Vector3.new(1, 2, 1), accent, origin * CFrame.new(-1.5, 0, 0))
-    local rl = part(model, "Right Leg", Vector3.new(1, 2, 1), dark, origin * CFrame.new(0.5, -2, 0))
-    local ll = part(model, "Left Leg", Vector3.new(1, 2, 1), dark, origin * CFrame.new(-0.5, -2, 0))
-    motor(root, "RootJoint", root, torso, CFrame.identity, CFrame.identity)
-    motor(torso, "Neck", torso, head, CFrame.new(0, 1, 0), CFrame.new(0, -0.5, 0))
-    motor(torso, "Right Shoulder", torso, ra, CFrame.new(1, 0.5, 0), CFrame.new(-0.5, 0.5, 0))
-    motor(torso, "Left Shoulder", torso, la, CFrame.new(-1, 0.5, 0), CFrame.new(0.5, 0.5, 0))
-    motor(torso, "Right Hip", torso, rl, CFrame.new(1, -1, 0), CFrame.new(0.5, 1, 0))
-    motor(torso, "Left Hip", torso, ll, CFrame.new(-1, -1, 0), CFrame.new(-0.5, 1, 0))
+    motor(root, "Root", root, lower, CFrame.new(0, LOWER_Y, 0), CFrame.identity)
+    motor(lower, "Waist", lower, upper, CFrame.new(0, TORSO_SPLIT-LOWER_Y, 0), CFrame.new(0, TORSO_SPLIT-UPPER_Y, 0))
+    motor(upper, "Neck", upper, head, CFrame.new(0, 1-UPPER_Y, 0), CFrame.new(0, -0.5, 0))
+    local hands = {}
+    for _, side in ipairs({"Right", "Left"}) do
+        local x = side == "Right" and 1 or -1
+        -- Arm (classic-frame y): shoulder pivot 0.6, elbow 0, wrist -0.65, hand bottom -1.
+        local upperArm = part(model, side.."UpperArm", Vector3.new(1, 1, 1), accent, origin * CFrame.new(1.5*x, 0.5, 0))
+        local lowerArm = part(model, side.."LowerArm", Vector3.new(1, 0.65, 1), accent, origin * CFrame.new(1.5*x, -0.325, 0))
+        local hand = part(model, side.."Hand", Vector3.new(0.9, 0.35, 0.9), skin, origin * CFrame.new(1.5*x, HAND_Y, 0))
+        motor(upper, side.."Shoulder", upper, upperArm, CFrame.new(1.5*x, 0.6-UPPER_Y, 0), CFrame.new(0, 0.1, 0))
+        motor(upperArm, side.."Elbow", upperArm, lowerArm, CFrame.new(0, -0.5, 0), CFrame.new(0, 0.325, 0))
+        motor(lowerArm, side.."Wrist", lowerArm, hand, CFrame.new(0, -0.325, 0), CFrame.new(0, 0.175, 0))
+        -- Leg: hip pivot -1.1, knee -2, ankle -2.8, sole -3 (HipHeight 2 below the root's base).
+        local upperLeg = part(model, side.."UpperLeg", Vector3.new(1, 1, 1), dark, origin * CFrame.new(0.5*x, -1.5, 0))
+        local lowerLeg = part(model, side.."LowerLeg", Vector3.new(1, 0.8, 1), dark, origin * CFrame.new(0.5*x, -2.4, 0))
+        local foot = part(model, side.."Foot", Vector3.new(1, 0.2, 1.2), Color3.fromRGB(58, 52, 48), origin * CFrame.new(0.5*x, -2.9, -0.1))
+        motor(lower, side.."Hip", lower, upperLeg, CFrame.new(0.5*x, -1.1-LOWER_Y, 0), CFrame.new(0, 0.4, 0))
+        motor(upperLeg, side.."Knee", upperLeg, lowerLeg, CFrame.new(0, -0.5, 0), CFrame.new(0, 0.4, 0))
+        motor(lowerLeg, side.."Ankle", lowerLeg, foot, CFrame.new(0, -0.4, 0), CFrame.new(0, 0.1, 0.1))
+        hands[side] = hand
+    end
+    local ra, la = hands.Right, hands.Left
     local humanoid = Instance.new("Humanoid")
+    humanoid.RigType = Enum.HumanoidRigType.R15
+    humanoid.AutomaticScalingEnabled = false
+    humanoid.HipHeight = 2
     humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
     humanoid.BreakJointsOnDeath = false
     humanoid.RequiresNeck = true
@@ -165,20 +205,18 @@ function Rig.create(parent, position, definition, actorName)
         local eye = part(model, "Eye", Vector3.new(0.16, 0.15, 0.04), accent)
         weld(head, eye, CFrame.new(side * 0.4, 0, -0.52))
         local coat = part(model, "HaoriPanel", Vector3.new(0.95, 2.5, 0.12), accent)
-        weld(torso, coat, CFrame.new(side * 0.54, -0.15, 0.6) * CFrame.Angles(0, 0, side * 0.05))
-        local cuff = part(model, "Cuff", Vector3.new(1.04, 0.45, 1.04), skin)
-        weld(side == 1 and ra or la, cuff, CFrame.new(0, -0.78, 0))
+        torsoWeld(model, coat, CFrame.new(side * 0.54, -0.15, 0.6) * CFrame.Angles(0, 0, side * 0.05))
     end
     local belt = part(model, "Belt", Vector3.new(2.04, 0.2, 1.08), Color3.fromRGB(232, 220, 205))
-    weld(torso, belt, CFrame.new(0, -0.55, 0))
+    torsoWeld(model, belt, CFrame.new(0, -0.55, 0))
     if definition.id == "tanjiro" then
         for row = 0, 2 do
             for col = 0, 3 do
                 if (row + col) % 2 == 0 then
                     local check = part(model, "Check", Vector3.new(0.48, 0.65, 0.05), dark)
-                    weld(torso, check, CFrame.new(-0.75 + col * 0.5, 0.65 - row * 0.68, 0.7))
+                    torsoWeld(model, check, CFrame.new(-0.75 + col * 0.5, 0.65 - row * 0.68, 0.7))
                     local front = part(model, "HaoriCheck", Vector3.new(0.48, 0.65, 0.05), (col+row)%4==0 and dark or accent)
-                    weld(torso, front, CFrame.new(-0.75+col*0.5,0.65-row*0.68,-0.53))
+                    torsoWeld(model, front, CFrame.new(-0.75+col*0.5,0.65-row*0.68,-0.53))
                 end
             end
         end
@@ -220,7 +258,7 @@ function Rig.create(parent, position, definition, actorName)
 
     local function weaponPiece(name, size, offset, hand, color)
         local p = part(model, name, size, color or Color3.fromRGB(207, 222, 231))
-        weld(hand or ra, p, offset)
+        if hand == "torso" then torsoWeld(model, p, offset) else handWeld(hand or ra, p, offset) end
         return p
     end
     local weapon = definition.weapon
@@ -229,9 +267,9 @@ function Rig.create(parent, position, definition, actorName)
         Rig.draw(model, true)
         local sheathCF = CFrame.new(-1.05, -0.8, 0.3)*CFrame.Angles(0, 0, -0.18)
         local sheath = part(model, "Scabbard", Vector3.new(0.3, 0.28, 3.8), dark)
-        weld(torso, sheath, sheathCF*CFrame.new(0, 0, 1.2))
+        torsoWeld(model, sheath, sheathCF*CFrame.new(0, 0, 1.2))
         local hilt = part(model, "Hilt", Vector3.new(0.23, 0.24, 1), dark)
-        motor(torso, "WeaponGrip", torso, hilt, sheathCF, CFrame.identity)
+        motor(lower, "WeaponGrip", lower, hilt, CFrame.new(0, -LOWER_Y, 0)*sheathCF, CFrame.identity)
         local guard = part(model, "Guard", Vector3.new(0.65, 0.5, 0.12), accent)
         weld(hilt, guard, CFrame.new(0, 0, -0.52))
         local blade = part(model, "Blade", Vector3.new(weapon == "needle" and 0.09 or 0.22, 0.1, 3.6), Color3.fromRGB(218, 233, 242))
@@ -270,7 +308,7 @@ function Rig.create(parent, position, definition, actorName)
     elseif weapon == "staff" then
         weaponPiece("Staff", Vector3.new(0.22, 4.5, 0.22), CFrame.new(0, -0.8, -0.5), ra, accent)
     elseif weapon == "biwa" or weapon == "drums" then
-        weaponPiece("Instrument", Vector3.new(1.4, 1.8, 0.5), CFrame.new(0, -0.2, -0.85), torso, Color3.fromRGB(125, 80, 46))
+        weaponPiece("Instrument", Vector3.new(1.4, 1.8, 0.5), CFrame.new(0, -0.2, -0.85), "torso", Color3.fromRGB(125, 80, 46))
     elseif weapon == "temari" then
         local ball = weaponPiece("Temari", Vector3.new(1.1, 1.1, 1.1), CFrame.new(0, -1.25, -0.3), ra, accent)
         ball.Shape = Enum.PartType.Ball

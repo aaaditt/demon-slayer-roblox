@@ -6,6 +6,8 @@ A Roblox action RPG and PvP project. Minimum cast: **Infinity Castle (2025)**, a
 
 ## Project principles
 
+**Continuing in a fresh session:** read [the current handoff](docs/HANDOFF.md) first. It records the tested chapter-four build and newer concurrent rig changes; verify the latest workspace and delivery status before continuing.
+
 - Server decides damage, cooldowns, energy, progression, arena membership, and rewards.
 - PvP uses equal combat stats; story progression never buys a PvP advantage.
 - Every researched technique is distinguishable from an original gameplay adaptation.

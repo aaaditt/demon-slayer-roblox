@@ -71,10 +71,10 @@ function Story:setCarry(kind)
     if kind=="nezuko" or kind=="box" then visible(self.npcs.nezuko,false) end
     if kind=="none" then return end
     local carry=Instance.new("Model");carry.Name="StoryCarry";carry.Parent=actor.model
-    local torso=actor.model.Torso
     local function piece(name,size,offset,color)
+        local torso,local_=Rig.torsoFrame(actor.model,offset)
         local p=Instance.new("Part");p.Name=name;p.Size=size;p.Color=color;p.Massless=true
-        p.CanCollide=false;p.CanTouch=false;p.CanQuery=false;p.CFrame=torso.CFrame*offset
+        p.CanCollide=false;p.CanTouch=false;p.CanQuery=false;p.CFrame=torso.CFrame*local_
         p.TopSurface=Enum.SurfaceType.Smooth;p.BottomSurface=Enum.SurfaceType.Smooth;p.Parent=carry
         local w=Instance.new("WeldConstraint");w.Part0=torso;w.Part1=p;w.Parent=p
     end

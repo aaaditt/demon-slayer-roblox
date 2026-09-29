@@ -36,7 +36,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             controls:Disable()
             local model=player.Character
             local humanoid=model:FindFirstChildOfClass("Humanoid")
-            local hip=model.Torso["Right Hip"]
+            local hip=model.LowerTorso.RightHip
             local original=hip.C0
             local changed=false
             local deadline=os.clock()+0.5
@@ -86,7 +86,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
         elseif command=="weapon" then
             local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
             assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")
-            assert(model:FindFirstChild("Scabbard") and model.Torso:FindFirstChild("WeaponGrip"))
+            assert(model:FindFirstChild("Scabbard") and model.LowerTorso:FindFirstChild("WeaponGrip"))
             assert(model.Blade.LocalTransparencyModifier==(args.drawn and 0 or 1),"blade visibility incorrect")
             return true
         elseif command=="sceneKey" then
@@ -121,7 +121,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
         elseif command=="swamp" then
             if args.animation then
                 local model=args.model;assert(model and model.Head.Transparency<1,"Nezuko not visible")
-                local joint=model.Torso["Right Hip"];local first=joint.C0;local changed=false;local deadline=os.clock()+0.8
+                local joint=model.LowerTorso.RightHip;local first=joint.C0;local changed=false;local deadline=os.clock()+0.8
                 repeat
                     RunService.RenderStepped:Wait();changed=changed or joint.C0.LookVector:Dot(first.LookVector)<0.9999
                 until os.clock()>deadline
@@ -140,7 +140,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
                 if model:GetAttribute("HandDemon") and model:GetAttribute("Zone")==player.Character:GetAttribute("Zone") then boss=model;break end
             end
             assert(boss,"Hand Demon did not replicate")
-            local arm=boss.Torso.HandArm1
+            local arm=boss.UpperTorso.HandArm1
             local original=arm.C0;local changed=false;local deadline=os.clock()+0.7
             repeat
                 RunService.RenderStepped:Wait()

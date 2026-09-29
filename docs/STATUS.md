@@ -2,9 +2,11 @@
 
 Updated: 2026-09-29
 
+Fresh-session starting point: [HANDOFF.md](HANDOFF.md). Its "unknown concurrent R15 edits" were the animation session's phase 1 (see [ANIMATION.md](ANIMATION.md)): the blocky R15 rig is now committed and validated (engine 16/16, two-client 18/18). Chapter four is commit `b0ed8d7`, pushed. Character animation production follows ANIMATION.md.
+
 ## Active checkpoint
 
-Four chronological story chapters are implemented locally: the Kamado prologue, Sagiri training, Final Selection and the northwest town investigation. Chapter four adds lantern streets, an accessible rescue house, Kazumi, Nezuko's intervention and a separate swamp space. Three demon bodies rise, telegraph strikes and expose themselves before sinking. The rescue continues through the last body, a keepsake and farewell. The box, black sword and uniform continue into this chapter; a temporary Water kit preserves the saved hub fighter/loadout. Local build, engine and two-client checks pass. Commit/push/release are blocked by read-only `.git`; the source changes remain uncommitted locally.
+Four chronological story chapters are implemented: the Kamado prologue, Sagiri training, Final Selection and the northwest town investigation. Chapter four adds lantern streets, an accessible rescue house, Kazumi, Nezuko's intervention and a separate swamp space. Three demon bodies rise, telegraph strikes and expose themselves before sinking. The rescue continues through the last body, a keepsake and farewell. The box, black sword and uniform continue into this chapter; a temporary Water kit preserves the saved hub fighter/loadout. Its local build, engine and two-client checks passed before the newer rig edits described above. The earlier Git block was followed by a commit from another process; verify subsequent delivery instead of assuming it remains uncommitted.
 
 The full game is not finished. Chapters 5-22 remain encounter previews. The v0.4.0 download includes the first three staged chapters; the local 0.5.0 build adds chapter four. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
@@ -18,7 +20,7 @@ The full game is not finished. Chapters 5-22 remain encounter previews. The v0.4
 
 ## Next work
 
-1. Once Git write access is available, commit/push the local chapter-four checkpoint, verify CI and create the 0.5.0 development release. Review all four staged chapters for movement, navigation, encounter difficulty and scene pacing.
+1. Continue character animation production (ANIMATION.md phases 2-10: sword model, clip pipeline/player, locomotion, directional dashes, draw/sheathe, attacks, per-character profiles). Verify chapter-four CI/release state. Review all four staged chapters for movement, navigation, encounter difficulty and scene pacing.
 2. Build Asakusa, Muzan and the civilian emergency, then Tamayo/Yushiro; see [session roadmap](STORY_PRODUCTION.md).
 3. Replace shared procedural characters and choreography with authored character-specific assets, starting with Tanjiro, Nezuko and Giyu.
 4. Expand all later story arcs, canonical boss mechanics, exploration and supporting NPC roles. Keep all nine Hashira, protagonists, Muzan, Upper/Lower Moons, PvP and progression in scope.
@@ -33,7 +35,7 @@ The full game is not finished. Chapters 5-22 remain encounter previews. The v0.4
 
 Earlier Studio screenshot review covers the opening house/family scene and dialogue. The Sagiri and Selection capture attempts did not obtain a visible test window; no new visual inspection is claimed. Automated route checks reposition the player and accelerate clocks/hits; they are not a human full-route playthrough or a difficulty assessment. Physical touch/controller, sustained low-FPS/lag behavior, authored animation quality and live DataStore behavior remain unverified.
 
-2026-09-29: rebuilt the unchanged runtime source for delivery. Catalog validation, all eleven core tests, 24 Luau compilations and the production place build passed again; whitespace checks passed. The Studio results above are from September 19, not a new manual playthrough.
+Earlier on 2026-09-29, chapter three's unchanged source was rebuilt for its 0.4.0 release: eleven core tests, 24 Luau compilations and build passed. Its Studio evidence was from September 19. Chapter four's newer September 29 results are listed first above.
 
 ## Content inventory
 
@@ -47,4 +49,4 @@ Server-authoritative action admission/combat, energy/cooldowns, basic combo, gua
 
 Download [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `e2f34d5`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/36575304044). The place is 554,354 bytes; SHA-256 `acafe472dabc28725063d4414448351d0cdab8dd08bbbc5b5a3f42c88c90741a`. Both uploaded assets, the full source target and the matching GitHub place digest were verified on September 29.
 
-Local 0.5.0 output: `build/WisteriaChronicles.rbxlx` (ignored generated file), 595,414 bytes, SHA-256 `7fcb85158a39120d8c5c2e316702702f9fdfd65488f72c213829c36c4a2750ec`; checksum file is beside it. This has chapter four and is newer than the release above. Open in Studio, press Play and choose Journey -> 04 Beneath the Town after chapter three. No injected test bridge/stage hooks are present. Git staging failed with `index.lock: Permission denied`; there is no 0.5.0 commit, CI result or uploaded release yet. The cloud upload remains unchanged.
+Last verified local 0.5.0 output: `build/WisteriaChronicles.rbxlx` (ignored generated file), 595,414 bytes, SHA-256 `7fcb85158a39120d8c5c2e316702702f9fdfd65488f72c213829c36c4a2750ec`; checksum file is beside it. This has chapter four and predates the newer rig edits. Open in Studio, press Play and choose Journey -> 04 Beneath the Town after chapter three. No injected test bridge/stage hooks are present. The earlier staging attempt failed, but chapter-four commit `b0ed8d7` subsequently appeared with matching local `origin/main`; verify current CI/new-release state. No new cloud upload was observed.

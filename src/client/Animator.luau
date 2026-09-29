@@ -6,7 +6,7 @@ local watched = setmetatable({}, {__mode="k"})
 
 local function register(model)
     if rigs[model] or not model:IsA("Model") then return end
-    local torso = model:FindFirstChild("Torso")
+    local torso = model:FindFirstChild("LowerTorso")
     local root = model:FindFirstChild("HumanoidRootPart")
     local humanoid = model:FindFirstChildOfClass("Humanoid")
     if not torso or not root or not humanoid then return end
@@ -14,7 +14,7 @@ local function register(model)
     for _, item in ipairs(model:GetDescendants()) do
         if item:IsA("Motor6D") then motors[item.Name] = item end
     end
-    if not motors["Right Shoulder"] or not motors["Left Hip"] or not motors.RootJoint then return end
+    if not motors.RightShoulder or not motors.LeftHip or not motors.Root then return end
     rigs[model] = {motors=motors,root=root,torso=torso,humanoid=humanoid,phase=0,air=false,landed=0}
     model:SetAttribute("MotionReady", true) -- Client diagnostic, never trusted for gameplay.
 end
@@ -106,10 +106,13 @@ function Animator.start()
                     m.C0=m.C0:Lerp(rig[name]*cf,blend)
                 end
             end
-            set("Right Shoulder",CFrame.Angles(right,0,pose=="draw" and active and -0.65 or 0.08))
-            set("Left Shoulder",CFrame.Angles(left,0,-0.08))
-            set("Right Hip",CFrame.Angles(rh,0,0));set("Left Hip",CFrame.Angles(lh,0,0))
-            set("RootJoint",CFrame.new(0,bob,0)*CFrame.Angles(lean,twist,roll))
+            set("RightShoulder",CFrame.Angles(right,0,pose=="draw" and active and -0.65 or 0.08))
+            set("LeftShoulder",CFrame.Angles(left,0,-0.08))
+            set("RightHip",CFrame.Angles(rh,0,0));set("LeftHip",CFrame.Angles(lh,0,0))
+            -- Interim knee/elbow follow-through until clip playback replaces this pose table.
+            set("RightKnee",CFrame.Angles(math.max(0,rh)*-1.1,0,0));set("LeftKnee",CFrame.Angles(math.max(0,lh)*-1.1,0,0))
+            set("RightElbow",CFrame.Angles(0.3,0,0));set("LeftElbow",CFrame.Angles(0.3,0,0))
+            set("Root",CFrame.new(0,bob,0)*CFrame.Angles(lean,twist,roll))
             set("Neck",CFrame.Angles(-lean*0.6,-twist*0.2,0))
             if model:GetAttribute("HandDemon") then
                 local bossPhase=model:GetAttribute("BossPhase")
@@ -122,10 +125,10 @@ function Animator.start()
             set("CrowLeft",CFrame.Angles(0,0,math.sin(now*3)*0.12))
             set("CrowRight",CFrame.Angles(0,0,-math.sin(now*3)*0.12))
             local grip=rig.motors.WeaponGrip
-            if grip and model:FindFirstChild("Right Arm") then
+            if grip and model:FindFirstChild("RightHand") then
                 local drawn=model:GetAttribute("HasSheath") and model:GetAttribute("WeaponDrawn")
-                local sheath=CFrame.new(-1.05,-0.8,0.3)*CFrame.Angles(0,math.pi, -0.18)
-                local hand=rig.torso.CFrame:ToObjectSpace(model["Right Arm"].CFrame*CFrame.new(0,-0.9,-0.15))
+                local sheath=CFrame.new(-1.05,-0.1,0.3)*CFrame.Angles(0,math.pi, -0.18)
+                local hand=rig.torso.CFrame:ToObjectSpace(model.RightHand.CFrame*CFrame.new(0,-0.075,-0.15))
                 grip.C0=grip.C0:Lerp(drawn and hand or sheath,1-math.exp(-14*math.min(dt,0.1)))
                 local blade=model:FindFirstChild("Blade")
                 if blade then
