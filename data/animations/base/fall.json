@@ -1,0 +1,231 @@
+{
+  "category": "locomotion",
+  "priority": "Movement",
+  "loop": true,
+  "speed": 0,
+  "note": "Legs extending toward the ground, arms out for balance with a slow flutter.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          18,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -30,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          -5,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -5,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -15,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          4,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          15,
+          0,
+          40
+        ],
+        "RightElbow": [
+          25,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          15,
+          0,
+          -40
+        ],
+        "LeftElbow": [
+          25,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.4,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          22,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -34,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          -5,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -3,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -18,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          5,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          18,
+          0,
+          46
+        ],
+        "RightElbow": [
+          28,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          18,
+          0,
+          -46
+        ],
+        "LeftElbow": [
+          28,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.8,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          18,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -30,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          -5,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -5,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -15,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          -10,
+          0,
+          0
+        ],
+        "Waist": [
+          4,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          15,
+          0,
+          40
+        ],
+        "RightElbow": [
+          25,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          15,
+          0,
+          -40
+        ],
+        "LeftElbow": [
+          25,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

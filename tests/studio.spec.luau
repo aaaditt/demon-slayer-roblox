@@ -2,6 +2,7 @@
 -- This is server/engine smoke coverage, not a multi-client or visual playtest.
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local ServerScriptService=game:GetService("ServerScriptService")
+local Config=require(game:GetService("ReplicatedStorage").Shared.Config)
 local Content=require(ReplicatedStorage.Shared.Content)
 local Rig=require(ServerScriptService.Server.Rig)
 local World=require(ServerScriptService.Server.World)
@@ -238,13 +239,38 @@ check("walls block melee and server dash collision",function()
     wall:Destroy();combat:remove(a);combat:remove(b)
 end)
 
+check("directional dashes keep facing on sides and back with their own reach and i-frames",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    local function dash(direction,facing)
+        combat:stopMotion(a);a.busyUntil=0;a.cooldowns.dodge=0;a.energy=100
+        a.root.CFrame=CFrame.lookAt(a.root.Position,a.root.Position+Vector3.new(0,0,-1))
+        local now=workspace:GetServerTimeNow()
+        local kind=combat:dodge(a,direction,facing)
+        return kind,a.motion and a.motion.distance or 0,a.root.CFrame.LookVector,a.invulnerableUntil-now
+    end
+    local cos5=math.cos(math.rad(5))
+    local kind,distance,look,iframes=dash(Vector3.new(0,0,1))
+    assert(kind=="back" and a.model:GetAttribute("Pose")=="dash_back","back classification")
+    assert(math.abs(distance-Config.DodgeDistanceBack)<0.01 and look:Dot(Vector3.new(0,0,-1))>cos5,"back dash turned or wrong reach "..distance)
+    assert(math.abs(iframes-Config.DodgeIFramesBack)<0.02,"back i-frames")
+    kind,distance,look,iframes=dash(Vector3.new(-1,0,0))
+    assert(kind=="left" and math.abs(distance-Config.DodgeDistanceSide)<0.01 and look:Dot(Vector3.new(0,0,-1))>cos5,"side dash turned or wrong reach")
+    assert(math.abs(iframes-Config.DodgeIFramesSide)<0.02 and Config.DodgeIFramesSide<Config.DodgeIFramesFront,"side i-frames")
+    kind,distance,look=dash(Vector3.xAxis,Vector3.xAxis)
+    assert(kind=="front" and math.abs(distance-Config.DodgeDistance)<0.01 and look:Dot(Vector3.xAxis)>cos5,"front dash must face travel")
+    -- A camera facing makes the same world direction a sidestep, and the dasher turns to that facing.
+    kind,distance,look=dash(Vector3.xAxis,Vector3.new(0,0,1))
+    assert(kind=="left" and look:Dot(Vector3.new(0,0,1))>cos5,"camera-relative sidestep")
+    combat:remove(a)
+end)
+
 check("dodge starts bounded motion without teleport and cleanup removes constraints",function()
     local a=actor("tanjiro","player",Vector3.new(0,4,15))
     local start=a.root.Position
     combat:dodge(a,Vector3.xAxis)
     assert((a.root.Position-start).Magnitude<0.01,"dodge teleported")
     assert(a.motion and a.root:FindFirstChild("DashVelocity"),"dash constraint missing")
-    assert(a.energy==82 and a.model:GetAttribute("Pose")=="evade")
+    assert(a.energy==82 and a.model:GetAttribute("Pose")=="dash_right")
     combat:stopMotion(a)
     assert(not a.root:FindFirstChild("DashVelocity") and not a.root:FindFirstChild("DashAttachment"))
     combat:remove(a)
@@ -275,6 +301,24 @@ check("Editor-format clips load, target real rig parts and sample their authored
     local mid=Motion.sample(clip,0.6,{}).UpperTorso
     assert(angle(mid,start.UpperTorso)>1e-4 and angle(mid,peak.UpperTorso)>1e-4,"no interpolation between keyframes")
     assert(Motion.clip("base/does_not_exist")==nil,"missing clips must fall back to procedural poses")
+end)
+
+check("animator per-frame cost stays small for a crowded scene",function()
+    local Animator=require(game:GetService("StarterPlayer").StarterPlayerScripts.Client.Animator)
+    local models,states={},{}
+    for i=1,12 do
+        local model=Rig.create(World.Actors,Vector3.new(i*6,40,0),Content.characters.tanjiro)
+        if i%3==0 then model:SetAttribute("Pose","dash_left");model:SetAttribute("PoseStart",workspace:GetServerTimeNow());model:SetAttribute("PoseDuration",60) end
+        table.insert(models,model);states[model]=assert(Animator.track(model),"rig not tracked")
+    end
+    local frames,started=60,os.clock()
+    for f=1,frames do
+        for _,model in ipairs(models) do Animator.step(model,states[model],workspace:GetServerTimeNow(),1/60) end
+    end
+    local perFrame=(os.clock()-started)/frames*1000
+    print(string.format("ANIMATOR_BENCH %.3f ms per frame for 12 rigs (%.3f ms per rig)",perFrame,perFrame/12))
+    for _,model in ipairs(models) do model:Destroy() end
+    assert(perFrame<4,"animator too expensive: "..perFrame.." ms per frame")
 end)
 
 check("every nichirin sword sheathes inside its saya and uses its sourced fittings",function()

@@ -1,4 +1,15 @@
 {
+  "base/dash_back": "857c3828f0792a6d2c4a80518d7e67a066421fd1bb3e4df013bda09b55491a89",
+  "base/dash_front": "634183549550190ff199c71cacb113e7cc28fa1b2727744a4766e7c18c3d8758",
+  "base/dash_left": "ec1a3d380e9220d2920fff2832f1209b54f81491421ba22af47d5d1af0533376",
+  "base/dash_right": "9af2a88c2eb44a39ead3ce6e17723d5c163cb4eb50207a0250d1fe3b83b1ffc1",
+  "base/fall": "7cbff013f5ce570a5e1e30ca39f3ecee87ab121e0143a9d76fd71cb9e4e7c93b",
   "base/idle_drawn": "e425f6184a39a8e34e61abff371b7aa5fece50e9d04c51f7995f673b707cb9b7",
-  "base/idle_sheathed": "c9a5eea1730dbee097b7c9421361393f6b4cb3084c0e6c2bf55f9caee6b75c77"
+  "base/idle_sheathed": "c9a5eea1730dbee097b7c9421361393f6b4cb3084c0e6c2bf55f9caee6b75c77",
+  "base/jump": "a0a84128f9d119514fe4940336ae43b3705714e6ba4b61f92b99f52300b32b7e",
+  "base/land_heavy": "e2484e0c528872f56858255fc1c8a8acc6182f35612a8f97d6bb74ea86df51b5",
+  "base/land_light": "80b6bb9475f5936043be3da0a9e05373496768d233785eefa3473b1a402b79fa",
+  "base/run_drawn": "524c38666d30c76c35e262b34bed43d9d90e2decb9a465b9026cfc8d57ca17aa",
+  "base/run_sheathed": "8c16df8389fc9151b87432a2363cdadab101f962e23d6fdc66f244796891e80a",
+  "base/walk_sheathed": "4ffb1a14f88f560b73ae56126bd4c711dd9dfab237bc3637e169629e929cd85a"
 }

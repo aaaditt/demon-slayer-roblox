@@ -17,6 +17,9 @@ local watched = setmetatable({}, {__mode="k"})
 local BODY = {"Root","Waist","Neck","RightShoulder","LeftShoulder","RightElbow","LeftElbow","RightWrist","LeftWrist",
     "RightHip","LeftHip","RightKnee","LeftKnee","RightAnkle","LeftAnkle"}
 local BASE_FADE, ACTION_IN, ACTION_OUT = 0.15, 0.08, 0.12
+local IDLE_MAX, WALK_MAX, HEAVY_FALL = 22*0.08, 12, 25
+-- Joints a "lower" drawnMask clip may drive while the sword is out; the upper body keeps its stance.
+local LOWER = {Root=true,RightHip=true,LeftHip=true,RightKnee=true,LeftKnee=true,RightAnkle=true,LeftAnkle=true}
 local STRIKES = {slash=true,thrust=true,spin=true,barrage=true}
 
 local function register(model)
@@ -29,9 +32,15 @@ local function register(model)
         if item:IsA("Motor6D") then motors[item.Name] = item end
     end
     for _, name in ipairs(BODY) do if not motors[name] then return end end
-    rigs[model] = {motors=motors,root=root,humanoid=humanoid,phase=0,air=false,landed=0,
+    rigs[model] = {motors=motors,root=root,humanoid=humanoid,phase=0,air=false,landed=0,landDuration=0.18,
         legacy={},legacyBase={},extras={},base={},actions={},roll=0,yaw=nil}
     model:SetAttribute("MotionReady", true) -- Client diagnostic, never trusted for gameplay.
+end
+
+-- Registers a rig without the workspace watchers and returns its animation state (engine tests/benchmarks).
+function Animator.track(model)
+    register(model)
+    return rigs[model]
 end
 
 local function watch(model)
@@ -60,8 +69,8 @@ local function legacyPose(rig, model, now, dt, velocity, speed, pose, elapsed, d
         v.right=rising and -0.65 or -0.3;v.left=v.right
         v.rh=rising and -0.8 or 0.25;v.lh=rising and 0.45 or -0.3
         v.lean=rising and -0.1 or 0.16;v.bob=0
-    elseif now-rig.landed<0.18 then
-        local weight=1-(now-rig.landed)/0.18
+    elseif now-rig.landed<rig.landDuration then
+        local weight=1-(now-rig.landed)/rig.landDuration
         v.bob=-0.2*weight;v.lean=0.28*weight;v.rh=-0.2*weight;v.lh=v.rh;motion="land"
     end
     local base=table.clone(v)
@@ -77,7 +86,7 @@ local function legacyPose(rig, model, now, dt, velocity, speed, pose, elapsed, d
         elseif pose=="thrust" or pose=="projectile" then v.right=-1.6*swing;v.left=-0.6;v.lean=0.2*swing
         elseif pose=="spin" or pose=="burst" then v.right=-1.4;v.left=-1.4;v.twist=p*math.pi*2
         elseif pose=="barrage" then v.right=-1.2-math.sin(p*math.pi*8)*0.5;v.left=-1.2+math.sin(p*math.pi*8)*0.5
-        elseif pose=="dash" or pose=="evade" then v.right=0.85;v.left=0.75;v.lean=0.65;v.rh=-0.8;v.lh=0.8;v.bob=-0.2
+        elseif pose=="dash" or pose=="evade" or string.sub(pose,1,5)=="dash_" then v.right=0.85;v.left=0.75;v.lean=0.65;v.rh=-0.8;v.lh=0.8;v.bob=-0.2
         elseif pose=="kneel" then v.lean=0.45;v.rh=-0.95;v.lh=-0.8;v.right=-0.6;v.left=-0.6;v.bob=-0.5
         elseif pose=="embrace" then v.right=-1.35;v.left=-1.35;v.lean=0.08
         elseif pose=="kick" then v.rh=-1.8*swing;v.lh=0.3;v.lean=-0.25*swing;v.right=-0.9;v.left=-1.2;v.twist=0.3*swing
@@ -106,9 +115,9 @@ local function smooth(store, targets, alpha)
     end
 end
 
-local function baseClip(motion, drawn)
-    if motion=="idle" then return Motion.clip(drawn and "base/idle_drawn" or "base/idle_sheathed") end
-    return Motion.clip("base/"..motion..(drawn and "_drawn" or "_sheathed")) or Motion.clip("base/"..motion)
+-- Most specific authored clip for a locomotion state: drawn variant, then sheathed, then shared.
+local function baseClip(state, drawn)
+    return (drawn and Motion.clip("base/"..state.."_drawn")) or Motion.clip("base/"..state.."_sheathed") or Motion.clip("base/"..state)
 end
 
 local function actionClip(model, pose)
@@ -151,23 +160,38 @@ function Animator.step(model, rig, now, dt)
     local speed=Vector3.new(velocity.X,0,velocity.Z).Magnitude
     local state=rig.humanoid:GetState()
     local air=state==Enum.HumanoidStateType.Jumping or state==Enum.HumanoidStateType.Freefall
-    if rig.air and not air then rig.landed=now end
+    local height=rig.root.Position.Y
+    if air then rig.peak=math.max(rig.peak or height,height) end
+    if rig.air and not air then
+        -- Falls from higher than HEAVY_FALL studs land in the deeper, longer crouch.
+        rig.landHeavy=(rig.peak or height)-height>HEAVY_FALL
+        rig.landed=now;rig.landDuration=rig.landHeavy and 0.35 or 0.18;rig.peak=nil
+    end
     rig.air=air
     local pose=model:GetAttribute("Pose")
     local elapsed=now-(model:GetAttribute("PoseStart") or 0)
     local duration=model:GetAttribute("PoseDuration") or 0
     local active=pose~=nil and elapsed>=0 and elapsed<duration
     local drawn=model:GetAttribute("HasSheath") and model:GetAttribute("WeaponDrawn") or false
-    local legacyBase, legacyFull, motion=legacyPose(rig,model,now,dt,velocity,speed,pose,elapsed,duration,active)
+    local legacyBase, legacyFull=legacyPose(rig,model,now,dt,velocity,speed,pose,elapsed,duration,active)
     local alpha=1-math.exp(-20*math.min(dt,0.1))
     smooth(rig.legacyBase,legacyBase,alpha);smooth(rig.legacy,legacyFull,alpha)
     local partOf={}
     for _, joint in ipairs(BODY) do partOf[joint]=rig.motors[joint].Part1 and rig.motors[joint].Part1.Name or joint end
 
     -- Base layer: the locomotion state's clip if authored, otherwise legacy; cross-faded on change.
-    local locomotion=air and (velocity.Y>1 and "jump" or "fall") or (now-rig.landed<0.18 and "land") or (speed>22*0.08 and "run" or "idle")
+    local landing=now-rig.landed<rig.landDuration
+    local locomotion=air and (velocity.Y>1 and "jump" or "fall") or landing and (rig.landHeavy and "land_heavy" or "land_light")
+        or speed>WALK_MAX and "run" or speed>IDLE_MAX and "walk" or "idle"
     local clip=baseClip(locomotion,drawn)
     local key=clip and clip.name or "legacy"
+    if key~=rig.baseKey then
+        -- One-shot clips (jump, landings) restart when they become current again.
+        for _, source in ipairs(rig.base) do
+            if source.key==key and source.clip and not source.clip.entry.loop then source.time=0 end
+        end
+        rig.baseKey=key
+    end
     local found=false
     for i=#rig.base,1,-1 do
         local source=rig.base[i]
@@ -178,7 +202,8 @@ function Animator.step(model, rig, now, dt)
     for _, source in ipairs(rig.base) do
         if source.clip then
             local entry=source.clip.entry
-            local rate=entry.speed>0 and speed/entry.speed or 1
+            -- Stride matching: playback follows ground speed relative to the speed the cycle was authored at.
+            local rate=entry.speed>0 and math.clamp(speed/entry.speed,0.4,1.6) or 1
             source.time+=dt*rate
             if entry.loop and source.clip.length>0 then source.time%=source.clip.length else source.time=math.min(source.time,source.clip.length) end
         end
@@ -211,10 +236,11 @@ function Animator.step(model, rig, now, dt)
             Motion.markers(action.clip,previous,action.time,markerHandler(model,rig))
         end
         local sample=action.clip and Motion.sample(action.clip,action.time,{})
+        local lowerOnly=drawn and action.clip and action.clip.entry.drawnMask=="lower"
         for _, joint in ipairs(BODY) do
             local cf
             if sample then cf=sample[partOf[joint]] else cf=rig.legacy[joint] end
-            if cf then result[joint]=result[joint]:Lerp(cf,action.weight) end
+            if cf and (not lowerOnly or LOWER[joint]) then result[joint]=result[joint]:Lerp(cf,action.weight) end
         end
     end
     local action=rig.actions[#rig.actions]
@@ -229,7 +255,9 @@ function Animator.step(model, rig, now, dt)
     result.Root=result.Root*CFrame.Angles(0,0,rig.roll)
 
     for _, joint in ipairs(BODY) do rig.motors[joint].Transform=result[joint] end
-    model:SetAttribute("MotionState",dead and "dead" or active and pose or (model:GetAttribute("Blocking") and "guard") or motion)
+    -- Both landing clips report "land" for diagnostics and tests.
+    local motionState=string.sub(locomotion,1,5)=="land_" and "land" or locomotion
+    model:SetAttribute("MotionState",dead and "dead" or active and pose or (model:GetAttribute("Blocking") and "guard") or motionState)
     model:SetAttribute("MotionClip",key)
 
     -- Non-humanoid joints keep small procedural drivers.

@@ -73,25 +73,50 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             local root=model.HumanoidRootPart
             input:SendKey(true,Enum.KeyCode.W,false);task.wait(0.15)
             local start=root.Position;local previous=start;local largest=0;local animated=false
+            -- Frame times separate low-FPS hitches from genuine position snaps at normal frame rates.
+            local worstFrame,frameAtLargest=0,0
             input:SendKey(true,Enum.KeyCode.Q,false)
             local deadline=os.clock()+0.5
             repeat
-                RunService.RenderStepped:Wait()
-                largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
-                animated=animated or model:GetAttribute("MotionState")=="evade"
+                local frame=RunService.RenderStepped:Wait();worstFrame=math.max(worstFrame,frame)
+                local step=(root.Position-previous).Magnitude;previous=root.Position
+                if step>largest then largest=step;frameAtLargest=frame end
+                animated=animated or model:GetAttribute("MotionState")=="dash_front"
             until os.clock()>deadline
             input:SendKey(false,Enum.KeyCode.Q,false);input:SendKey(false,Enum.KeyCode.W,false)
             -- Ownership changes and snapshots can trail input under a four-Studio test load.
             -- Keep sampling through replication settling instead of measuring only the local prediction.
             deadline=os.clock()+0.65
             repeat
-                RunService.RenderStepped:Wait()
-                largest=math.max(largest,(root.Position-previous).Magnitude);previous=root.Position
+                local frame=RunService.RenderStepped:Wait();worstFrame=math.max(worstFrame,frame)
+                local step=(root.Position-previous).Magnitude;previous=root.Position
+                if step>largest then largest=step;frameAtLargest=frame end
             until os.clock()>deadline
             assert(animated,"Q was not admitted while holding W")
-            assert((root.Position-start).Magnitude>10,"dash failed to travel: "..(root.Position-start).Magnitude.."; largest frame "..largest)
-            assert(largest<12,"dash jumped an entire frame: "..largest)
-            return {distance=(root.Position-start).Magnitude,largestFrame=largest}
+            assert((root.Position-start).Magnitude>10,string.format("dash failed to travel: %.2f; largest step %.2f; worst frame %.3f s",(root.Position-start).Magnitude,largest,worstFrame))
+            assert(largest<12,string.format("dash jumped an entire frame: %.2f studs in a %.3f s frame (worst frame %.3f s)",largest,frameAtLargest,worstFrame))
+            return {distance=(root.Position-start).Magnitude,largestFrame=largest,frameAtLargest=frameAtLargest,worstFrame=worstFrame}
+        elseif command=="sidestepInput" then
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            local model=player.Character
+            local root=model.HumanoidRootPart
+            local camera=workspace.CurrentCamera
+            local flat=Vector3.new(camera.CFrame.LookVector.X,0,camera.CFrame.LookVector.Z).Unit
+            local cameraLeft=Vector3.new(flat.Z,0,-flat.X)
+            -- Holding A turns the character left (AutoRotate); the dash must still be a camera-relative sidestep.
+            input:SendKey(true,Enum.KeyCode.A,false);task.wait(0.15)
+            local start=root.Position;local seen=false
+            input:SendKey(true,Enum.KeyCode.Q,false)
+            local deadline=os.clock()+0.3
+            repeat RunService.RenderStepped:Wait();seen=seen or model:GetAttribute("MotionState")=="dash_left" until os.clock()>deadline
+            local facing=Vector3.new(root.CFrame.LookVector.X,0,root.CFrame.LookVector.Z).Unit
+            input:SendKey(false,Enum.KeyCode.Q,false);input:SendKey(false,Enum.KeyCode.A,false)
+            task.wait(0.6)
+            local moved=Vector3.new(root.Position.X-start.X,0,root.Position.Z-start.Z)
+            assert(seen,"A+Q did not play the left sidestep: "..tostring(model:GetAttribute("MotionState")))
+            assert(facing:Dot(flat)>math.cos(math.rad(12)),"sidestep did not face the camera: "..facing:Dot(flat))
+            assert(moved.Magnitude>6 and moved.Unit:Dot(cameraLeft)>0.8,string.format("sidestep did not travel camera-left: moved %.2f, left dot %.2f",moved.Magnitude,moved.Magnitude>0 and moved.Unit:Dot(cameraLeft) or 0))
+            return {distance=moved.Magnitude,facingDot=facing:Dot(flat)}
         elseif command=="weapon" then
             local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
             assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")

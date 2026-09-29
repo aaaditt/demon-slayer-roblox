@@ -1,0 +1,156 @@
+{
+  "category": "locomotion",
+  "priority": "Movement",
+  "speed": 0,
+  "note": "Take-off extension (toes pushing) into a tuck on the rise; held while rising.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          -10,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -5,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          -25,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -5,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -5,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          -20,
+          0,
+          0
+        ],
+        "Waist": [
+          -5,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          60,
+          0,
+          15
+        ],
+        "RightElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          55,
+          0,
+          -15
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.3,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          55,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -80,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          15,
+          0,
+          0
+        ],
+        "LeftHip": [
+          25,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -50,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          10,
+          0,
+          0
+        ],
+        "Waist": [
+          -8,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          35,
+          0,
+          20
+        ],
+        "RightElbow": [
+          50,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          30,
+          0,
+          -20
+        ],
+        "LeftElbow": [
+          50,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

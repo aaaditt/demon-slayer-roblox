@@ -80,7 +80,18 @@ bind("WisteriaGuard",function(s)
     return false
 end,true,Enum.KeyCode.F,Enum.KeyCode.ButtonL2)
 bind("WisteriaDodge",function(s)
-    if s==Enum.UserInputState.Begin and canAct() then send("Dodge",direction(true));return true end
+    if s==Enum.UserInputState.Begin and canAct() then
+        -- With movement input, dashes are classified against the camera: A+Q sidesteps while looking ahead,
+        -- S+Q hops back. A bare Q dashes along the character's own facing, so no camera facing is sent.
+        local humanoid=player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        local moving=humanoid and humanoid.MoveDirection.Magnitude>0.1
+        for _,key in ipairs({Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D}) do
+            moving=moving or UserInputService:IsKeyDown(key)
+        end
+        local look=workspace.CurrentCamera.CFrame.LookVector
+        send("Dodge",{direction=direction(true),facing=moving and Vector3.new(look.X,0,look.Z) or nil})
+        return true
+    end
     return false
 end,true,Enum.KeyCode.Q,Enum.KeyCode.ButtonR1)
 bind("WisteriaWeapon",function(s)

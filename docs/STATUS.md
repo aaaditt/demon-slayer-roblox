@@ -20,7 +20,7 @@ The full game is not finished. Chapters 5-22 remain encounter previews. The v0.4
 
 ## Next work
 
-1. Continue character animation production (ANIMATION.md; phases 1-4 done: R15 rig, nichirin sword, clip pipeline, layered player. Next, phases 5-10: locomotion, directional dashes, draw/sheathe, attacks, per-character profiles). Verify chapter-four CI/release state. Review all four staged chapters for movement, navigation, encounter difficulty and scene pacing.
+1. Continue character animation production (ANIMATION.md; phases 1-6 done: R15 rig, nichirin sword, clip pipeline, layered player, locomotion clips, camera-relative directional dashes. Next, phases 7-10: draw/sheathe, attacks, per-character profiles). Verify chapter-four CI/release state. Review all four staged chapters for movement, navigation, encounter difficulty and scene pacing.
 2. Build Asakusa, Muzan and the civilian emergency, then Tamayo/Yushiro; see [session roadmap](STORY_PRODUCTION.md).
 3. Replace shared procedural characters and choreography with authored character-specific assets, starting with Tanjiro, Nezuko and Giyu.
 4. Expand all later story arcs, canonical boss mechanics, exploration and supporting NPC roles. Keep all nine Hashira, protagonists, Muzan, Upper/Lower Moons, PvP and progression in scope.

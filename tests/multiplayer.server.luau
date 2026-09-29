@@ -2,6 +2,7 @@
 return function(session)
     local Players=game:GetService("Players")
     local ReplicatedStorage=game:GetService("ReplicatedStorage")
+    local Config=require(ReplicatedStorage.Shared.Config)
     local StudioTestService=game:GetService("StudioTestService")
     local bridge=ReplicatedStorage.RuntimeTestBridge
     local answers={}
@@ -58,6 +59,17 @@ return function(session)
             assert(ok,result)
             print("DASH_CLIENT "..game:GetService("HttpService"):JSONEncode(result))
             assert(motion and motion.distance>8,"server dash did not travel: "..(motion and motion.reason or "missing motion"))
+        end)
+        check("A plus Q sidesteps camera-left while facing the camera",function()
+            local actor=session.players[p1].actor
+            task.wait(Config.DodgeCooldown)
+            actor.model:PivotTo(CFrame.new(0,4,35));actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow()
+            actor.energy=100
+            task.wait(0.6)
+            local result=client(p1,"sidestepInput")
+            local motion=actor.lastMotion
+            print("SIDESTEP_CLIENT "..game:GetService("HttpService"):JSONEncode(result))
+            assert(motion and motion.distance>8 and motion.distance<=Config.DodgeDistanceSide+0.5,"server sidestep reach "..(motion and motion.distance or -1))
         end)
         check("sword sheathe and draw replicate to both clients",function()
             client(p1,"action",{name="Weapon",wait=0.55})

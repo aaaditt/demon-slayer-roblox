@@ -103,3 +103,19 @@ The first multiplayer attempt exposed a **test-runner** issue: run-in-roblox's p
 - Focused two-client town/exit suite: **2 passed / 0 failed**, `RUNTIME_JSON.failures=0`. Completed all thirteen stages, checked remote Water damage against exposed bodies and rejected submerged/other-player damage. Client assertions observed Nezuko's hip-joint motion, black sword/uniform/box and combat HUD. Map transitions hid the correct actors, cleaned the old room and restored the survivors; completion awarded 170 XP once, unlocked chapter five and restored the hub fighter/loadout. Exit during a marked attack removed pools/actors/permissions.
 - Final full two-client regression: **18 passed / 0 failed**, `RUNTIME_JSON.failures=0`, runner exit 0. All earlier chapters, client movement/animation, sword replication, locked-chapter admission and PvP checks passed alongside the new chapter. Held W + Q measured **16.6447 studs server**, **16.5799 studs client**, largest rendered-frame step **8.1248 studs**. Low-FPS/lag and physical-device qualification remain open. The production build was checked to exclude injected test bridge/stage hooks; whitespace checks passed.
 - Automated chapter checks use server repositioning and accelerated encounter clocks/damage. They test state transitions and real client attack/animation/replication paths, not a human walking the full route, visual fidelity or balanced difficulty.
+
+### 2026-09-29 animation phases 5–6 (locomotion clips, directional dashes)
+
+- **Portable:** `check.py` passed: 13 clips, 29 Luau files and the build.
+- **Engine:** **20/20**, including:
+  - directional dash reach, i-frames and facing (camera-relative sidestep included)
+  - an animator benchmark: **0.099 ms per rig per frame** (1.19 ms for 12 rigs), now a regression check with a 4 ms limit
+- **Two-client, four runs of the same dash logic:**
+  1. W+Q failed the no-frame-jump guard: a 12.80-stud step against a 12-stud limit.
+  2. W+Q failed on distance: the client saw 7.36 studs while the server travelled 16.53 and finished. The new A+Q check failed in the same run.
+  3. **19/19**, with the worst client frame at 0.069 s (about 15 FPS) and a 10.93-stud step inside a 0.066 s frame.
+  4. **19/19**, exit 0, with the worst frame at 0.019 s and the largest step 3.60 studs. The sidestep travelled 10.27 studs camera-left and stayed facing the camera (dot 0.9985).
+- **Investigation:** the server always travelled the full 16.4–16.6 studs. The large steps are client position snaps at the physics ownership handoff, not frame hitches, and they appear only in runs where the four Studio instances drop to about 15 FPS. The benchmark rules out the new animator as the cause.
+- **Classification:** this is the pre-existing replication behaviour noted on 2026-09-16, not a regression. The thresholds were not loosened. The dash test now reports frame times so future failures are attributable.
+- **Still unqualified:** sustained low-FPS and network-lag dash smoothness remain a real, unqualified risk.
+- No visual review of the new clips has taken place.

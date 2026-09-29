@@ -3,6 +3,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Rules = require(Shared.Rules)
 local Content = require(Shared.Content)
+local MotionMath = require(Shared.MotionMath)
 local Rig = require(script.Parent.Rig)
 local Combat = {}
 Combat.__index = Combat
@@ -89,7 +90,8 @@ function Combat:stopMotion(actor, reason)
     end
 end
 
-function Combat:move(actor, direction, distance, duration)
+-- keepFacing: travel without turning toward the direction (side and back dashes).
+function Combat:move(actor, direction, distance, duration, keepFacing)
     if distance <= 0 then return 0 end
     self:stopMotion(actor)
     local parameters = RaycastParams.new()
@@ -121,7 +123,7 @@ function Combat:move(actor, direction, distance, duration)
     velocity.PlaneVelocity = Vector2.new(direction.X, direction.Z)*(travel/duration)
     velocity.Parent = actor.root
     actor.humanoid.AutoRotate = false
-    actor.root.CFrame = CFrame.lookAt(origin, origin+direction)
+    if not keepFacing then actor.root.CFrame = CFrame.lookAt(origin, origin+direction) end
     pcall(function() actor.root:SetNetworkOwner(nil) end)
     actor.motion = {attachment=attachment,velocity=velocity,origin=origin,direction=direction,distance=travel,
         ends=workspace:GetServerTimeNow()+duration,speed=travel/duration,parameters=parameters,token=actor.castToken}
@@ -288,16 +290,38 @@ function Combat:weapon(actor, drawn)
     return true
 end
 
-function Combat:dodge(actor, direction)
+local DASHES = {
+    front = {distance = "DodgeDistance", iframes = "DodgeIFramesFront"},
+    back = {distance = "DodgeDistanceBack", iframes = "DodgeIFramesBack"},
+    left = {distance = "DodgeDistanceSide", iframes = "DodgeIFramesSide"},
+    right = {distance = "DodgeDistanceSide", iframes = "DodgeIFramesSide"},
+}
+
+-- Directional dash. `facing` is where the dasher looks (the player's camera, or the actor's own look), so
+-- A+Q is a sidestep even though default controls turn characters toward their movement. Front dashes turn
+-- into the travel direction; side and back dashes face `facing` throughout. Returns the dash kind.
+function Combat:dodge(actor, direction, facing)
     local now = workspace:GetServerTimeNow()
     if actor.model:GetAttribute("InCutscene") then return end
     if not actor.alive or now < actor.stunUntil or now < actor.busyUntil or (actor.cooldowns.dodge or 0)>now or actor.energy<Config.DodgeCost then return end
+    local look = actor.root.CFrame.LookVector
+    facing = facing or Vector3.new(look.X, 0, look.Z)
+    if facing.Magnitude < 0.01 then facing = Vector3.new(0, 0, -1) end
+    facing = facing.Unit
+    local kind = MotionMath.dashDirection(facing.X, facing.Z, direction.X, direction.Z)
+    local dash = DASHES[kind]
     actor.energy -= Config.DodgeCost; actor.cooldowns.dodge = now+Config.DodgeCooldown
-    actor.busyUntil = now+0.32; actor.invulnerableUntil = now+0.28; actor.blocking = false; actor.castToken += 1
-    actor.model:SetAttribute("Pose", "evade")
+    actor.busyUntil = now+Config.DodgeDuration; actor.invulnerableUntil = now+Config[dash.iframes]
+    actor.blocking = false; actor.castToken += 1
+    if kind ~= "front" then
+        local origin = actor.root.Position
+        actor.root.CFrame = CFrame.lookAt(origin, origin+facing)
+    end
+    actor.model:SetAttribute("Pose", "dash_"..kind)
     actor.model:SetAttribute("PoseStart", now); actor.model:SetAttribute("PoseDuration", Config.DodgeDuration)
-    self:move(actor, direction, Config.DodgeDistance, Config.DodgeDuration)
+    self:move(actor, direction, Config[dash.distance], Config.DodgeDuration, kind ~= "front")
     self:emit(actor, "dodge", {position = actor.root.Position, color = Content.characters[actor.characterId].color})
+    return kind
 end
 
 function Combat:tick(dt)

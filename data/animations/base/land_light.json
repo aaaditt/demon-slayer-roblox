@@ -1,0 +1,156 @@
+{
+  "category": "locomotion",
+  "priority": "Movement",
+  "speed": 0,
+  "note": "0.18 s absorb: knees ~50 degrees, root lowered 0.2 so the soles stay planted.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            -0.2,
+            0
+          ],
+          "ease": "CubicV2/Out"
+        },
+        "RightHip": [
+          35,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -50,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          15,
+          0,
+          0
+        ],
+        "LeftHip": [
+          30,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -45,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          15,
+          0,
+          0
+        ],
+        "Waist": [
+          -15,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          20,
+          0,
+          15
+        ],
+        "RightElbow": [
+          30,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          20,
+          0,
+          -15
+        ],
+        "LeftElbow": [
+          30,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.18,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            -0.05,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          8,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -12,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          4,
+          0,
+          0
+        ],
+        "LeftHip": [
+          8,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -12,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          4,
+          0,
+          0
+        ],
+        "Waist": [
+          -5,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          5,
+          0,
+          8
+        ],
+        "RightElbow": [
+          15,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          5,
+          0,
+          -8
+        ],
+        "LeftElbow": [
+          15,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

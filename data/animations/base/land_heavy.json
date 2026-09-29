@@ -1,0 +1,230 @@
+{
+  "category": "locomotion",
+  "priority": "Movement",
+  "speed": 0,
+  "note": "0.35 s crouch after a fall of more than 25 studs: knees ~90 degrees, one hand toward the ground, then rise.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            -0.58,
+            0
+          ],
+          "ease": "Linear/In"
+        },
+        "RightHip": [
+          60,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -90,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          30,
+          0,
+          0
+        ],
+        "LeftHip": [
+          55,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -85,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          30,
+          0,
+          0
+        ],
+        "Waist": [
+          -25,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          30,
+          0,
+          25
+        ],
+        "RightElbow": [
+          20,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          45,
+          0,
+          -10
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.12,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            -0.55,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          58,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -88,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          30,
+          0,
+          0
+        ],
+        "LeftHip": [
+          53,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -83,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          30,
+          0,
+          0
+        ],
+        "Waist": [
+          -24,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          28,
+          0,
+          25
+        ],
+        "RightElbow": [
+          20,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          44,
+          0,
+          -10
+        ],
+        "LeftElbow": [
+          40,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.35,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "Root": {
+          "r": [
+            0,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            -0.1,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "RightHip": [
+          12,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -18,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          6,
+          0,
+          0
+        ],
+        "LeftHip": [
+          12,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -18,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          6,
+          0,
+          0
+        ],
+        "Waist": [
+          -6,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          8,
+          0,
+          10
+        ],
+        "RightElbow": [
+          15,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          8,
+          0,
+          -10
+        ],
+        "LeftElbow": [
+          15,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

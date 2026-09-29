@@ -240,16 +240,26 @@ function Game:handle(player, action, payload)
         if story and story.challenge then story.challenge:focus(player) end
         return
     end
-    local function direction()
-        if typeof(payload) == "Vector3" and Rules.finite(payload.X) and Rules.finite(payload.Y) and Rules.finite(payload.Z) and payload.Magnitude < 100000 then
-            local flat = Vector3.new(payload.X, 0, payload.Z)
+    local function planar(value)
+        if typeof(value) == "Vector3" and Rules.finite(value.X) and Rules.finite(value.Y) and Rules.finite(value.Z) and value.Magnitude < 100000 then
+            local flat = Vector3.new(value.X, 0, value.Z)
             if flat.Magnitude>0.01 then return flat.Unit end
         end
-        local flat = Vector3.new(actor.root.CFrame.LookVector.X, 0, actor.root.CFrame.LookVector.Z)
+        return nil
+    end
+    local function direction()
+        local flat = planar(payload)
+        if flat then return flat end
+        flat = Vector3.new(actor.root.CFrame.LookVector.X, 0, actor.root.CFrame.LookVector.Z)
         return flat.Magnitude>0.01 and flat.Unit or Vector3.new(0,0,-1)
     end
     if action == "Basic" then self.combat:basic(actor, direction())
-    elseif action == "Dodge" then self.combat:dodge(actor, direction())
+    elseif action == "Dodge" then
+        -- {direction, facing}: facing (the camera look) only chooses which way the dasher faces; players
+        -- already control their own facing, and distance, timing and collision stay server-owned.
+        local facing
+        if type(payload) == "table" then facing = planar(payload.facing); payload = payload.direction end
+        self.combat:dodge(actor, direction(), facing)
     elseif action == "Weapon" then self.combat:weapon(actor)
     elseif action == "Guard" then if type(payload)=="boolean" then self.combat:guard(actor, payload) end
     elseif action == "Skill" then

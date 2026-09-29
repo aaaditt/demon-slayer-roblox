@@ -120,6 +120,8 @@ def validate_clip(name, clip):
         assert "Hit" in marks and "End" in marks and 0 < marks["Hit"] < marks["End"] <= length, name + ": attack clips need Hit < End"
     if clip["category"] == "locomotion":
         assert clip.get("speed", 0) >= 0, name + ": speed"
+    # "lower": while the sword is drawn only the legs and root play, so the upper body keeps its stance.
+    assert clip.get("drawnMask") in (None, "lower"), name + ": drawnMask"
 
 
 class Writer:
@@ -253,6 +255,8 @@ def generate(check_only=False):
     for name, clip in clips.items():
         entry = {"category": clip["category"], "loop": bool(clip.get("loop")), "length": clip.get("length", clip["keyframes"][-1]["t"]), "speed": clip.get("speed", 0)}
         marks = clip.get("markerTimes") or {m["name"]: m["t"] for m in clip.get("markers", [])}
+        if clip.get("drawnMask"):
+            entry["drawnMask"] = clip["drawnMask"]
         if "Hit" in marks:
             entry["hit"], entry["finish"] = marks["Hit"], marks["End"]
         index[name] = entry

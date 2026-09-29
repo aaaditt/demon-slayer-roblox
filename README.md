@@ -30,7 +30,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 - **Four staged story chapters in local source**: the Kamado prologue; Sagiri training; Final Selection and homecoming; then the northwest town investigation and Swamp Demon rescue. **18 later chapters remain encounter previews**, with the full storyline still in production. The published 0.4.0 download contains the first three chapters.
 - **PvP free-for-all**, three-minute rounds, five-elimination victory, respawns, equal health/energy, and opt-in combat.
 - Server-side action validation, hit geometry/line-of-sight checks, guard/parry, dodge, status effects, and DataStore session ownership.
-- Visible procedural walk/run, jump/fall/landing and combat poses; timed directional dashes; single-blade sword drawing/sheathing with **R**, controller D-pad right or the Sword button.
+- Visible procedural walk/run, jump/fall/landing and combat poses; camera-relative directional dashes (W/Q front dash, A or D + Q sidestep, S + Q back-hop); single-blade sword drawing/sheathing with **R**, controller D-pad right or the Sword button.
 - Keyboard/mouse, controller and touch bindings; UI with roster search, technique descriptions, a world atlas, reduced effects, and optional basic combat audio.
 
 ## Verified

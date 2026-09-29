@@ -181,3 +181,29 @@
 - Not done:
   - asset-ID playback (deferred)
   - visual review of the two proof clips
+
+## 2026-09-29 — Animation phases 5–6: locomotion clips and directional dashes
+
+- **Locomotion clips:**
+  - `walk_sheathed` (1.0 s, authored at 8 studs/s)
+  - `run_sheathed` and `run_drawn` (0.62 s at 22 studs/s; the drawn run trails the blade low)
+  - `jump`, `fall` (loop), `land_light` (0.18 s) and `land_heavy` (0.35 s after a fall of more than 25 studs)
+- **Animator:**
+  - walk state
+  - stride-matched playback rate
+  - heavy-landing detection from peak height
+  - one-shot restarts
+  - the `drawnMask: "lower"` action mask
+  - `MotionState` reports the new states
+- **Dashes:**
+  - `Combat:dodge(actor, direction, facing)` classifies front/back/left/right with `MotionMath.dashDirection` and uses per-direction reach and i-frames from `Config`. Side and back dashes keep facing via `Combat:move(..., keepFacing)`.
+  - The client sends the camera facing only with movement input. `Game` validates it as planar.
+  - Clips: `dash_front`, `dash_left`, `dash_back`, and `dash_right` mirrored from `dash_left`.
+  - Design note: default AutoRotate makes body-relative side dashes impossible, hence camera-relative classification.
+- **Tests:**
+  - an engine directional-dash check
+  - the animator benchmark (`Animator.track` exposed for tests)
+  - a live A+Q sidestep check
+  - frame-time diagnostics in the dash test
+- **Results:** engine **20/20**; two-client final **19/19**, exit 0. Two earlier two-client runs failed intermittently at the dash ownership handoff under about 15 FPS load (see QA.md); investigated and classified as the pre-existing replication behaviour, with thresholds unchanged.
+- **Not done:** visual review of any clip.

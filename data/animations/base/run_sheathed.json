@@ -1,0 +1,454 @@
+{
+  "category": "locomotion",
+  "priority": "Movement",
+  "loop": true,
+  "speed": 22,
+  "note": "0.62 s run at WalkSpeed 22: torso pitched forward, knee lift to ~100 degrees on the swing leg, right arm driving at ~90 degree elbow, left hand pinning the saya to the hip.",
+  "keyframes": [
+    {
+      "t": 0.0,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightHip": [
+          40,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -15,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          -15,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -30,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -45,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          35,
+          0,
+          0
+        ],
+        "Root": {
+          "r": [
+            -4,
+            8,
+            0
+          ],
+          "p": [
+            0,
+            -0.22,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "Waist": [
+          -10,
+          -14,
+          0
+        ],
+        "Neck": [
+          12,
+          6,
+          0
+        ],
+        "RightShoulder": [
+          -40,
+          0,
+          8
+        ],
+        "RightElbow": [
+          85,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          24,
+          0,
+          16
+        ],
+        "LeftElbow": [
+          34,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.155,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightHip": [
+          -8,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -22,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          20,
+          0,
+          0
+        ],
+        "LeftHip": [
+          48,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -100,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          32,
+          0,
+          0
+        ],
+        "Root": {
+          "r": [
+            -4,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0.02,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "Waist": [
+          -10,
+          0,
+          0
+        ],
+        "Neck": [
+          12,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          5,
+          0,
+          8
+        ],
+        "RightElbow": [
+          90,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          24,
+          0,
+          16
+        ],
+        "LeftElbow": [
+          34,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.31,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightHip": [
+          -30,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -45,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          35,
+          0,
+          0
+        ],
+        "LeftHip": [
+          40,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -15,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          -15,
+          0,
+          0
+        ],
+        "Root": {
+          "r": [
+            -4,
+            -8,
+            0
+          ],
+          "p": [
+            0,
+            -0.22,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "Waist": [
+          -10,
+          14,
+          0
+        ],
+        "Neck": [
+          12,
+          -6,
+          0
+        ],
+        "RightShoulder": [
+          45,
+          0,
+          8
+        ],
+        "RightElbow": [
+          95,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          24,
+          0,
+          16
+        ],
+        "LeftElbow": [
+          34,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.465,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightHip": [
+          48,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -100,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          32,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -8,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -22,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          20,
+          0,
+          0
+        ],
+        "Root": {
+          "r": [
+            -4,
+            0,
+            0
+          ],
+          "p": [
+            0,
+            0.02,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "Waist": [
+          -10,
+          0,
+          0
+        ],
+        "Neck": [
+          12,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          5,
+          0,
+          8
+        ],
+        "RightElbow": [
+          90,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          24,
+          0,
+          16
+        ],
+        "LeftElbow": [
+          34,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.62,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightHip": [
+          40,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -15,
+          0,
+          0
+        ],
+        "RightAnkle": [
+          -15,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -30,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -45,
+          0,
+          0
+        ],
+        "LeftAnkle": [
+          35,
+          0,
+          0
+        ],
+        "Root": {
+          "r": [
+            -4,
+            8,
+            0
+          ],
+          "p": [
+            0,
+            -0.22,
+            0
+          ],
+          "ease": "CubicV2/InOut"
+        },
+        "Waist": [
+          -10,
+          -14,
+          0
+        ],
+        "Neck": [
+          12,
+          6,
+          0
+        ],
+        "RightShoulder": [
+          -40,
+          0,
+          8
+        ],
+        "RightElbow": [
+          85,
+          0,
+          0
+        ],
+        "RightWrist": [
+          0,
+          0,
+          0
+        ],
+        "LeftShoulder": [
+          24,
+          0,
+          16
+        ],
+        "LeftElbow": [
+          34,
+          0,
+          0
+        ],
+        "LeftWrist": [
+          10,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}
