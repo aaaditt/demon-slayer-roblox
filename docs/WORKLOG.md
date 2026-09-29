@@ -144,3 +144,14 @@
 - Committed the pending chapter four as `b0ed8d7` and pushed after `check.py` passed. The concurrent handoff session saw this commit and the R15 edits as unknown; both came from this session. Its HANDOFF.md, STATUS and README notes are preserved and reconciled.
 - Rebuilt `Rig.create` as a 15-part blocky R15 rig with the same 5-stud silhouette. Joints: Root, Waist, Neck, shoulders, elbows, wrists, hips, knees and ankles. Settings: `HipHeight = 2`, `RigType = R15`, skin-coloured hands in place of the cuffs. `Rig.torsoFrame` converts classic accessory offsets, so belts follow the hips and haori/checks follow the chest. Migrated Story carry, uniform, crow, Hand Demon arms, story weapons, the interim animator and tests.
 - Results: `check.py` passed (11 core, 26 Luau, build). The Studio engine suite passed **16/16**, including a new check of all R15 joints and floor contact for both soles on every playable character. The full two-client regression passed **18/18**, runner exit 0. No visual review of the new rig is claimed yet.
+
+## 2026-09-29 — Animation foundation, phase 2: nichirin katana and saya
+
+- Added `swordPresets.nichirin_base`, sourced `characters[id].sword` overrides (Tanjiro wheel, Giyu hex, Rengoku flame, Kanao flower) and the `sword_guides` source. `check.py` validates fields, colours, the tsuba enum, dimensions and sources.
+- `Rig.buildSword` builds a data-driven katana:
+  - kashira, samegawa tsuka with a diamond ito wrap and menuki, fuchi, a shaped tsuba (round/square/hex/wheel/flame/flower/bar), habaki
+  - a three-segment curved blade (nichirin spine plus hamon edge) with a wedge kissaki and trail attachments
+  - a matching curved saya with koiguchi, kojiri, kurikata and sageo
+- Two joints hold the sword: `SwordHip` (LowerTorso) and `SwordHand` (RightHand). `Rig.draw` enables exactly one. The blade now physically rests in the saya; the transparency hack and the client grip lerp are gone. Needle and serpent variants use the same builder with a thinner or straight blade and a stronger curve.
+- First engine run: 16/17. A diagnostic showed `WeldConstraint` pieces desyncing when joints moved the tsuka; switched the sword to classic `Weld`. A second run found the kissaki extending past the saya; lengthened the saya to cover it.
+- Final results: `check.py` passed. Engine **17/17** (new containment and sourced-fittings check for all 19 sword users). Two-client **18/18**, exit 0; the sword test now asserts the replicated joint swap and that the tsuka is in the hand only when drawn. No visual review yet.

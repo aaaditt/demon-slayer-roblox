@@ -41,6 +41,23 @@ def validate():
         if c["playable"]:
             assert len(c["loadout"]) == 4 and len(set(c["loadout"])) == 4, cid
             assert all(m in c["moves"] for m in c["loadout"]), cid
+    sword_fields = {"bladeColor", "edgeColor", "tsuba", "tsubaColor", "wrapColor", "sayaColor", "fittingColor", "cordColor", "length", "curve", "bladeDepth", "source", "preset"}
+    def sword_spec(name, spec):
+        assert set(spec) <= sword_fields, name
+        for key, value in spec.items():
+            if key.endswith("Color"):
+                assert len(value) == 3 and all(isinstance(n, int) and 0 <= n <= 255 for n in value), name
+        assert spec.get("tsuba", "round") in {"round", "square", "hex", "flame", "flower", "wheel", "bar"}, name
+        assert 2.4 <= spec.get("length", 3.2) <= 4 and 0 <= spec.get("curve", 0) <= 0.12 and 0.08 <= spec.get("bladeDepth", 0.22) <= 0.3, name
+        assert spec.get("source", "original") == "original" or spec["source"] in d["sources"], name
+        assert spec.get("preset", "nichirin_base") in d["swordPresets"], name
+    assert "nichirin_base" in d["swordPresets"] and set(d["swordPresets"]["nichirin_base"]) == sword_fields - {"preset"}
+    for name, spec in d["swordPresets"].items():
+        sword_spec(name, spec)
+    for cid, c in d["characters"].items():
+        if "sword" in c:
+            assert c["weapon"] in {"katana", "needle", "serpent"}, cid
+            sword_spec(cid, c["sword"])
     assert len({c["id"] for c in d["chapters"]}) == len(d["chapters"])
     for n, chapter in enumerate(d["chapters"], 1):
         assert chapter["index"] == n and chapter["location"] in d["locations"]

@@ -250,10 +250,45 @@ check("dodge starts bounded motion without teleport and cleanup removes constrai
     combat:remove(a)
 end)
 
+check("every nichirin sword sheathes inside its saya and uses its sourced fittings",function()
+    local function inside(point,saya)
+        for i=1,3 do
+            local body=saya["SayaBody"..i];local p=body.CFrame:PointToObjectSpace(point)
+            if math.abs(p.X)<=body.Size.X/2+0.01 and math.abs(p.Y)<=body.Size.Y/2+0.01 and math.abs(p.Z)<=body.Size.Z/2+0.01 then return true end
+        end
+        return false
+    end
+    for _,c in pairs(Content.characters) do
+        if c.weapon=="katana" or c.weapon=="needle" or c.weapon=="serpent" then
+            local model=Rig.create(World.Actors,Vector3.new(0,40,0),c)
+            Rig.draw(model,false)
+            assert(model.LowerTorso.SwordHip.Enabled and not model.RightHand.SwordHand.Enabled,c.id.." sheathed joints")
+            local katana,saya=model.Katana,model.Saya
+            for _,name in ipairs({"Blade","Blade2","Blade3","Hamon1","Hamon2","Hamon3"}) do
+                assert(inside(katana[name].Position,saya),c.id.." "..name.." outside saya")
+            end
+            local tip=katana.Kissaki
+            assert(inside(tip.CFrame*Vector3.new(0,0,-tip.Size.Z/2+0.02),saya),c.id.." tip pierces saya")
+            assert(not inside(katana.Tsuka.Position,saya) and not inside(katana.Kashira.Position,saya),c.id.." hilt swallowed")
+            Rig.draw(model,true)
+            assert(model.RightHand.SwordHand.Enabled and not model.LowerTorso.SwordHip.Enabled,c.id.." drawn joints")
+            model:Destroy()
+        end
+    end
+    local function build(id) return Rig.create(World.Actors,Vector3.new(0,40,0),Content.characters[id]) end
+    local tanjiro,giyu,rengoku,kanao=build("tanjiro"),build("giyu"),build("rengoku"),build("kanao")
+    assert(tanjiro.Katana.Blade.Color.R<0.2 and tanjiro.Katana:FindFirstChild("TsubaPoints"),"Tanjiro black blade/wheel tsuba")
+    local plates=0;for _,item in ipairs(giyu.Katana:GetChildren()) do if item.Name=="Tsuba" then plates+=1 end end
+    assert(plates==3 and giyu.Katana.Blade.Color.B>giyu.Katana.Blade.Color.R,"Giyu blue blade/hex tsuba")
+    assert(rengoku.Katana:FindFirstChild("TsubaFlame") and kanao.Katana:FindFirstChild("TsubaPetal"),"flame/flower tsuba")
+    for _,m in ipairs({tanjiro,giyu,rengoku,kanao}) do m:Destroy() end
+end)
+
 check("sword draw state and story combat restrictions are server controlled",function()
     local a=actor("tanjiro","player",Vector3.new(0,4,15))
-    assert(a.model:FindFirstChild("Scabbard") and a.model.LowerTorso:FindFirstChild("WeaponGrip"))
+    assert(a.model:FindFirstChild("Saya") and a.model.LowerTorso:FindFirstChild("SwordHip") and a.model.RightHand:FindFirstChild("SwordHand"))
     assert(combat:weapon(a,false) and not a.model:GetAttribute("WeaponDrawn"))
+    assert(a.model.LowerTorso.SwordHip.Enabled and not a.model.RightHand.SwordHand.Enabled,"sheathe did not move the sword to the hip")
     assert(not combat:weapon(a,true),"draw bypassed recovery")
     a.busyUntil=0;a.storyLocked=true
     assert(not combat:cast(a,Content.moves.water_1,Vector3.xAxis))

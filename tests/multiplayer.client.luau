@@ -86,8 +86,11 @@ bridge.OnClientEvent:Connect(function(token,command,args)
         elseif command=="weapon" then
             local model=workspace.Actors:FindFirstChild(args.name) or Players:FindFirstChild(args.name).Character
             assert(model:GetAttribute("WeaponDrawn")==args.drawn,"weapon state not replicated")
-            assert(model:FindFirstChild("Scabbard") and model.LowerTorso:FindFirstChild("WeaponGrip"))
-            assert(model.Blade.LocalTransparencyModifier==(args.drawn and 0 or 1),"blade visibility incorrect")
+            assert(model:FindFirstChild("Saya") and model:FindFirstChild("Katana"),"sword model missing")
+            assert(model.RightHand.SwordHand.Enabled==args.drawn and model.LowerTorso.SwordHip.Enabled==not args.drawn,"sword joint swap not replicated")
+            -- The sword now rests in the saya instead of being hidden, so the hand holds it only when drawn.
+            local gap=(model.Katana.Tsuka.Position-model.RightHand.Position).Magnitude
+            assert(args.drawn==(gap<1.2),"sword not where its enabled joint places it: "..gap)
             return true
         elseif command=="sceneKey" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
@@ -111,7 +114,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             local model=player.Character
             assert(model:GetAttribute("HasSheath"),"selection sword missing")
             if args.gear=="black" then
-                assert(model.Blade.Color.R<0.2 and model:FindFirstChild("CorpsBelt") and model:FindFirstChild("MessengerCrow"),"Corps gear did not replicate")
+                assert(model.Katana.Blade.Color.R<0.2 and model:FindFirstChild("CorpsBelt") and model:FindFirstChild("MessengerCrow"),"Corps gear did not replicate")
             elseif args.gear=="box" then
                 assert(model.StoryCarry:FindFirstChild("NezukoTravelBox"),"travel box did not replicate")
                 assert(not model:GetAttribute("Carrying"),"box incorrectly locks both arms")
@@ -129,7 +132,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             else
                 task.wait(0.35)
                 local model=player.Character
-                assert(model:GetAttribute("HasSheath") and model.Blade.Color.R<0.2 and model:FindFirstChild("CorpsBelt"))
+                assert(model:GetAttribute("HasSheath") and model.Katana.Blade.Color.R<0.2 and model:FindFirstChild("CorpsBelt"))
                 assert(model.StoryCarry:FindFirstChild("NezukoTravelBox") and not model:GetAttribute("Carrying"))
                 if not args.gear then assert(player.PlayerGui.StoryUI.Training.Visible,"swamp HUD missing") end
             end

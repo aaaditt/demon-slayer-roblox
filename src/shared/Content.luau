@@ -336,6 +336,13 @@ return {
             ["reviewed"] = "2026-09-29",
             ["evidence"] = "Search-index summary supports the rescue, lost fiancee and keepsakes; exact scene audit pending",
         },
+        ["sword_guides"] = {
+            ["title"] = "Nichirin blade colour and tsuba guides (secondary editorial summaries)",
+            ["url"] = "https://katana-sword.com/blogs/katana-blog/every-demon-slayer-sword-ranked",
+            ["kind"] = "secondary",
+            ["reviewed"] = "2026-09-29",
+            ["evidence"] = "Search-result summaries agree on Giyu deep blue/hexagonal tsuba, Rengoku red/flame tsuba, Kanao pink/flower tsuba and Tanjiro's green four-point wheel tsuba; the fandom wiki was unreachable (HTTP 402). Shapes are blocky approximations.",
+        },
     },
     ["styles"] = {
         ["water"] = {
@@ -6089,6 +6096,13 @@ return {
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
             ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
             ["outfitColor"] = {43, 121, 88},
+            ["sword"] = {
+                ["bladeColor"] = {32, 36, 43},
+                ["edgeColor"] = {120, 126, 134},
+                ["tsuba"] = "wheel",
+                ["tsubaColor"] = {46, 110, 74},
+                ["source"] = "sword_guides",
+            },
         },
         ["nezuko"] = {
             ["id"] = "nezuko",
@@ -6149,6 +6163,13 @@ return {
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
             ["summary"] = "Pair precise offensive sequences with defensive and evasive forms.",
+            ["sword"] = {
+                ["bladeColor"] = {206, 112, 150},
+                ["edgeColor"] = {246, 200, 220},
+                ["tsuba"] = "flower",
+                ["tsubaColor"] = {220, 150, 180},
+                ["source"] = "sword_guides",
+            },
         },
         ["genya"] = {
             ["id"] = "genya",
@@ -6179,6 +6200,13 @@ return {
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
             ["summary"] = "Flow between precise cuts, circular attacks and quick approaches.",
+            ["sword"] = {
+                ["bladeColor"] = {40, 86, 168},
+                ["edgeColor"] = {150, 196, 236},
+                ["tsuba"] = "hex",
+                ["tsubaColor"] = {150, 110, 62},
+                ["source"] = "sword_guides",
+            },
         },
         ["shinobu"] = {
             ["id"] = "shinobu",
@@ -6209,6 +6237,13 @@ return {
             ["source"] = "official",
             ["note"] = "Shared procedural combat; authored likeness and choreography pending.",
             ["summary"] = "Pressure enemies with committed charges and strong frontal attacks.",
+            ["sword"] = {
+                ["bladeColor"] = {178, 46, 34},
+                ["edgeColor"] = {246, 170, 90},
+                ["tsuba"] = "flame",
+                ["tsubaColor"] = {214, 92, 38},
+                ["source"] = "sword_guides",
+            },
         },
         ["tengen"] = {
             ["id"] = "tengen",
@@ -9486,4 +9521,20 @@ return {
             ["production"] = "encounter blockout; story scenes pending",
         }},
     ["unknowns"] = {"Flame forms 6, 7 and 8 are not populated: named demonstrations not established.", "Sound forms 2 and 3 are unrevealed.", "Love form 4 is unrevealed.", "Flower forms 1 and 3 are unrevealed.", "Moon forms 4, 11, 12, 13 and 15 are unrevealed.", "Rokuro, Wakuraba, Mukago and Kamanue have no verified named Blood Demon Art. Their playable actions are original.", "Zenitsu has form 1 variants and his own form 7, not Kaigaku's forms 2-6. Kaigaku cannot use form 1.", "Named style membership does not establish that every individual user demonstrated every form.", "Anime-original Insect Horsefly is included; licensed video-game-exclusive techniques are excluded.", "Later-story flags are conservative editorial labels, not an exhaustive shot-by-shot anime adaptation audit.", "Supporting cast and spider family canonical mechanics need more scene-level research. Hairo and Ubume (supplementary works) remain outside anime baseline."},
+    ["swordPresets"] = {
+        ["nichirin_base"] = {
+            ["bladeColor"] = {150, 160, 172},
+            ["edgeColor"] = {226, 234, 240},
+            ["tsuba"] = "round",
+            ["tsubaColor"] = {44, 42, 40},
+            ["wrapColor"] = {36, 42, 64},
+            ["sayaColor"] = {26, 26, 32},
+            ["fittingColor"] = {188, 156, 88},
+            ["cordColor"] = {120, 40, 44},
+            ["length"] = 3.2,
+            ["curve"] = 0.03,
+            ["bladeDepth"] = 0.22,
+            ["source"] = "original",
+        },
+    },
 }

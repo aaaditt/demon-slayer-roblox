@@ -124,18 +124,12 @@ function Animator.start()
             end
             set("CrowLeft",CFrame.Angles(0,0,math.sin(now*3)*0.12))
             set("CrowRight",CFrame.Angles(0,0,-math.sin(now*3)*0.12))
-            local grip=rig.motors.WeaponGrip
-            if grip and model:FindFirstChild("RightHand") then
+            -- The server swaps SwordHip/SwordHand on draw state; the trail only shows during drawn strikes.
+            local katana=model:FindFirstChild("Katana")
+            local trail=katana and katana:FindFirstChild("Blade") and katana.Blade:FindFirstChild("SwordTrail")
+            if trail then
                 local drawn=model:GetAttribute("HasSheath") and model:GetAttribute("WeaponDrawn")
-                local sheath=CFrame.new(-1.05,-0.1,0.3)*CFrame.Angles(0,math.pi, -0.18)
-                local hand=rig.torso.CFrame:ToObjectSpace(model.RightHand.CFrame*CFrame.new(0,-0.075,-0.15))
-                grip.C0=grip.C0:Lerp(drawn and hand or sheath,1-math.exp(-14*math.min(dt,0.1)))
-                local blade=model:FindFirstChild("Blade")
-                if blade then
-                    blade.LocalTransparencyModifier=drawn and 0 or 1
-                    local trail=blade:FindFirstChild("SwordTrail")
-                    if trail then trail.Enabled=drawn and active and (pose=="slash" or pose=="thrust" or pose=="spin" or pose=="barrage") end
-                end
+                trail.Enabled=drawn and active and (pose=="slash" or pose=="thrust" or pose=="spin" or pose=="barrage")
             end
             model:SetAttribute("MotionState",motion)
         end

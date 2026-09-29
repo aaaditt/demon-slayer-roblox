@@ -1,8 +1,13 @@
+local Content = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Content"))
 local Rig = {}
 
 function Rig.draw(model, drawn)
     model:SetAttribute("WeaponDrawn", drawn)
     model:SetAttribute("WeaponChanged", workspace:GetServerTimeNow())
+    -- Exactly one sword joint holds the katana: the hip mount when sheathed, the right hand when drawn.
+    local hip = model:FindFirstChild("LowerTorso") and model.LowerTorso:FindFirstChild("SwordHip")
+    local hand = model:FindFirstChild("RightHand") and model.RightHand:FindFirstChild("SwordHand")
+    if hip and hand then hip.Enabled = not drawn; hand.Enabled = drawn end
 end
 
 local function part(parent, name, size, color, cf, collide)
@@ -55,14 +60,164 @@ local function paintTorso(model, color)
     model.UpperTorso.Color = color; model.LowerTorso.Color = color
 end
 
+local function rgb(value) return Color3.fromRGB(value[1], value[2], value[3]) end
+
+-- Classic Weld with a fixed C0. WeldConstraint re-captures its offset when a part is moved directly, which
+-- desynchronises sword pieces whenever the SwordHip/SwordHand joints relocate the tsuka.
+local function rigid(a, b, offset)
+    b.CFrame = a.CFrame*offset
+    local w = Instance.new("Weld")
+    w.Part0 = a; w.Part1 = b; w.C0 = offset; w.Parent = b
+end
+
+-- Sword space: origin at the tsuba centre, blade along -Z, edge toward -Y. The right hand grips at GRIP_Z,
+-- the scabbard mouth sits at MOUTH_Z and the tsuka part (Part1 of both sword joints) is centred at TSUKA_Z.
+local GRIP_Z, MOUTH_Z, TSUKA_Z, BLADE_Z = 0.3, -0.2, 0.57, -0.12
+local MOUTH = Vector3.new(-1.15, 0.05, -0.45)
+-- Worn on the left hip in LowerTorso space: edge up, tip angled back and down.
+local SHEATH = CFrame.lookAt(MOUTH, MOUTH+Vector3.new(-0.08, -0.45, 1))*CFrame.Angles(0, 0, math.pi)
+local WORN = SHEATH*CFrame.new(0, 0, -MOUTH_Z)
+
+-- The catalog preset plus a character's sourced overrides; the weapon family adjusts the silhouette.
+function Rig.swordSpec(definition)
+    local override = definition.sword or {}
+    local spec = table.clone(Content.swordPresets[override.preset or "nichirin_base"])
+    for key, value in pairs(override) do spec[key] = value end
+    if definition.weapon == "needle" then spec.curve = 0; spec.bladeDepth = 0.1
+    elseif definition.weapon == "serpent" then spec.curve = 0.09 end
+    return spec
+end
+
+-- Walks three segments bent by the sori (tip curving toward the spine); returns the frame at the far end.
+local function curvedChain(start, length, curve, visit)
+    local segment = length/3
+    local frame = CFrame.new(0, 0, start)
+    for i = 1, 3 do
+        frame *= CFrame.Angles(curve, 0, 0)
+        visit(i, frame*CFrame.new(0, 0, -segment/2), segment)
+        frame *= CFrame.new(0, 0, -segment)
+    end
+    return frame
+end
+
+local function buildTsuba(fit, spec)
+    local color, shape, metal = rgb(spec.tsubaColor), spec.tsuba, Enum.Material.Metal
+    -- Overlapping plates get different thicknesses so their faces never share a plane (no z-fighting).
+    local function disc(name, diameter, thickness, offset)
+        local p = fit(name, Vector3.new(thickness, diameter, diameter), color, offset*CFrame.Angles(0, math.pi/2, 0), metal)
+        p.Shape = Enum.PartType.Cylinder
+        return p
+    end
+    if shape == "square" then fit("Tsuba", Vector3.new(0.56, 0.56, 0.08), color, CFrame.identity, metal)
+    elseif shape == "bar" then fit("Tsuba", Vector3.new(0.7, 0.2, 0.08), color, CFrame.identity, metal)
+    elseif shape == "hex" then
+        for k = 0, 2 do fit("Tsuba", Vector3.new(0.32, 0.56, 0.08+k*0.006), color, CFrame.Angles(0, 0, k*math.pi/3), metal) end
+    elseif shape == "wheel" then
+        disc("Tsuba", 0.5, 0.08, CFrame.identity)
+        fit("TsubaPoints", Vector3.new(0.44, 0.44, 0.09), color, CFrame.Angles(0, 0, math.pi/4), metal)
+    elseif shape == "flame" then
+        disc("Tsuba", 0.46, 0.09, CFrame.identity)
+        for k = 0, 5 do
+            fit("TsubaFlame", Vector3.new(0.13, 0.26, 0.07), k%2 == 0 and color or Color3.fromRGB(246, 170, 64),
+                CFrame.Angles(0, 0, k*math.pi/3)*CFrame.new(0, 0.27, 0)*CFrame.Angles(0, 0, -0.45), metal)
+        end
+    elseif shape == "flower" then
+        disc("Tsuba", 0.24, 0.1, CFrame.identity)
+        for k = 0, 3 do disc("TsubaPetal", 0.3, 0.08+k*0.004, CFrame.Angles(0, 0, k*math.pi/2+math.pi/4)*CFrame.new(0, 0.17, 0)) end
+    else disc("Tsuba", 0.62, 0.08, CFrame.identity) end
+end
+
+-- Builds the katana (Model "Katana") and its scabbard (Model "Saya"); sheathed, the blade rests inside the saya.
+function Rig.buildSword(model, definition)
+    local spec = Rig.swordSpec(definition)
+    local lower, hand = model.LowerTorso, model.RightHand
+    local katana = Instance.new("Model"); katana.Name = "Katana"; katana.Parent = model
+    local saya = Instance.new("Model"); saya.Name = "Saya"; saya.Parent = model
+    local function piece(parent, name, size, color, material, class)
+        local p = Instance.new(class or "Part")
+        p.Name = name; p.Size = size; p.Color = color; p.Material = material or Enum.Material.SmoothPlastic
+        p.TopSurface = Enum.SurfaceType.Smooth; p.BottomSurface = Enum.SurfaceType.Smooth
+        p.CanCollide = false; p.CanTouch = false; p.CanQuery = false; p.Massless = true
+        p.Parent = parent
+        return p
+    end
+    local tsuka = piece(katana, "Tsuka", Vector3.new(0.2, 0.26, 0.9), Color3.fromRGB(226, 222, 210))
+    tsuka.CFrame = lower.CFrame*WORN*CFrame.new(0, 0, TSUKA_Z)
+    local function fit(name, size, color, offset, material, class)
+        local p = piece(katana, name, size, color, material, class)
+        rigid(tsuka, p, CFrame.new(0, 0, -TSUKA_Z)*offset)
+        return p
+    end
+    local fitting, dark = rgb(spec.fittingColor), Color3.fromRGB(38, 36, 34)
+    for i = 0, 4 do fit("TsukaWrap", Vector3.new(0.22, 0.17, 0.17), rgb(spec.wrapColor), CFrame.new(0, 0, 0.22+i*0.18)*CFrame.Angles(math.pi/4, 0, 0)) end
+    for _, x in ipairs({-1, 1}) do fit("Menuki", Vector3.new(0.05, 0.09, 0.2), fitting, CFrame.new(x*0.115, 0, 0.55)) end
+    fit("Kashira", Vector3.new(0.24, 0.3, 0.1), dark, CFrame.new(0, 0, 1.07), Enum.Material.Metal)
+    fit("Fuchi", Vector3.new(0.24, 0.3, 0.08), dark, CFrame.new(0, 0, 0.08), Enum.Material.Metal)
+    fit("Habaki", Vector3.new(0.12, 0.26, 0.12), fitting, CFrame.new(0, 0, -0.1), Enum.Material.Metal)
+    buildTsuba(fit, spec)
+    local depth = spec.bladeDepth
+    local tip = curvedChain(BLADE_Z, spec.length, spec.curve, function(i, centre, segment)
+        -- Spine in the nichirin colour over a lighter hamon edge strip.
+        local spine = fit(i == 1 and "Blade" or "Blade"..i, Vector3.new(0.08, depth*0.6, segment+0.02), rgb(spec.bladeColor), centre*CFrame.new(0, depth*0.2, 0), Enum.Material.Metal)
+        spine.Reflectance = 0.15
+        fit("Hamon"..i, Vector3.new(0.06, depth*0.4, segment+0.02), rgb(spec.edgeColor), centre*CFrame.new(0, -depth*0.3, 0))
+    end)
+    -- A wedge rolled 180 degrees: the kissaki point meets the spine line and the edge sweeps up to it.
+    local kissaki = fit("Kissaki", Vector3.new(0.07, depth, 0.32), rgb(spec.edgeColor), tip*CFrame.new(0, 0, -0.16)*CFrame.Angles(0, 0, math.pi), Enum.Material.Metal, "WedgePart")
+    local blade = katana.Blade
+    local base = Instance.new("Attachment"); base.Name = "TrailBase"; base.Position = Vector3.new(0, 0, blade.Size.Z/2); base.Parent = blade
+    local point = Instance.new("Attachment"); point.Name = "TrailTip"; point.Parent = kissaki
+    local trail = Instance.new("Trail"); trail.Name = "SwordTrail"; trail.Attachment0 = base; trail.Attachment1 = point
+    trail.Lifetime = 0.13; trail.MinLength = 0.1; trail.Enabled = false
+    trail.Color = ColorSequence.new(rgb(spec.bladeColor):Lerp(Color3.new(1, 1, 1), 0.35))
+    trail.Transparency = NumberSequence.new(0.45, 1); trail.Parent = blade
+
+    local function sheathPiece(name, size, color, offset, material)
+        local p = piece(saya, name, size, color, material)
+        rigid(lower, p, WORN*offset)
+        return p
+    end
+    -- Covers the blade (from BLADE_Z) plus the 0.32 kissaki and a small kojiri margin.
+    local sayaEnd = curvedChain(MOUTH_Z+0.05, spec.length+0.38, spec.curve, function(i, centre, segment)
+        sheathPiece("SayaBody"..i, Vector3.new(0.2, depth+0.12, segment+0.03), rgb(spec.sayaColor), centre)
+    end)
+    sheathPiece("Koiguchi", Vector3.new(0.24, depth+0.16, 0.08), dark, CFrame.new(0, 0, MOUTH_Z+0.03))
+    sheathPiece("Kojiri", Vector3.new(0.22, depth+0.14, 0.08), fitting, sayaEnd*CFrame.new(0, 0, 0.02), Enum.Material.Metal)
+    sheathPiece("Kurikata", Vector3.new(0.08, 0.12, 0.14), dark, CFrame.new(-0.13, 0, MOUTH_Z-0.45))
+    sheathPiece("Sageo", Vector3.new(0.05, 0.05, 0.9), rgb(spec.cordColor), CFrame.new(-0.14, 0.04, MOUTH_Z-0.95))
+
+    local hip = motor(lower, "SwordHip", lower, tsuka, SHEATH, CFrame.new(0, 0, MOUTH_Z-TSUKA_Z))
+    local grip = motor(hand, "SwordHand", hand, tsuka, CFrame.new(0, -0.05, 0), CFrame.new(0, 0, GRIP_Z-TSUKA_Z))
+    hip.Enabled = true; grip.Enabled = false
+    model:SetAttribute("HasSheath", true)
+    return spec
+end
+
+function Rig.swordVisible(model, visible)
+    for _, name in ipairs({"Katana", "Saya"}) do
+        local group = model:FindFirstChild(name)
+        if group then
+            for _, item in ipairs(group:GetDescendants()) do
+                if item:IsA("BasePart") then item.Transparency = visible and 0 or 1 end
+            end
+        end
+    end
+end
+
+function Rig.tintBlade(model, color)
+    local katana = model:FindFirstChild("Katana")
+    if not katana then return end
+    for _, name in ipairs({"Blade", "Blade2", "Blade3"}) do
+        local item = katana:FindFirstChild(name)
+        if item then item.Color = color end
+    end
+end
+
 function Rig.storyWeapon(model, kind)
     local previous = model:FindFirstChild("StoryWeapon")
     if previous then previous:Destroy() end
     model:SetAttribute("HasSheath", false)
-    for _, name in ipairs({"Blade", "Hilt", "Guard", "Scabbard"}) do
-        local item = model:FindFirstChild(name)
-        if item then item.Transparency = 1 end
-    end
+    Rig.swordVisible(model, false)
     if not kind then return end
     local weapon = Instance.new("Model"); weapon.Name = "StoryWeapon"; weapon.Parent = model
     local hand = model.RightHand
@@ -82,10 +237,10 @@ end
 
 function Rig.storySword(model, black)
     local old=model:FindFirstChild("StoryWeapon");if old then old:Destroy() end
-    for _,name in ipairs({"Blade","Hilt","Guard","Scabbard"}) do
-        local item=model:FindFirstChild(name);if item then item.Transparency=0 end
-    end
-    model.Blade.Color=black and Color3.fromRGB(32,36,43) or Color3.fromRGB(218,233,242)
+    Rig.swordVisible(model,true)
+    -- Plain steel before the colour change; afterwards the character's nichirin colour.
+    local spec=Rig.swordSpec(Content.characters[model:GetAttribute("CharacterId")] or {})
+    Rig.tintBlade(model,rgb(black and spec.bladeColor or Content.swordPresets.nichirin_base.bladeColor))
     model:SetAttribute("HasSheath",true);Rig.draw(model,black==true)
 end
 
@@ -263,22 +418,8 @@ function Rig.create(parent, position, definition, actorName)
     end
     local weapon = definition.weapon
     if weapon == "katana" or weapon == "needle" or weapon == "serpent" then
-        model:SetAttribute("HasSheath", true)
+        Rig.buildSword(model, definition)
         Rig.draw(model, true)
-        local sheathCF = CFrame.new(-1.05, -0.8, 0.3)*CFrame.Angles(0, 0, -0.18)
-        local sheath = part(model, "Scabbard", Vector3.new(0.3, 0.28, 3.8), dark)
-        torsoWeld(model, sheath, sheathCF*CFrame.new(0, 0, 1.2))
-        local hilt = part(model, "Hilt", Vector3.new(0.23, 0.24, 1), dark)
-        motor(lower, "WeaponGrip", lower, hilt, CFrame.new(0, -LOWER_Y, 0)*sheathCF, CFrame.identity)
-        local guard = part(model, "Guard", Vector3.new(0.65, 0.5, 0.12), accent)
-        weld(hilt, guard, CFrame.new(0, 0, -0.52))
-        local blade = part(model, "Blade", Vector3.new(weapon == "needle" and 0.09 or 0.22, 0.1, 3.6), Color3.fromRGB(218, 233, 242))
-        weld(hilt, blade, CFrame.new(0, 0, -2.35))
-        local a = Instance.new("Attachment"); a.Position = Vector3.new(0,0,-1.7); a.Parent = blade
-        local b = Instance.new("Attachment"); b.Position = Vector3.new(0,0,1.4); b.Parent = blade
-        local trail = Instance.new("Trail"); trail.Name = "SwordTrail"; trail.Attachment0 = a; trail.Attachment1 = b
-        trail.Lifetime = 0.13; trail.MinLength = 0.1; trail.Enabled = false
-        trail.Color = ColorSequence.new(accent); trail.Transparency = NumberSequence.new(0.5,1); trail.Parent = blade
     elseif weapon == "dual" or weapon == "sickles" then
         local hands = (weapon == "dual" or weapon == "sickles") and {ra, la} or {ra}
         for _, hand in ipairs(hands) do

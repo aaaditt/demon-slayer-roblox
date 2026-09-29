@@ -14,7 +14,7 @@ Updated: 2026-09-29. This is the working plan and tracker for character motion, 
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Blocky R15 rig and caller/test migration | **Done.** Engine 16/16, two-client 18/18 |
-| 2 | Nichirin katana model, scabbard and data-driven presets | Planned |
+| 2 | Nichirin katana model, scabbard and data-driven presets | **Done.** Engine 17/17, two-client 18/18 |
 | 3 | Clip pipeline: JSON → KeyframeSequence `.rbxmx`, hash-protected, validated | Planned |
 | 4 | Runtime sampler (`Motion.luau`), `MotionMath` with tests, layers, markers, time-warp | Planned |
 | 5 | Locomotion clips | Planned |
@@ -48,7 +48,7 @@ Offsets are in the classic frame (origin at the old torso centre). The floor sit
 
 ## Sword (phase 2)
 
-Base preset `nichirin_base`. Characters override it through `characters[id].sword`, but only with details sourced in RESEARCH.md; anything unsourced uses the base.
+Base preset `nichirin_base`. Implemented as `Rig.buildSword`/`Rig.swordSpec`. Sword pieces use classic `Weld` joints, because `WeldConstraint` re-captures offsets when the joints move the tsuka and desyncs the blade (found by an engine diagnostic). The saya covers the blade plus the kissaki; an engine test proves containment for all 19 sword users. Sourced overrides: Tanjiro, Giyu, Rengoku and Kanao (see RESEARCH.md). Characters override it through `characters[id].sword`, but only with details sourced in RESEARCH.md; anything unsourced uses the base.
 
 | Piece | Build |
 |---|---|

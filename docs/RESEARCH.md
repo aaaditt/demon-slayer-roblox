@@ -67,3 +67,15 @@ For stationary story actors, the [Humanoid API's EvaluateStateMachine property](
 Read official [episode 6](https://demonslayer-anime.com/risshihen/story/06.html), [episode 7](https://demonslayer-anime.com/risshihen/story/07.html) and [episode 8](https://demonslayer-anime.com/risshihen/story/08.html) summaries. They support the northwest town assignment, Kazumi's missing girlfriend, Tanjiro detecting the demon's scent, three bodies, Nezuko intervening, pursuit into the swamp and the subsequent Asakusa assignment. The Japanese episode 7 synopsis gives the same broad sequence. Search-index excerpts from the community [Kazumi synopsis](https://kimetsu-no-yaiba.fandom.com/wiki/Kazumi) support the rescued young woman, the lost fiancée and keepsakes; this is secondary evidence, not a primary scene review.
 
 Chapter four uses original dialogue, lantern streets, an open rescue house, marked investigation stops and a walkable separate swamp space. It condenses the rescue and grief without graphic remains. Submerged invulnerability, sequential pool attacks, survival/hit requirements, recovery openings, nonlethal player retries and the ally lunge are game mechanics. The swamp does not implement underwater swimming or oxygen; it does not reproduce exact geography, costumes, horn/body assignments, dialogue or canon combat choreography. The returned keepsake and farewell are condensed staging. A primary scene-level audit, the demon's fear of Muzan, full interrogation and authored rescue/fight animation remain production work. No anime footage, extracted assets or full manga ingestion was used.
+
+## 2026-09-29 nichirin sword fittings
+
+- Tanjiro's black blade was already sourced (`nichirin_proplica`, Bandai Namco primary merchandise reference).
+- The fandom Nichirin Sword page returned HTTP 402 and was not read. Secondary editorial and retail guides (`sword_guides`) agree on:
+  - Giyu: deep blue blade, hexagonal bronze tsuba
+  - Rengoku: red blade, flame tsuba
+  - Kanao: pink blade, flower-petal tsuba
+  - Tanjiro: green four-point "wheel" tsuba
+- These four are the only character overrides in `data/catalog.json`. They are blocky approximations, not likeness-accurate fittings.
+- All other sword users get the original `nichirin_base` preset until their fittings are sourced from primary material.
+- Tanjiro's later tsuba change (story-dependent) is not modelled yet.
