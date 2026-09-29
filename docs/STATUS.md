@@ -6,7 +6,7 @@ Updated: 2026-09-29
 
 Three chronological story chapters are implemented: the Kamado prologue, Sagiri training and Final Selection. The newest chapter has an original wisteria/forest set, demon encounters, a Hand Demon with animated extra arms and attack/recovery windows, a patrol, ore/crow induction and a return to Sagiri for the reunion, black sword and Nezuko's travel box. Story combat uses a temporary Water kit and preserves the saved hub fighter/loadout. Shared locomotion, directional dashes and sword drawing remain implemented.
 
-The full game is not finished. Chapters 4-22 remain encounter previews. The v0.3.0 download contains the first two chapters; the local 0.4.0 build adds Final Selection, with validation/release preparation in progress. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
+The full game is not finished. Chapters 4-22 remain encounter previews. The v0.4.0 development download includes all three staged chapters, with local and GitHub build checks passing. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
 ## Confirmed environment
 
@@ -43,6 +43,6 @@ Server-authoritative action admission/combat, energy/cooldowns, basic combo, gua
 
 ## Working artifact
 
-Download [v0.3.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.3.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `d41ac26`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35375934094). The place is 501,252 bytes; SHA-256 `06d8194664886bb8fc486ac56a8fca94c480b75388c09e74708cb62f4293d3ad`.
+Download [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), which includes the place and SHA-256 checksum. It corresponds to source checkpoint `e2f34d5`; its [GitHub Actions run passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/36575304044). The place is 554,354 bytes; SHA-256 `acafe472dabc28725063d4414448351d0cdab8dd08bbbc5b5a3f42c88c90741a`. Both uploaded assets, the full source target and the matching GitHub place digest were verified on September 29.
 
 Local output: `build/WisteriaChronicles.rbxlx` (ignored generated file). Open in Studio and press Play. World geometry is created at runtime. GitHub Actions also uploads a place artifact from each successful build. The release is a development checkpoint; public Roblox access still awaits dashboard setup after browser sign-in.

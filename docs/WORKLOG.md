@@ -113,3 +113,9 @@
 
 - Resumed the pending Final Selection checkpoint, reread continuation documents and reconciled the final September 19 runtime results with QA/STATUS. Source implementation is unchanged from those successful engine and two-client runs. Preparing a fresh production build and the versioned development download; no new manual Studio review or cloud upload is claimed.
 - Fresh `python scripts/check.py` passed catalog validation, all eleven core tests, 24 Luau compilations and the production place build. `git diff --check` passed. Downloaded tools, generated place/test files and Studio logs remain ignored.
+
+## 2026-09-29 — Final Selection download
+
+- Committed and pushed implementation `e2f34d5d426149ca82fb47c88cfbf9d091800496`. [GitHub Actions run 36575304044](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/36575304044) completed successfully, including generated-content freshness.
+- Created [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1) targeting that full source commit. Uploaded the production place (554,354 bytes) and checksum. GitHub reports both assets uploaded and the place digest matches local SHA-256 `acafe472dabc28725063d4414448351d0cdab8dd08bbbc5b5a3f42c88c90741a`.
+- Updated README, STATUS and DEPLOYMENT with the verified download and unchanged Roblox cloud status. Three chapters are staged; the next implementation slice is Kazumi's town investigation and the Swamp Demon rescue. Full campaign, authored animation/art and production qualification remain tracked.

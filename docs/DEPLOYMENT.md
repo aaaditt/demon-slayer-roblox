@@ -39,3 +39,9 @@ No Roblox cloud upload or audience change was performed for this revision. The e
 ## 2026-09-18 downloadable Sagiri chapter (cloud unchanged)
 
 The [v0.3.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.3.0-dev.1) adds the temple/Sagiri training chapter at source `d41ac26`. Its source passed [GitHub Actions](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/35375934094). The production place is 501,252 bytes, SHA-256 `06d8194664886bb8fc486ac56a8fca94c480b75388c09e74708cb62f4293d3ad`; its checksum is included in the release. Open this download in Studio to play both staged chapters. The Roblox cloud upload and audience settings remain unchanged.
+
+## 2026-09-29 downloadable Final Selection chapter (cloud unchanged)
+
+The [v0.4.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1) adds Fujikasane, the Hand Demon encounter, induction and the return for the black sword/travel box at source `e2f34d5d426149ca82fb47c88cfbf9d091800496`. Its source passed [GitHub Actions](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/36575304044). The production place is 554,354 bytes, SHA-256 `acafe472dabc28725063d4414448351d0cdab8dd08bbbc5b5a3f42c88c90741a`. GitHub reports the place and checksum uploaded, with the expected source target and matching place digest.
+
+Open this download in Studio to play all three staged chapters. Chapter 03 unlocks after chapter 02. The Roblox cloud upload and audience settings remain unchanged; no test-injected place was published.
