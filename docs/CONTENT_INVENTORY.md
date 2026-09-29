@@ -87,6 +87,7 @@ Generated from data/catalog.json. All timings, damage, and mechanical adaptation
 | Hakuji | Story supporting cast | False | 0 |
 | Tanjuro Kamado | Story supporting cast | False | 0 |
 | Kasugai Crow | Story supporting cast | False | 0 |
+| Kanata Ubuyashiki | Story supporting cast | False | 0 |
 
 ## Water Breathing
 

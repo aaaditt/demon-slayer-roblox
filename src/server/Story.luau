@@ -3,6 +3,7 @@ local Content=require(ReplicatedStorage.Shared.Content)
 local Rig=require(script.Parent.Rig)
 local World=require(script.Parent.World)
 local Training=require(script.Parent.Training)
+local Encounter=require(script.Parent.Encounter)
 local Story={}
 Story.__index=Story
 
@@ -18,24 +19,32 @@ end
 
 function Story.new(gameService,player,mission)
     local self=setmetatable({game=gameService,player=player,mission=mission,data=mission.chapter.story,
-        stepIndex=0,line=0,serial=0,npcs={},connections={},carry="none",phase="objective",closed=false},Story)
+        stepIndex=0,line=0,serial=0,npcs={},connections={},carry="none",phase="objective",closed=false,map=mission.chapter.story.map},Story)
     for _,definition in ipairs(self.data.actors) do
         local d=definition.template and table.clone(Content.characters[definition.template]) or {weapon="none"}
         d.id=definition.id;d.name=definition.name;d.color=definition.color
+        if definition.skinColor then d.skinColor=definition.skinColor end
+        if self.data.map=="selection" then d.weapon="none" end
         local model,humanoid,root=Rig.create(World.Actors,mission.room.center+Vector3.new(table.unpack(definition.position)),d)
+        if definition.id=="hand_demon" then Rig.handDemon(model) end
         if definition.scale then model:ScaleTo(definition.scale) end
         model.Head.Nameplate:Destroy() -- Speaker names and prompts identify noncombat story actors.
         local bamboo=model:FindFirstChild("Bamboo")
         if bamboo and self.data.id=="kamado_prologue" then bamboo.Transparency=1 end
         if self.data.map=="sagiri" then Rig.storyWeapon(model,nil) end
         root.Anchored=true;humanoid.DisplayDistanceType=Enum.HumanoidDisplayDistanceType.None
-        for _,p in ipairs(model:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end
+        -- These rigs are posed by the story/Animator. Humanoid's running state can
+        -- otherwise re-enable torso collision after we hide a cinematic double.
+        humanoid.EvaluateStateMachine=false
+        for _,p in ipairs(model:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false;p.CanQuery=false end end
         model:SetAttribute("ActorKind","story");self.npcs[definition.id]=model
         visible(model,definition.visible~=false)
     end
     local entry=gameService.players[player]
     entry.actor.storyLocked=true
-    Rig.storyWeapon(entry.actor.model,nil)
+    entry.actor.storyLoadout=self.data.loadout
+    self:setWeapon(self.data.initialWeapon or "none")
+    if self.data.initialMask then Rig.foxMask(entry.actor.model,true) end
     self:setCarry(self.data.initialCarry or "none")
     return self
 end
@@ -45,13 +54,19 @@ function Story:actor()
     return entry and entry.mission==self.mission and entry.actor or nil
 end
 
+function Story:setWeapon(kind)
+    local actor=self:actor();if not actor then return end
+    actor.storyCanWeapon=kind=="borrowed" or kind=="black"
+    if actor.storyCanWeapon then Rig.storySword(actor.model,kind=="black") else Rig.storyWeapon(actor.model,nil) end
+end
+
 function Story:setCarry(kind)
     local actor=self:actor()
     if not actor then return end
     local previous=actor.model:FindFirstChild("StoryCarry")
     if previous then previous:Destroy() end
-    self.carry=kind;actor.model:SetAttribute("Carrying",kind~="none")
-    if kind=="nezuko" then visible(self.npcs.nezuko,false) end
+    self.carry=kind;actor.model:SetAttribute("Carrying",kind~="none" and kind~="box")
+    if kind=="nezuko" or kind=="box" then visible(self.npcs.nezuko,false) end
     if kind=="none" then return end
     local carry=Instance.new("Model");carry.Name="StoryCarry";carry.Parent=actor.model
     local torso=actor.model.Torso
@@ -61,7 +76,15 @@ function Story:setCarry(kind)
         p.TopSurface=Enum.SurfaceType.Smooth;p.BottomSurface=Enum.SurfaceType.Smooth;p.Parent=carry
         local w=Instance.new("WeldConstraint");w.Part0=torso;w.Part1=p;w.Parent=p
     end
-    if kind=="charcoal" then
+    if kind=="box" then
+        piece("NezukoTravelBox",Vector3.new(2.1,2.9,1.4),CFrame.new(0,0.1,1.3),Color3.fromRGB(129,91,59))
+        piece("BoxDoor",Vector3.new(1.86,2.65,0.12),CFrame.new(0,0.1,2.06),Color3.fromRGB(153,110,72))
+        for _,side in ipairs({-1,1}) do
+            piece("BoxBand",Vector3.new(0.13,2.95,1.5),CFrame.new(side*0.76,0.1,1.3),Color3.fromRGB(62,49,39))
+            piece("ShoulderStrap",Vector3.new(0.17,2,0.12),CFrame.new(side*0.78,0,-0.57),Color3.fromRGB(153,126,88))
+        end
+        piece("BoxLatch",Vector3.new(0.2,0.4,0.14),CFrame.new(0.62,0.1,2.16),Color3.fromRGB(52,49,43))
+    elseif kind=="charcoal" then
         piece("WovenBasket",Vector3.new(1.8,2.1,1),CFrame.new(0,0,1),Color3.fromRGB(142,105,65))
         for i=-1,1 do piece("Charcoal",Vector3.new(0.45,0.65,0.5),CFrame.new(i*0.5,1.15,1),Color3.fromRGB(42,43,47)) end
     else
@@ -80,6 +103,7 @@ function Story:freeze(enabled)
     local actor=self:actor()
     if not actor then return end
     self.game.combat:stopMotion(actor)
+    if enabled then actor.castToken+=1;actor.blocking=false end
     actor.root.Anchored=enabled
     actor.root.AssemblyLinearVelocity=Vector3.zero
     actor.model:SetAttribute("InCutscene",enabled)
@@ -101,7 +125,7 @@ function Story:applyActors(states)
                 local r=state.rotation or {0,0,0}
                 model:PivotTo(CFrame.new(self.mission.room.center+Vector3.new(table.unpack(state.position)))*CFrame.Angles(math.rad(r[1]),math.rad(r[2]),math.rad(r[3])))
             end
-            if state.visible~=nil then visible(model,state.visible and not (id=="nezuko" and self.carry=="nezuko")) end
+            if state.visible~=nil then visible(model,state.visible and not (id=="nezuko" and (self.carry=="nezuko" or self.carry=="box"))) end
         end
     end
 end
@@ -122,6 +146,19 @@ function Story:advance()
     local step=self.data.steps[self.stepIndex]
     if not step then self.game:completeMission(self.player,self.mission);return end
     self.step=step;self.sceneLines=step.scene;self.resultScene=false;self.clockOverride=nil
+    if step.map and step.map~=self.map then
+        self:freeze(true)
+        local data=table.clone(self.data);data.map=step.map
+        World.remove(self.mission.slot)
+        self.mission.room=World.mission(self.mission.slot,Content.locations[self.mission.chapter.location],data)
+        self:actor().room=self.mission.room;self.map=step.map
+    end
+    if step.playerPosition then
+        local actor=self:actor()
+        actor.model:PivotTo(CFrame.new(self.mission.room.center+Vector3.new(table.unpack(step.playerPosition))))
+        actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow();actor.root.AssemblyLinearVelocity=Vector3.zero
+    end
+    if step.hideActors then for _,model in pairs(self.npcs) do visible(model,false) end end
     if self.data.id=="kamado_prologue" then
         for _,name in ipairs({"mother","takeo","hanako","shigeru","rokuta"}) do visible(self.npcs[name],not step.tragedy) end
         visible(self.npcs.giyu,self.encounter==true)
@@ -186,6 +223,9 @@ function Story:startScene(result)
         self.clockOverride=self.step.resultClock
         self:applyActors(self.step.resultActors)
     else
+        if self.step.weaponOnScene then self:setWeapon(self.step.weaponOnScene) end
+        if self.step.uniformOnScene then Rig.uniform(self:actor().model) end
+        if self.step.crowOnScene then Rig.crow(self:actor().model) end
         if self.step.carryOnScene then self:setCarry(self.step.carryOnScene) end
         self:applyActors(self.step.actors)
     end
@@ -209,6 +249,7 @@ function Story:continue(skip)
         self:pose(actor.model,nil);self:pose(self.npcs.giyu,nil);self:pose(self.npcs.nezuko,nil)
         if self.step.challenge and not self.resultScene then self:startChallenge()
         else
+            if self.step.maskAfter~=nil then Rig.foxMask(actor.model,self.step.maskAfter) end
             if self.step.carryAfter then self:setCarry(self.step.carryAfter) end
             self:advance()
         end
@@ -220,7 +261,8 @@ function Story:startChallenge()
     self:clearPrompt();self.phase="challenge";self:freeze(false)
     local npc=self.npcs[self.step.challenge.enemy]
     if npc then visible(npc,false) end
-    self.challenge=Training.new(self)
+    local kind=self.step.challenge.kind
+    self.challenge=(kind=="battle" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
     self.game:push(self.player)
 end
 
@@ -243,6 +285,7 @@ function Story:snapshot()
     return {id=self.data.id,serial=self.serial,step=self.stepIndex,total=#self.data.steps,title=self.step.title,
         objective=self.step.objective,phase=self.phase,line=self.line,lines=#self.sceneLines,clock=self.clockOverride or self.step.clock,
         challenge=self.challenge and self.challenge:snapshot(),canBasic=self.challenge and self:actor().storyCanBasic or false,
+        canSkills=self.challenge~=nil and self:actor().storyMoves~=nil,canWeapon=self.phase~="scene" and self:actor().storyCanWeapon==true,
         speaker=line and line.speaker,text=line and line.text,position=self.challenge and self.challenge:position() or target and target.Position,
         cameraFrom=shot and self.mission.room.center+Vector3.new(table.unpack(shot.from)),
         cameraTo=shot and self.mission.room.center+Vector3.new(table.unpack(shot.to))}
@@ -267,6 +310,8 @@ function Story:destroy()
     if self.closed then return end
     if self.challenge then self.challenge:destroy();self.challenge=nil end
     self.closed=true;self:clearPrompt();self:freeze(false)
+    local actor=self:actor()
+    if actor then actor.storyCanWeapon=false;actor.storyLoadout=nil;actor.storyMoves=nil;actor.storyLocked=false end
     self:setCarry("none")
     for _,model in pairs(self.npcs) do model:Destroy() end
 end

@@ -106,6 +106,32 @@ bridge.OnClientEvent:Connect(function(token,command,args)
                 assert(workspace.CurrentCamera.CameraType==Enum.CameraType.Custom and workspace.CurrentCamera.CameraSubject==player.Character:FindFirstChildOfClass("Humanoid"),"camera was not restored")
             end
             return true
+        elseif command=="selection" then
+            task.wait(0.4)
+            local model=player.Character
+            assert(model:GetAttribute("HasSheath"),"selection sword missing")
+            if args.gear=="black" then
+                assert(model.Blade.Color.R<0.2 and model:FindFirstChild("CorpsBelt") and model:FindFirstChild("MessengerCrow"),"Corps gear did not replicate")
+            elseif args.gear=="box" then
+                assert(model.StoryCarry:FindFirstChild("NezukoTravelBox"),"travel box did not replicate")
+                assert(not model:GetAttribute("Carrying"),"box incorrectly locks both arms")
+            else assert(player.PlayerGui.StoryUI.Training.Visible,"encounter HUD missing") end
+            assert(#failures==0,table.concat(failures,"\n"))
+            return true
+        elseif command=="bossAnimation" then
+            local boss
+            for _,model in ipairs(workspace.Actors:GetChildren()) do
+                if model:GetAttribute("HandDemon") and model:GetAttribute("Zone")==player.Character:GetAttribute("Zone") then boss=model;break end
+            end
+            assert(boss,"Hand Demon did not replicate")
+            local arm=boss.Torso.HandArm1
+            local original=arm.C0;local changed=false;local deadline=os.clock()+0.7
+            repeat
+                RunService.RenderStepped:Wait()
+                changed=changed or arm.C0.LookVector:Dot(original.LookVector)<0.99999
+            until os.clock()>deadline
+            assert(changed,"extra arms did not animate")
+            return true
         elseif command=="ui" then
             local gui=player.PlayerGui:FindFirstChild("WisteriaUI")
             assert(gui,"missing UI")

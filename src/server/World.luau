@@ -1,6 +1,7 @@
 local Lighting = game:GetService("Lighting")
 local StoryWorld = require(script.Parent.StoryWorld)
 local SagiriWorld = require(script.Parent.SagiriWorld)
+local SelectionWorld = require(script.Parent.SelectionWorld)
 local World = {}
 World.Rooms = {}
 local wood = Color3.fromRGB(75, 47, 42)
@@ -175,7 +176,7 @@ end
 function World.mission(slot, location, story)
     local center = Vector3.new((slot%4)*500, 0, 700+math.floor(slot/4)*500)
     if story then
-        local builder = story.map == "sagiri" and SagiriWorld or StoryWorld
+        local builder = story.map == "selection" and SelectionWorld or story.map == "sagiri" and SagiriWorld or StoryWorld
         local room = builder.build(World.Root, center, story)
         World.Rooms[slot] = room
         return room

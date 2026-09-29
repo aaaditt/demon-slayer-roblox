@@ -25,7 +25,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 
 - **44 selectable characters**, including all nine Hashira, Tanjiro, Nezuko, Zenitsu, Inosuke, Kanao, Genya, Muzan, and all named anime-era Upper/Lower Moons.
 - **210 technique entries** with selectable loadouts, energy/cooldowns, shared procedural animation, colored effects, and canon/adaptation labels.
-- **Two staged story chapters**: the Kamado home, family, charcoal route, Nezuko rescue and Giyu scenes; then the temple encounter, Urokodaki's house, mountain traps, sword/breathing practice, Sabito, Makomo and the boulder test. **20 later chapters remain encounter previews**, with the full storyline still in production.
+- **Three staged story chapters**: the Kamado prologue; Sagiri training through Sabito, Makomo and the boulder test; then Final Selection, the Hand Demon, Corps induction and the return for Tanjiro's sword and Nezuko's box. **19 later chapters remain encounter previews**, with the full storyline still in production.
 - **PvP free-for-all**, three-minute rounds, five-elimination victory, respawns, equal health/energy, and opt-in combat.
 - Server-side action validation, hit geometry/line-of-sight checks, guard/parry, dodge, status effects, and DataStore session ownership.
 - Visible procedural walk/run, jump/fall/landing and combat poses; timed directional dashes; single-blade sword drawing/sheathing with **R**, controller D-pad right or the Sword button.
@@ -38,6 +38,8 @@ Portable validation, Roblox engine checks and real two-client Studio integration
 To review the new opening, choose **Journey -> 01 A Trail in the Snow**, including on an existing save. Use E / controller X / the prompt to interact, and E / controller A / Continue for dialogue. Skip Scene skips only that conversation. M -> Return to Hub leaves the chapter. [Story production roadmap](docs/STORY_PRODUCTION.md).
 
 After the opening, choose **02 The Mountain Trial**. Follow the marked course, use basic attacks with the axe/practice sword, and press E / controller X / Breathe during the gold timing window. Exercises restart on a timeout or defeat; their progress is checked by the server. Breathing forms remain locked during this training chapter.
+
+**03 Final Selection** opens an original Fujikasane forest with a wisteria entrance, demon encounters and a night patrol. Use the chapter's four Water forms. Against the Hand Demon, evade its marked reach/sweep and strike during recovery. The chapter continues through ore selection, a Kasugai Crow, reunion at Sagiri, the black Nichirin blade and Nezuko's visible travel box. Seven days are condensed into gameplay and scenes; leaving discards the current attempt.
 
 ## Still in production
 

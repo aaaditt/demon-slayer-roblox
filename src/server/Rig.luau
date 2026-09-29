@@ -58,11 +58,70 @@ function Rig.storyWeapon(model, kind)
     end
 end
 
+function Rig.storySword(model, black)
+    local old=model:FindFirstChild("StoryWeapon");if old then old:Destroy() end
+    for _,name in ipairs({"Blade","Hilt","Guard","Scabbard"}) do
+        local item=model:FindFirstChild(name);if item then item.Transparency=0 end
+    end
+    model.Blade.Color=black and Color3.fromRGB(32,36,43) or Color3.fromRGB(218,233,242)
+    model:SetAttribute("HasSheath",true);Rig.draw(model,black==true)
+end
+
+function Rig.foxMask(model, enabled)
+    local old=model:FindFirstChild("ProtectiveMask");if old then old:Destroy() end
+    if not enabled then return end
+    local mask=part(model,"ProtectiveMask",Vector3.new(1,1.2,0.3),Color3.fromRGB(231,228,214))
+    weld(model.Head,mask,CFrame.new(0.8,0.35,-0.6)*CFrame.Angles(0,0,-0.3))
+end
+
+function Rig.uniform(model)
+    if model:FindFirstChild("CorpsBelt") then return end
+    model.Torso.Color=Color3.fromRGB(29,33,40)
+    local belt=part(model,"CorpsBelt",Vector3.new(2.06,0.2,1.08),Color3.fromRGB(226,220,204))
+    weld(model.Torso,belt,CFrame.new(0,-0.8,0))
+    for i=1,3 do
+        local button=part(model,"UniformButton",Vector3.new(0.12,0.12,0.08),Color3.fromRGB(198,170,91))
+        weld(model.Torso,button,CFrame.new(0,0.6-i*0.3,-0.56))
+    end
+end
+
+function Rig.crow(model)
+    if model:FindFirstChild("MessengerCrow") then return end
+    local crow=Instance.new("Model");crow.Name="MessengerCrow";crow.Parent=model
+    local body=part(crow,"Body",Vector3.new(0.65,0.65,1.2),Color3.fromRGB(29,31,40))
+    weld(model.Torso,body,CFrame.new(-1.3,1.15,0.05))
+    local head=part(crow,"Head",Vector3.new(0.55,0.55,0.55),body.Color)
+    weld(body,head,CFrame.new(0,0.25,-0.5))
+    local beak=part(crow,"Beak",Vector3.new(0.18,0.16,0.5),Color3.fromRGB(111,101,70))
+    weld(head,beak,CFrame.new(0,-0.05,-0.45))
+    for _,side in ipairs({-1,1}) do
+        local wing=part(crow,"Wing",Vector3.new(0.6,0.1,0.95),body.Color)
+        motor(body,side<0 and "CrowLeft" or "CrowRight",body,wing,CFrame.new(side*0.5,0,0),CFrame.identity)
+    end
+end
+
+function Rig.handDemon(model)
+    local torso=model.Torso
+    for i=1,6 do
+        local side=i%2==0 and 1 or -1
+        local row=math.floor((i-1)/2)
+        local arm=part(model,"ExtraArm"..i,Vector3.new(0.75,2,0.75),Color3.fromRGB(117,139,105))
+        motor(torso,"HandArm"..i,torso,arm,CFrame.new(side*(1.3+row*0.28),0.7-row*0.7,0.1)*CFrame.Angles(-0.6,0,side*(0.45+row*0.22)),CFrame.new(0,0.8,0))
+        local palm=part(model,"ExtraPalm"..i,Vector3.new(1.1,0.55,0.95),arm.Color)
+        weld(arm,palm,CFrame.new(0,-1.1,-0.1))
+        for finger=-1,1 do
+            local digit=part(model,"Finger",Vector3.new(0.22,0.65,0.25),arm.Color)
+            weld(palm,digit,CFrame.new(finger*0.32,-0.5,-0.25))
+        end
+    end
+    model:SetAttribute("HandDemon",true)
+end
+
 function Rig.create(parent, position, definition, actorName)
     local model = Instance.new("Model")
     model.Name = actorName or definition.name
     model:SetAttribute("CharacterId", definition.id)
-    local skin = Color3.fromRGB(235, 197, 171)
+    local skin = Color3.fromRGB(table.unpack(definition.skinColor or {235,197,171}))
     local dark = Color3.fromRGB(27, 30, 43)
     local accent = Color3.fromRGB(table.unpack(definition.outfitColor or definition.color))
     local origin = CFrame.new(position)
@@ -131,6 +190,10 @@ function Rig.create(parent, position, definition, actorName)
         weld(head, hat, CFrame.new(0, 0.65, 0))
         local crown = part(model, "HatCrown", Vector3.new(1.7, 0.5, 1.2), hat.Color)
         weld(head, crown, CFrame.new(0, 0.95, 0))
+    elseif definition.id == "haganezuka" then
+        local hat=part(model,"SmithHat",Vector3.new(3.1,0.3,2.8),Color3.fromRGB(159,132,85));weld(head,hat,CFrame.new(0,0.9,0))
+        local mask=part(model,"SmithMask",Vector3.new(1.7,1.1,0.25),Color3.fromRGB(216,168,137));weld(head,mask,CFrame.new(0,0,-0.65))
+        local mouth=part(model,"MaskMouth",Vector3.new(0.4,0.3,0.35),Color3.fromRGB(158,96,80));weld(head,mouth,CFrame.new(0.3,-0.25,-0.9))
     elseif definition.id == "urokodaki" then
         local mask=part(model,"TenguMask",Vector3.new(1.75,1.05,0.25),Color3.fromRGB(153,56,43))
         weld(head,mask,CFrame.new(0,-0.05,-0.6))
@@ -143,6 +206,8 @@ function Rig.create(parent, position, definition, actorName)
         local marking=part(model,"MaskMark",Vector3.new(0.55,0.12,0.08),Color3.fromRGB(151,69,56))
         weld(head,marking,CFrame.new(0.75,0.35,-0.8)*CFrame.Angles(0,0,-0.25))
     end
+
+    if definition.hairColor then hair.Color=Color3.fromRGB(table.unpack(definition.hairColor)) end
 
     local function weaponPiece(name, size, offset, hand, color)
         local p = part(model, name, size, color or Color3.fromRGB(207, 222, 231))

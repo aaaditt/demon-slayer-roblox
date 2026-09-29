@@ -135,7 +135,9 @@ function Combat:damage(actor, target, amount, status)
     if target.kind == "player" and target.mode == "Arena" and not target.arenaActive then return end
     local offset = actor.root.Position-target.root.Position
     local frontal = offset.Magnitude < 0.01 or target.root.CFrame.LookVector:Dot(offset.Unit) > 0.15
+    amount *= target.damageMultiplier or 1
     local damage, result, energyCost = Rules.resolveDamage(amount, target, now, frontal, Config.GuardEnergyCost, Config.GuardReduction, Config.ParryWindow)
+    if target.damageMultiplier==0 then result="guarded" end
     if target.healthFloor then damage = Rules.trainingDamage(target.humanoid.Health, damage, target.healthFloor) end
     target.energy = math.max(0, target.energy-energyCost)
     actor.lastCombat = now; target.lastCombat = now
@@ -185,7 +187,7 @@ end
 function Combat:cast(actor, move, direction)
     local now = workspace:GetServerTimeNow()
     if not actor.alive then return false, "Respawning" end
-    if actor.storyLocked and not (actor.storyCanBasic and move.id == "basic") then return false, "Follow the story objective" end
+    if not Rules.storyMoveAllowed(actor,move.id) then return false, "Follow the story objective" end
     if actor.model:GetAttribute("InCutscene") then return false, "Follow the story scene" end
     -- Draw first, then execute the requested strike if this actor has not been interrupted.
     if actor.model:GetAttribute("HasSheath") and not actor.model:GetAttribute("WeaponDrawn") then
@@ -275,7 +277,7 @@ end
 
 function Combat:weapon(actor, drawn)
     local now = workspace:GetServerTimeNow()
-    if not actor.alive or actor.storyLocked or not actor.model:GetAttribute("HasSheath") or now < actor.busyUntil or now < actor.stunUntil then return false end
+    if not actor.alive or (actor.storyLocked and not actor.storyCanWeapon) or actor.model:GetAttribute("InCutscene") or not actor.model:GetAttribute("HasSheath") or now < actor.busyUntil or now < actor.stunUntil then return false end
     if drawn == nil then drawn = not actor.model:GetAttribute("WeaponDrawn") end
     actor.castToken += 1; actor.blocking = false; actor.busyUntil = now+0.45
     Rig.draw(actor.model, drawn)

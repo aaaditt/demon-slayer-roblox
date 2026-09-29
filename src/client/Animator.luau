@@ -90,6 +90,7 @@ function Animator.start()
                 elseif pose=="barrage" then right=-1.2-math.sin(p*math.pi*8)*0.5;left=-1.2+math.sin(p*math.pi*8)*0.5
                 elseif pose=="dash" or pose=="evade" then right=0.85;left=0.75;lean=0.65;rh=-0.8;lh=0.8;bob=-0.2
                 elseif pose=="kneel" then lean=0.45;rh=-0.95;lh=-0.8;right=-0.6;left=-0.6;bob=-0.5
+                elseif pose=="embrace" then right=-1.35;left=-1.35;lean=0.08
                 else right=-2.1+swing*2.5;left=-0.5;twist=-0.65+swing*1.3 end
             elseif model:GetAttribute("Blocking") then right=-1.5;left=-1.4;lean=0.13;motion="guard" end
             if model:GetAttribute("Carrying") then right=-1.2;left=-1.2;lean+=0.12 end
@@ -107,6 +108,16 @@ function Animator.start()
             set("Right Hip",CFrame.Angles(rh,0,0));set("Left Hip",CFrame.Angles(lh,0,0))
             set("RootJoint",CFrame.new(0,bob,0)*CFrame.Angles(lean,twist,roll))
             set("Neck",CFrame.Angles(-lean*0.6,-twist*0.2,0))
+            if model:GetAttribute("HandDemon") then
+                local bossPhase=model:GetAttribute("BossPhase")
+                for i=1,6 do
+                    local side=i%2==0 and 1 or -1
+                    local reach=bossPhase=="windup" and -1.5 or bossPhase=="exposed" and 0.3 or -0.6
+                    set("HandArm"..i,CFrame.Angles(reach+math.sin(now*3+i)*0.07,side*0.2,bossPhase=="exposed" and side*0.65 or 0))
+                end
+            end
+            set("CrowLeft",CFrame.Angles(0,0,math.sin(now*3)*0.12))
+            set("CrowRight",CFrame.Angles(0,0,-math.sin(now*3)*0.12))
             local grip=rig.motors.WeaponGrip
             if grip and model:FindFirstChild("Right Arm") then
                 local drawn=model:GetAttribute("HasSheath") and model:GetAttribute("WeaponDrawn")

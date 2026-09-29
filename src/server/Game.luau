@@ -47,7 +47,7 @@ function Game:push(player)
         kind = "state", time = workspace:GetServerTimeNow(), selected = a and a.characterId or p.selected,
         mode = a and a.mode or "Hub", hp = a and a.humanoid.Health or 0, maxHp = Config.MaxHealth,
         energy = a and a.energy or 0, maxEnergy = Config.MaxEnergy,
-        loadout = p.loadouts[a and a.characterId or p.selected], cooldowns = a and a.cooldowns or {},
+        loadout = a and a.storyLoadout or p.loadouts[a and a.characterId or p.selected], cooldowns = a and a.cooldowns or {},
         xp = p.xp, rank = Rules.rank(p.xp), chapter = p.chapter, mastery = p.mastery[p.selected],
         kills = p.kills, deaths = p.deaths, wins = p.wins, saveStatus = entry.profile.status,
         mission = entry.mission and {index = entry.mission.chapter.index, wave = entry.mission.wave, total = #entry.mission.chapter.enemies, ends = entry.mission.deadline} or nil,
@@ -254,7 +254,7 @@ function Game:handle(player, action, payload)
     elseif action == "Guard" then if type(payload)=="boolean" then self.combat:guard(actor, payload) end
     elseif action == "Skill" then
         if type(payload)~="table" or not Rules.integer(payload.slot, 1, 4) then return end
-        local loadout = entry.profile.data.loadouts[actor.characterId]
+        local loadout = actor.storyLoadout or entry.profile.data.loadouts[actor.characterId]
         local move = Content.moves[loadout[payload.slot]]
         if not move then return end
         local requestedDirection = payload.direction

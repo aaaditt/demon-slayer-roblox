@@ -1,6 +1,6 @@
 # Story production and next sessions
 
-Updated 2026-09-18. The whole intended campaign remains the goal. Two staged chapters and 20 encounter previews are not a finished storyline.
+Updated 2026-09-19. The whole intended campaign remains the goal. Three staged chapters and 19 encounter previews are not a finished storyline.
 
 ## Current playable chapter: A Trail in the Snow
 
@@ -31,12 +31,21 @@ An original forest set connects an enterable temple and Urokodaki's house, an el
 
 The temple exercise uses a visible axe, three controlled hits and an 18-second survival requirement. Nezuko's intervention and dawn are narrated in a condensed result scene. Training uses a wooden sword, nonlethal Sabito sparring, ordered course markers and three telegraphed traps. Breathing requires standing still near the objective and one input per gold window; cutting the boulder requires an accepted breath followed by a hit within four seconds. The server controls all objectives, damage, timing and completion. Scene skipping cannot complete an exercise. Defeat or timeout restarts the current lesson; leaving the chapter still discards the attempt.
 
-These short exercises represent two years through original scene transitions. They do not reproduce exact canonical durations, geography, fights or shot composition. Axe/practice-sword basics are available only in the relevant lessons; selectable breathing forms stay locked. Final Selection unlocks at the end but is still an encounter preview until the next production slice. Nezuko's travel box, Corps induction and Nichirin delivery are not implemented yet.
+These short exercises represent two years through original scene transitions. They do not reproduce exact canonical durations, geography, fights or shot composition. Axe/practice-sword basics are available only in the relevant lessons; selectable breathing forms stay locked. Completing the chapter unlocks the staged Final Selection chapter below.
+
+## Third playable chapter: Final Selection
+
+Thirteen stages cover arrival beneath wisteria, the guides' briefing, first-night demons, a candidate's warning, the Hand Demon, a patrol representing the remaining nights, the surviving candidates, ore selection, the crow, return to Sagiri, sword delivery, Nezuko's box and the first assignment. A separate Fujikasane set has connected forest paths, a gathering court and a boss clearing. The return replaces that set with Urokodaki's Sagiri home in the same private mission slot.
+
+The chapter equips a fixed Water loadout (forms 1, 2, 4 and 8), while preserving the player's saved hub loadout and fighter. The borrowed sword can be drawn/sheathed. The Hand Demon has six additional animated arms and original reach/sweep telegraphs. Its guarded neck rejects damage until the recovery window; the boss encounter ends on defeat. The three-stop patrol requires the enemies and a minimum survival time. Encounters restart locally on defeat or timeout. These mechanics, checkpoint protection and brief durations are explicit game adaptations, not canon measurements or a literal seven-day simulation.
+
+The return scenes add a reunion pose, Corps belt/buttons, a shoulder crow, Haganezuka, a black blade and a wooden travel box. These are original procedural props and limited poses. Exact costume, facial acting, mask breakage, sword-color transformation, reunion choreography and the Hand Demon's memories/defeat animation still need authored production. Box/equipment props currently belong to this chapter; carrying them into a chronological first-mission chapter is part of the next slice. Chapter four remains a generic encounter preview until that work is done.
 
 ## Proposed session sequence
 
-- **Next:** review the two staged chapters for navigation, pacing and input feel; develop Final Selection exploration and Hand Demon mechanics, Corps induction, Nichirin delivery and Nezuko's travel box. Audit the exact presentation order against lawful episode/manga references before implementation.
+- **Next:** review the three staged chapters for navigation, pacing and input feel; build the first assignment with the missing-girls investigation, Kazumi, Nezuko's box and the Swamp Demon rescue. Audit exact scene order and lawful primary references before writing it.
 - **Training refinement:** authored temple intervention, Sabito/Makomo acting, expanded mountain routes, waterfall animation/sound and persistent within-chapter checkpoints. The current chapter uses condensed narrated transitions and shared procedural poses.
+- **Selection refinement:** final boss art/acting, expanded survival exploration, candidate interactions, physical route playtesting and scene-level costume/choreography audit. The current boss's attack/recovery cycle is original gameplay.
 - **Early missions:** first town disappearances and swamp rescue, Asakusa civilians and Muzan, Tamayo/Yushiro, Susamaru/Yahaba, Tsuzumi Mansion's rotating rooms and character introductions.
 - **Middle campaign:** Natagumo rescue and Rui, Hashira judgment and Butterfly Mansion recovery, Mugen Train dream rescue and linked train boss, Rengoku/Akaza resolution.
 - **Later campaign:** Entertainment District infiltration and linked siblings' defeat, Swordsmith Village evacuation with hidden-core Hantengu and Gyokko phases, Hashira Training with all nine Hashira represented across the chronological game.

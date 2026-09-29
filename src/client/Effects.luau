@@ -110,6 +110,11 @@ function Effects.play(event)
                 for i=1,2 do task.delay(i*0.09,function() arc(position+Vector3.new(0,i*0.4,0),direction,6+i,color,0.25,i%2==0) end) end
             end
         end
+    elseif event.kind=="defeat" then
+        for i=1,(Effects.reduced and 4 or 10) do
+            local mote=part(Vector3.one*0.3,CFrame.new(position+Vector3.new(math.sin(i*2)*2,i*0.3-1,math.cos(i*2)*2)),color,0.9,0.1)
+            if mote then TweenService:Create(mote,TweenInfo.new(0.9),{Position=mote.Position+Vector3.new(math.sin(i),3,math.cos(i)),Transparency=1}):Play() end
+        end
     elseif event.kind=="dodge" then
         ring(position-Vector3.new(0,2.5,0),3,color,0.3,10)
     elseif event.kind=="hit" then

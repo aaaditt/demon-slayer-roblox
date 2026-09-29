@@ -43,7 +43,10 @@ local function direction(dodge)
     return workspace.CurrentCamera.CFrame.LookVector
 end
 local function canAct() return not storyPlayer.activeScene and not ui.shade.Visible and UserInputService:GetFocusedTextBox()==nil end
-local function canFight() return canAct() and not (ui.state and ui.state.story) end
+local function canFight()
+    local story=ui.state and ui.state.story
+    return canAct() and (not story or story.canSkills)
+end
 local function canBasic()
     local story=ui.state and ui.state.story
     return canAct() and (not story or story.canBasic)
@@ -81,7 +84,8 @@ bind("WisteriaDodge",function(s)
     return false
 end,true,Enum.KeyCode.Q,Enum.KeyCode.ButtonR1)
 bind("WisteriaWeapon",function(s)
-    if s==Enum.UserInputState.Begin and canFight() then send("Weapon");return true end
+    local story=ui.state and ui.state.story
+    if s==Enum.UserInputState.Begin and canAct() and (not story or story.canWeapon) then send("Weapon");return true end
     return false
 end,true,Enum.KeyCode.R,Enum.KeyCode.DPadRight)
 local keyboard={Enum.KeyCode.One,Enum.KeyCode.Two,Enum.KeyCode.Three,Enum.KeyCode.Four}

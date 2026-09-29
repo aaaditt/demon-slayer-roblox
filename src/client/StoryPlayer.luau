@@ -73,9 +73,19 @@ function StoryPlayer.new(send,ui)
         if challenge then
             local focus=challenge.kind=="breath" or challenge.kind=="cut"
             self.breathBar.Visible=focus;self.focusButton.Visible=focus
-            self.exercise.Size=UDim2.new(0.72,0,0,focus and 98 or 36)
-            local progress=challenge.kind=="route" and ("Course markers: "..math.min(challenge.routeIndex-1,challenge.routeTotal).." / "..challenge.routeTotal)
-                or ("Controlled hits: "..challenge.count.." / "..challenge.goal)
+            self.exercise.Size=UDim2.new(0.72,0,0,focus and 98 or challenge.combat and 54 or 36)
+            self.progress.Size=UDim2.new(1,-24,0,challenge.combat and 46 or 27)
+            local progress
+            if challenge.combat then
+                progress="Demons defeated: "..challenge.defeated.." / "..challenge.total
+                if challenge.kind=="hand_boss" then
+                    local phase=challenge.phase=="exposed" and "NECK EXPOSED — STRIKE" or challenge.phase=="windup" and "ARMS REACHING — EVADE" or "ARMS GUARDING THE NECK"
+                    progress=phase.."  ·  "..math.ceil(challenge.bossHp or 0).." HP"
+                elseif challenge.kind=="vigil" then progress..="  ·  Hold out: "..challenge.holdRemaining.."s" end
+            else
+                progress=challenge.kind=="route" and ("Course markers: "..math.min(challenge.routeIndex-1,challenge.routeTotal).." / "..challenge.routeTotal)
+                    or ("Controlled hits: "..challenge.count.." / "..challenge.goal)
+            end
             if challenge.kind=="breath" then progress="Steady breaths: "..challenge.count.." / "..challenge.goal end
             if challenge.kind=="cut" then progress="Stand still. Breathe in gold, then strike." end
             if challenge.kind=="survive" then progress..="  ·  Hold out: "..challenge.surviveRemaining.."s" end
@@ -140,11 +150,12 @@ function StoryPlayer:update(state)
     local scene=story and story.phase=="scene"
     self.ui.top.Visible=not scene;self.ui.hint.Visible=not scene
     if scene then self.ui.toastFrame.Visible=false end
-    self.ui.skillbar.Visible=story==nil
+    self.ui.skillbar.Visible=story==nil or story.canSkills==true
     self.ui.status.Visible=story==nil or story.phase=="challenge"
     self.exercise.Visible=story~=nil and story.challenge~=nil
     if story and story.challenge then
-        self.ui.hint.Text=story.canBasic and "Click / RT: strike   •   F / LT: guard   •   Q / RB: dash   •   E / X: breathe" or "WASD / stick: move   •   Space / A: jump   •   Q / RB: dash   •   E / X: breathe"
+        self.ui.hint.Text=story.canSkills and "Click / RT: strike   •   1–4: Water forms   •   F / LT: guard   •   Q / RB: dash   •   R: sword"
+            or story.canBasic and "Click / RT: strike   •   F / LT: guard   •   Q / RB: dash   •   E / X: breathe" or "WASD / stick: move   •   Space / A: jump   •   Q / RB: dash   •   E / X: breathe"
     end
     self.objectivePanel.Visible=story~=nil and story.phase~="scene"
     if not story then

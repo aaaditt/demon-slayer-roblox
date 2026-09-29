@@ -21,6 +21,10 @@ function Rules.trainingDamage(health, amount, floor)
     return math.min(amount, math.max(0, health-(floor or 0)))
 end
 
+function Rules.storyMoveAllowed(actor, id)
+    return not actor.storyLocked or (id=="basic" and actor.storyCanBasic==true) or (actor.storyMoves~=nil and actor.storyMoves[id]==true)
+end
+
 function Rules.spend(state, move, now)
     if now < state.busyUntil or now < state.stunUntil then return false, "Recovering" end
     if (state.cooldowns[move.id] or 0) > now then return false, "Cooling down" end

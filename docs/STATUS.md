@@ -1,25 +1,25 @@
 # Current status
 
-Updated: 2026-09-18
+Updated: 2026-09-29
 
 ## Active checkpoint
 
-Two chronological story chapters are implemented. The Kamado prologue continues into The Mountain Trial: an enterable temple and Urokodaki home, axe encounter, trapped mountain descent, sword and breathing practice, Sabito/Makomo scenes, rematch and the boulder test. Training uses server-checked objectives, timed breathing input, nonlethal retries and visible practice weapons. Shared locomotion, directional dashes and sword drawing remain implemented.
+Three chronological story chapters are implemented: the Kamado prologue, Sagiri training and Final Selection. The newest chapter has an original wisteria/forest set, demon encounters, a Hand Demon with animated extra arms and attack/recovery windows, a patrol, ore/crow induction and a return to Sagiri for the reunion, black sword and Nezuko's travel box. Story combat uses a temporary Water kit and preserves the saved hub fighter/loadout. Shared locomotion, directional dashes and sword drawing remain implemented.
 
-The full game is not finished. Chapters 3-22 remain encounter previews. The v0.3.0 development download contains both staged chapters. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
+The full game is not finished. Chapters 4-22 remain encounter previews. The v0.3.0 download contains the first two chapters; the local 0.4.0 build adds Final Selection, with validation/release preparation in progress. The private Roblox cloud place still contains the earlier upload; it has not been overwritten. [Deployment target](DEPLOYMENT.md): universe `10766590718`, place `139004028759819`.
 
 ## Confirmed environment
 
 - Windows / PowerShell; Python 3.11, Node, Git and authenticated GitHub CLI available.
 - Roblox Studio installed locally.
 - Remote: https://github.com/aaaditt/demon-slayer-roblox.git (public, initially empty).
-- Current session uses a workspace-write sandbox; Studio launch, Windows process inspection and Git/network writes may require tool approval.
+- Current continuation has unrestricted workspace and network access; earlier Studio/Git operations used sandbox approvals.
 - User confirmed Infinity Castle (2025) as minimum movie cast.
 
 ## Next work
 
-1. Review Journey -> 01 A Trail in the Snow and -> 02 The Mountain Trial for movement, navigation, lesson difficulty and scene pacing.
-2. Continue with Final Selection exploration/Hand Demon mechanics, Corps induction, Nichirin delivery and Nezuko's travel box; see [session roadmap](STORY_PRODUCTION.md).
+1. Review Journey -> 01 A Trail in the Snow, -> 02 The Mountain Trial and -> 03 Final Selection for movement, navigation, encounter difficulty and scene pacing.
+2. Build the first town investigation with Kazumi, Nezuko's box and the Swamp Demon rescue; see [session roadmap](STORY_PRODUCTION.md).
 3. Replace shared procedural characters and choreography with authored character-specific assets, starting with Tanjiro, Nezuko and Giyu.
 4. Expand all later story arcs, canonical boss mechanics, exploration and supporting NPC roles. Keep all nine Hashira, protagonists, Muzan, Upper/Lower Moons, PvP and progression in scope.
 5. Test touch/controller hardware, small-screen layout, adversarial multiplayer input, performance, balance and real published DataStores.
@@ -27,17 +27,19 @@ The full game is not finished. Chapters 3-22 remain encounter previews. The v0.3
 
 ## Latest validation
 
-2026-09-18: `python scripts/check.py` passes expanded catalog/story/challenge validation, 22 Luau files, all ten portable tests and the place build. Expanded Studio engine checks passed 12/12. Two expanded two-client runs passed 14/14, covering all training exercise kinds, server damage/skill limits, trap/retry behavior, ordered markers, focus windows, boulder splitting, one-time reward/unlock, exit cleanup and existing story/movement/PvP behavior. The final run also verified real E-key events reaching the breathing action. Exact results and test limits are recorded in QA.md.
+2026-09-19: `python scripts/check.py` passed expanded catalog/story/loadout/challenge validation, 24 Luau files, all eleven portable tests and the place build. The final engine suite passed 14/14 and the final full two-client regression passed 16/16 (runner exit 0). This includes Selection, the earlier chapters, held W + Q, sword replication and PvP. The focused Selection suite also passed 2/2 after fixing an NPC collision obstruction and waiting for deferred death events in the harness. See QA.md for intermediate failures and exact test limits.
 
-Earlier Studio screenshot review covers the opening house/family scene and dialogue. The Sagiri screenshot attempt did not obtain a visible test window; no new visual inspection is claimed. Automated route checks reposition the player and accelerate training clocks/hits; they are not a human full-route playthrough or a difficulty assessment. Physical touch/controller, sustained low-FPS/lag behavior, authored animation quality and live DataStore behavior remain unverified.
+Earlier Studio screenshot review covers the opening house/family scene and dialogue. The Sagiri and Selection capture attempts did not obtain a visible test window; no new visual inspection is claimed. Automated route checks reposition the player and accelerate clocks/hits; they are not a human full-route playthrough or a difficulty assessment. Physical touch/controller, sustained low-FPS/lag behavior, authored animation quality and live DataStore behavior remain unverified.
+
+2026-09-29: rebuilt the unchanged runtime source for delivery. Catalog validation, all eleven core tests, 24 Luau compilations and the production place build passed again; whitespace checks passed. The Studio results above are from September 19, not a new manual playthrough.
 
 ## Content inventory
 
-81 cast records, 44 selectable character definitions, 210 technique definitions, 19 location concepts, 22 campaign chapter definitions. See RESEARCH.md for source limitations and CONTENT_INVENTORY.md for every move. These numbers describe data coverage, not authored assets or completed canon reconstruction.
+82 cast records (including Kanata), 44 selectable character definitions, 210 technique definitions, 19 location concepts, 22 campaign chapter definitions. See RESEARCH.md for source limitations and CONTENT_INVENTORY.md for every move. These numbers describe data coverage, not authored assets or completed canon reconstruction.
 
 ## Implemented systems
 
-Server-authoritative action admission/combat, energy/cooldowns, basic combo, guard/parry, wall-aware dodge, status effects, procedural rigs/effects, two staged chapters with private training exercises plus later encounter previews, progression/mastery, opt-in arena rounds/scoring, save-lease protection, searchable character menu, loadout editor, world atlas, basic local combat audio with mute control, and input mappings. Studio saving is disabled by default; published saves use the configured DataStore. Within-chapter persistence is not implemented.
+Server-authoritative action admission/combat, energy/cooldowns, basic combo, guard/parry, wall-aware dodge, status effects, procedural rigs/effects, three staged chapters with private training/encounters and story map transitions plus later encounter previews, progression/mastery, opt-in arena rounds/scoring, save-lease protection, searchable character menu, loadout editor, world atlas, basic local combat audio with mute control, and input mappings. Studio saving is disabled by default; published saves use the configured DataStore. Within-chapter persistence and continuation of the new gear into a staged chapter four are not implemented.
 
 ## Working artifact
 

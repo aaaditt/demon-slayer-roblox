@@ -32,6 +32,11 @@ return function(session)
         local p1,p2=players[1],players[2]
         waitFor(function()return session.players[p1] and session.players[p2] and session.players[p1].actor and session.players[p2].actor end,20,"player bootstrap failed")
         task.wait(3)
+        local suiteArgs=StudioTestService:GetTestArgs()
+        local selectionOnly=type(suiteArgs)=="table" and suiteArgs.selectionOnly
+        if selectionOnly then
+            session.players[p1].profile.data.chapter=3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
+        else
         check("two real clients load GUI, attach cameras, and stand on the ground",function()
             for _,p in ipairs({p1,p2}) do
                 local result=client(p,"ready")
@@ -245,6 +250,126 @@ return function(session)
             assert(not e.actor.storyCanBasic and not e.actor.healthFloor and not e.actor.root.Anchored)
             client(p1,"story",{scene=false})
         end)
+        end
+        check("Final Selection fights, patrol, induction and return award once and preserve the saved kit",function()
+            local Content=require(ReplicatedStorage.Shared.Content)
+            local e=session.players[p1]
+            local original=table.clone(e.profile.data.loadouts.tanjiro)
+            local alternate
+            for _,id in ipairs(Content.characters.tanjiro.moves) do if Content.moves[id].style~="water" then alternate=id;break end end
+            assert(alternate);e.profile.data.loadouts.tanjiro[1]=alternate
+            client(p1,"action",{name="Story",payload=3})
+            local mission=e.mission;local story=mission and mission.story
+            assert(story and story.data.id=="fujikasane_selection")
+            local firstRoom=mission.room;local before=e.profile.data.xp
+            local function place(a,position)
+                session.combat:stopMotion(a);a.root.Anchored=true;a.model:PivotTo(CFrame.new(position))
+                a.root.AssemblyLinearVelocity=Vector3.zero;a.lastPosition=a.root.Position;a.motionTime=workspace:GetServerTimeNow()
+            end
+            local function skip() story.changedAt=workspace:GetServerTimeNow()-1;assert(story:continue(true)) end
+            for stage=1,#story.data.steps do
+                assert(story.stepIndex==stage,"selection stage order changed")
+                if story.phase=="objective" then
+                    assert(not story:interact(p2,story.step.target))
+                    place(e.actor,mission.room.anchors[story.step.target].Position)
+                    assert(story:interact(p1,story.step.target))
+                end
+                if story.step.id=="home" then
+                    assert(story.map=="sagiri" and not firstRoom.folder.Parent and e.actor.room==mission.room,"map transition leaked old room")
+                    assert(mission.room.folder:FindFirstChild("UrokodakiHouse"))
+                    assert(story.npcs.kiriya.Head.Transparency==1 and story.npcs.nezuko.Head.Transparency==0)
+                elseif story.step.id=="steel" then client(p1,"selection",{gear="black"})
+                elseif story.step.id=="box" then
+                    client(p1,"selection",{gear="box"})
+                    assert(story.npcs.nezuko.Head.Transparency==1,"boxed Nezuko duplicated outside")
+                end
+                skip()
+                local encounter=story.challenge
+                if encounter then
+                    print("SELECTION_STAGE "..stage.." "..encounter.data.kind)
+                    assert(e.actor.storyLoadout[1]=="water_1" and not session.combat:cast(e.actor,Content.moves[alternate],-Vector3.zAxis),"foreign story form admitted")
+                    assert(not story:continue(true),"skip bypassed selection encounter")
+                    assert(not encounter:focus(p1),"training Focus admitted in selection")
+                    if encounter.data.kind=="battle" then
+                        for _,enemy in ipairs(encounter.enemies) do enemy.target=nil;enemy.root.Anchored=true;enemy.invulnerableUntil=0 end
+                        local enemy=encounter.enemies[1]
+                        place(e.actor,enemy.root.Position+Vector3.zAxis*7)
+                        client(p1,"selection",{})
+                        client(p1,"action",{name="Skill",payload={slot=1,direction=-Vector3.zAxis},wait=1.2})
+                        assert(e.actor.cooldowns.water_1 and enemy.humanoid.Health<enemy.humanoid.MaxHealth,"Water skill remote used wrong kit")
+                        for _,target in ipairs(encounter.enemies) do session.combat:damage(e.actor,target,1000,"none") end
+                        encounter:tick(workspace:GetServerTimeNow())
+                        waitFor(function() return story.phase=="scene" end,5,"battle deaths did not resolve")
+                    elseif encounter.data.kind=="hand_boss" then
+                        local boss=encounter.enemy;boss.invulnerableUntil=0
+                        local hp=boss.humanoid.Health
+                        session.combat:damage(e.actor,boss,1000,"none");assert(boss.humanoid.Health==hp,"guarding bypassed")
+                        session.combat:damage(session.players[p2].actor,boss,1000,"none");assert(boss.humanoid.Health==hp,"other player hit private boss")
+                        place(e.actor,boss.root.Position+Vector3.new(20,0,20))
+                        encounter:beginAttack(workspace:GetServerTimeNow())
+                        client(p1,"bossAnimation")
+                        for _,npc in pairs(story.npcs) do
+                            for _,part in ipairs(npc:GetDescendants()) do if part:IsA("BasePart") then assert(not part.CanCollide,"cinematic collision returned: "..npc.Name.."."..part.Name) end end
+                        end
+                        -- Resolve the telegraph on the server, then test a real client strike in recovery.
+                        encounter.strikeAt=workspace:GetServerTimeNow()-0.1;encounter:resolveAttack(workspace:GetServerTimeNow())
+                        assert(encounter.phase=="exposed")
+                        assert(boss.root.Anchored,"boss recovery is not planted")
+                        place(e.actor,boss.root.Position+Vector3.zAxis*7)
+                        e.actor.busyUntil=0;e.actor.stunUntil=0
+                        assert(session.combat:lineOfSight(e.actor,boss,e.actor.root.Position),"boss strike obstructed before attack")
+                        client(p1,"action",{name="Basic",payload=-Vector3.zAxis,wait=0.6})
+                        print("BOSS_STRIKE_DIAGNOSTIC "..game:GetService("HttpService"):JSONEncode({phase=encounter.phase,multiplier=boss.damageMultiplier,
+                            health=boss.humanoid.Health,distance=(e.actor.root.Position-boss.root.Position).Magnitude,player=tostring(e.actor.root.Position),boss=tostring(boss.root.Position),
+                            sight=session.combat:lineOfSight(e.actor,boss,e.actor.root.Position),drawn=e.actor.model:GetAttribute("WeaponDrawn"),cooldown=e.actor.cooldowns.basic,
+                            recovery=encounter.exposedUntil-workspace:GetServerTimeNow(),busy=e.actor.busyUntil-workspace:GetServerTimeNow()}))
+                        assert(boss.humanoid.Health<hp,"exposed boss rejected client strike")
+                        session.combat:damage(e.actor,boss,1000,"none");encounter:tick(workspace:GetServerTimeNow())
+                        waitFor(function() return story.phase=="scene" end,5,"boss death did not resolve")
+                    else
+                        place(e.actor,mission.room.anchors.watch_three.Position);encounter:tick(workspace:GetServerTimeNow())
+                        assert(encounter.watchIndex==1 and not encounter.waveActive,"out-of-order patrol admitted")
+                        for _,id in ipairs(encounter.data.checkpoints) do
+                            place(e.actor,mission.room.anchors[id].Position);encounter:tick(workspace:GetServerTimeNow())
+                            assert(encounter.waveActive,"patrol demon did not spawn")
+                            local enemy=encounter.enemies[#encounter.enemies];enemy.invulnerableUntil=0
+                            local watch=encounter.watchIndex
+                            session.combat:damage(e.actor,enemy,1000,"none");encounter:tick(workspace:GetServerTimeNow())
+                            waitFor(function() return encounter.watchIndex>watch end,5,"patrol death did not resolve")
+                        end
+                        assert(story.challenge==encounter,"patrol survival timer bypassed")
+                        encounter.started=workspace:GetServerTimeNow()-encounter.data.duration
+                        encounter:tick(workspace:GetServerTimeNow())
+                    end
+                    assert(story.phase=="scene" and story.resultScene and not story.challenge and not e.actor.storyMoves and not e.actor.healthFloor,"encounter did not cleanly finish")
+                    skip()
+                end
+            end
+            assert(not e.mission and e.profile.data.chapter==4 and e.profile.data.xp==before+150)
+            assert(e.actor.characterId=="giyu" and not e.actor.storyLoadout and not e.actor.storyCanWeapon)
+            assert(e.profile.data.loadouts.tanjiro[1]==alternate,"story overwrote saved loadout")
+            e.profile.data.loadouts.tanjiro=original
+            for _,model in pairs(story.npcs) do assert(not model.Parent,"selection actor leaked") end
+            client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+150)
+            client(p1,"story",{scene=false})
+        end)
+        check("leaving a Hand Demon windup cancels the encounter and clears its room",function()
+            local e=session.players[p1]
+            if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
+            session:startMission(p1,3)
+            local mission=e.mission;local story=mission.story
+            story.stepIndex=4;story:advance()
+            e.actor.model:PivotTo(CFrame.new(mission.room.anchors.clearing.Position))
+            assert(story:interact(p1,"clearing"))
+            story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            local encounter=story.challenge;local boss=encounter.enemy
+            encounter:beginAttack(workspace:GetServerTimeNow())
+            client(p1,"action",{name="Hub"})
+            assert(encounter.closed and not boss.model.Parent and not mission.room.folder.Parent and not session.slots[mission.slot])
+            assert(not e.actor.storyMoves and not e.actor.storyLoadout and not e.actor.healthFloor)
+            client(p1,"story",{scene=false})
+        end)
+        if not selectionOnly then
         check("locked chapters cannot be started by forged remote requests",function()
             client(p2,"action",{name="Story",payload=20})
             assert(session.players[p2].mission==nil)
@@ -276,6 +401,7 @@ return function(session)
             assert(not session.round.active and e1.profile.data.wins==wins+1)
         end)
         check("client UI survives mission and arena character respawns",function() client(p1,"ui");client(p2,"ui") end)
+        end
         local args=StudioTestService:GetTestArgs()
         if type(args)=="table" and args.visual then
             task.wait(3)

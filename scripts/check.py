@@ -48,6 +48,10 @@ def validate():
         assert chapter["mentor"] in d["characters"]
         if story := chapter.get("story"):
             assert story["character"] in d["characters"] and all(s in d["sources"] for s in story["sources"])
+            assert story.get("map") in {None, "sagiri", "selection"}
+            if loadout := story.get("loadout"):
+                assert len(loadout) == len(set(loadout)) == 4
+                assert all(move in d["characters"][story["character"]]["moves"] for move in loadout)
             assert len({s["id"] for s in story["steps"]}) == len(story["steps"])
             actors = {a["id"] for a in story["actors"]}
             assert len(actors) == len(story["actors"])
@@ -60,7 +64,10 @@ def validate():
                 assert all(line["shot"] in story["shots"] and line["text"] for line in step["scene"] + step.get("outro", []))
                 assert 0 <= step.get("resultClock", step["clock"]) <= 24
                 for field in ("carryAfter", "carryOnScene"):
-                    assert step.get(field, "none") in {"none", "charcoal", "nezuko"}
+                    assert step.get(field, "none") in {"none", "charcoal", "nezuko", "box"}
+                assert step.get("map") in {None, "sagiri", "selection"}
+                assert not step.get("map") or vector(step["playerPosition"])
+                assert step.get("weaponOnScene") in {None, "none", "borrowed", "black"}
                 for field in ("actors", "resultActors"):
                     for aid, state in step.get(field, {}).items():
                         assert aid in actors
@@ -69,23 +76,32 @@ def validate():
                         assert "visible" not in state or isinstance(state["visible"], bool)
                 if challenge := step.get("challenge"):
                     kind = challenge["kind"]
-                    assert kind in {"route", "survive", "strikes", "spar", "breath", "cut"}
+                    assert kind in {"route", "survive", "strikes", "spar", "breath", "cut", "battle", "hand_boss", "vigil"}
                     assert vector(challenge["start"]) and 0 < challenge["limit"] <= chapter["timeLimit"]
-                    assert 0 < challenge["radius"] <= 40 and step.get("outro")
+                    assert 0 < challenge["radius"] <= 60 and step.get("outro")
                     assert challenge.get("weapon") in {None, "axe", "practice"}
                     if kind in {"survive", "strikes", "spar", "cut"}:
                         assert challenge["enemy"] in d["characters"] and vector(challenge["spawn"])
                         assert challenge["weapon"] in {"axe", "practice"}
                         assert 0 < challenge.get("damageScale", 0.45) <= 1
                         assert 1 <= challenge.get("hits", 1) <= 20
-                    if kind == "survive":
+                    if kind in {"survive", "vigil"}:
                         assert 0 < challenge["duration"] < challenge["limit"]
-                    if kind == "route":
+                    if kind in {"route", "vigil"}:
                         assert challenge["checkpoints"] and all(c in story["targets"] for c in challenge["checkpoints"])
                     if kind in {"breath", "cut"}:
                         assert 0 < challenge["period"] <= 10
                         assert 0 <= challenge["window"][0] < challenge["window"][1] < challenge["period"]
                         assert 1 <= challenge.get("cycles", 1) <= 10
+                    if kind in {"battle", "hand_boss", "vigil"}:
+                        assert story.get("loadout") and 1 <= challenge["health"] <= 1000
+                    if kind == "battle":
+                        assert 1 <= len(challenge["enemies"]) <= 6
+                        assert all(e["id"] in d["characters"] and vector(e["position"]) for e in challenge["enemies"])
+                    if kind == "hand_boss":
+                        assert vector(challenge["spawn"]) and 0 < challenge["damage"] <= 40
+                        assert 0.6 <= challenge["windup"] <= 3 and 1 <= challenge["recovery"] <= 6
+                        assert 0 < challenge["width"] < challenge["reach"] <= 40 and 0 < challenge["sweep"] <= 20
             for hazard in story.get("hazards", []):
                 assert vector(hazard["position"]) and vector(hazard["size"]) and all(n > 0 for n in hazard["size"])
                 assert 0 < hazard["windup"] < hazard["windup"] + hazard["active"] < hazard["period"]

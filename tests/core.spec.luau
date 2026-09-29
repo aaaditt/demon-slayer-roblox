@@ -117,4 +117,17 @@ test("training damage preserves life without granting healing", function()
     assert(Rules.trainingDamage(5,12)==5)
 end)
 
+test("story combat permissions allow only the current chapter kit",function()
+    local actor={storyLocked=true,storyCanBasic=false}
+    assert(not Rules.storyMoveAllowed(actor,"basic") and not Rules.storyMoveAllowed(actor,"water_1"))
+    actor.storyCanBasic=true
+    assert(Rules.storyMoveAllowed(actor,"basic") and not Rules.storyMoveAllowed(actor,"water_1"))
+    actor.storyMoves={water_1=true,water_2=true}
+    assert(Rules.storyMoveAllowed(actor,"water_1"))
+    assert(not Rules.storyMoveAllowed(actor,"sun_dance") and not Rules.storyMoveAllowed(actor,"water_11"))
+    actor.storyMoves=nil;actor.storyCanBasic=false
+    assert(not Rules.storyMoveAllowed(actor,"water_1"))
+    actor.storyLocked=false;assert(Rules.storyMoveAllowed(actor,"water_1"))
+end)
+
 print(string.format("%d core tests passed", passed))

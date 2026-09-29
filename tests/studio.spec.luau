@@ -6,6 +6,7 @@ local Content=require(ReplicatedStorage.Shared.Content)
 local Rig=require(ServerScriptService.Server.Rig)
 local World=require(ServerScriptService.Server.World)
 local Combat=require(ServerScriptService.Server.Combat)
+local Encounter=require(ServerScriptService.Server.Encounter)
 local failures={}
 local passed=0
 local function check(name,run)
@@ -94,6 +95,56 @@ check("training admits basic strikes, rejects forms and cannot kill the sparring
     assert(a.model.StoryWeapon:FindFirstChild("PracticeBlade") and not a.model.StoryWeapon:FindFirstChild("AxeHead"))
     Rig.storyWeapon(a.model,nil);assert(not a.model:FindFirstChild("StoryWeapon"))
     combat:remove(a);combat:remove(b)
+end)
+
+check("Fujikasane objectives have floors and forest routes are unobstructed",function()
+    local chapter=Content.chapters[3]
+    local room=World.mission(1,Content.locations[chapter.location],chapter.story)
+    assert(room.folder:FindFirstChild("WisteriaCrown") and room.folder:FindFirstChild("OreTable"))
+    local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Include;params.FilterDescendantsInstances={room.folder};params.RespectCanCollide=true
+    for _,pair in ipairs(room.paths) do
+        local hit=workspace:Blockcast(CFrame.new(room.center+pair[1]+Vector3.yAxis*4),Vector3.new(2,4,2),pair[2]-pair[1],params)
+        assert(not hit,"forest route blocked by "..(hit and hit.Instance.Name or ""))
+    end
+    for id,anchor in pairs(room.anchors) do
+        assert(World.inside(room,anchor.Position),id)
+        assert(workspace:Raycast(anchor.Position+Vector3.yAxis*2,-Vector3.yAxis*8,params),"missing objective floor: "..id)
+    end
+    World.remove(1)
+end)
+
+check("Hand Demon guarding, telegraphed damage and recovery windows are authoritative",function()
+    local chapter=Content.chapters[3]
+    local room=World.mission(1,Content.locations[chapter.location],chapter.story)
+    local a=actor("tanjiro","player",room.center+Vector3.new(65,3,-46));a.room=room
+    local finished=0
+    local story={data=chapter.story,step=chapter.story.steps[5],mission={room=room},serial=0,
+        actor=function() return a end,freeze=function() end,clearPrompt=function() end,mark=function() end,
+        finishChallenge=function() finished+=1 end,game={combat=combat,toast=function() end,push=function() end}}
+    local encounter=Encounter.new(story)
+    local boss=encounter.enemy;boss.invulnerableUntil=0
+    assert(boss.model.Torso:FindFirstChild("HandArm6"),"multi-arm rig missing")
+    local hp=boss.humanoid.Health
+    combat:damage(a,boss,50,"none");assert(boss.humanoid.Health==hp,"guarded neck took damage")
+    a.root.CFrame=CFrame.new(boss.root.Position+Vector3.new(0,0,12));a.invulnerableUntil=0
+    local before=a.humanoid.Health;local now=workspace:GetServerTimeNow()
+    encounter:beginAttack(now)
+    assert(encounter.phase=="windup" and a.humanoid.Health==before,"windup caused early damage")
+    encounter:tick(now+0.4);assert(a.humanoid.Health==before)
+    encounter:tick(encounter.strikeAt)
+    assert(a.humanoid.Health==before-encounter.data.damage and encounter.phase=="exposed","marked attack missed")
+    assert(boss.root.Anchored,"boss drifts during its recovery opening")
+    combat:damage(a,boss,50,"none");assert(boss.humanoid.Health==hp-50,"recovery was not vulnerable")
+    encounter:tick(encounter.exposedUntil+0.01)
+    combat:damage(a,boss,50,"none");assert(boss.humanoid.Health==hp-50,"recovery window never closed")
+    -- The next attack is a sweep; moving beyond its circle avoids damage.
+    encounter:beginAttack(now+8);a.root.CFrame=CFrame.new(boss.root.Position+Vector3.new(0,0,20))
+    before=a.humanoid.Health;encounter:resolveAttack(now+10)
+    assert(a.humanoid.Health==before,"outside sweep circle was hit")
+    a.humanoid.Health=1;encounter:tick(workspace:GetServerTimeNow())
+    assert(encounter.attempt==2 and a.humanoid.Health==a.humanoid.MaxHealth and not boss.model.Parent,"retry leaked old boss")
+    encounter:destroy();assert(not a.storyMoves and not a.healthFloor and not story.mission.enemy and finished==0)
+    combat:remove(a);World.remove(1)
 end)
 
 check("server cast damages an in-range enemy and rejects a cooldown replay",function()
