@@ -1,6 +1,6 @@
 # Story production and next sessions
 
-Updated 2026-09-19. The whole intended campaign remains the goal. Three staged chapters and 19 encounter previews are not a finished storyline.
+Updated 2026-09-29. The whole intended campaign remains the goal. Four locally staged chapters and 18 encounter previews are not a finished storyline.
 
 ## Current playable chapter: A Trail in the Snow
 
@@ -39,11 +39,17 @@ Thirteen stages cover arrival beneath wisteria, the guides' briefing, first-nigh
 
 The chapter equips a fixed Water loadout (forms 1, 2, 4 and 8), while preserving the player's saved hub loadout and fighter. The borrowed sword can be drawn/sheathed. The Hand Demon has six additional animated arms and original reach/sweep telegraphs. Its guarded neck rejects damage until the recovery window; the boss encounter ends on defeat. The three-stop patrol requires the enemies and a minimum survival time. Encounters restart locally on defeat or timeout. These mechanics, checkpoint protection and brief durations are explicit game adaptations, not canon measurements or a literal seven-day simulation.
 
-The return scenes add a reunion pose, Corps belt/buttons, a shoulder crow, Haganezuka, a black blade and a wooden travel box. These are original procedural props and limited poses. Exact costume, facial acting, mask breakage, sword-color transformation, reunion choreography and the Hand Demon's memories/defeat animation still need authored production. Box/equipment props currently belong to this chapter; carrying them into a chronological first-mission chapter is part of the next slice. Chapter four remains a generic encounter preview until that work is done.
+The return scenes add a reunion pose, Corps belt/buttons, a shoulder crow, Haganezuka, a black blade and a wooden travel box. These are original procedural props and limited poses. Exact costume, facial acting, mask breakage, sword-color transformation, reunion choreography and the Hand Demon's memories/defeat animation still need authored production. Chapter four continues with the sword, uniform and box.
+
+## Fourth playable chapter: Beneath the Town
+
+Thirteen stages connect the northwest town arrival, Kazumi, two investigation stops, an open-house rescue, the three-body ambush, Nezuko's intervention, the pool entrance, two bodies below, the last body above, a recovered keepsake, farewell and departure for Asakusa. The player begins with a black sword and travel box. Nezuko leaves it for a short moving kick scene, stays above during the swamp fight and lunges during the final body's openings. The box is visibly open while she is outside and closes for dawn departure.
+
+The ambush requires three damaging hits and sixteen seconds; the later encounters require actual defeats. Bodies emerge from fixed pools, mark a claw reach, expose themselves briefly and sink. Only the surfaced opening takes damage. This sequential pattern, nonlethal player retry, compact layout and walkable swamp floor are original gameplay adaptations. Forms 1/2/6/8 are a temporary chapter kit. Server checks enforce owner/distance/objective order, combat permissions, timers and rewards; leaving discards the current attempt. Exact rescue choreography, swimming/oxygen, interrogation, acting and the complete keepsake sequence remain production work. Runtime test status and limits are recorded in QA.md.
 
 ## Proposed session sequence
 
-- **Next:** review the three staged chapters for navigation, pacing and input feel; build the first assignment with the missing-girls investigation, Kazumi, Nezuko's box and the Swamp Demon rescue. Audit exact scene order and lawful primary references before writing it.
+- **Next:** commit/push/release chapter four once Git writes are available, and review all four staged chapters for navigation, pacing and input feel; build Asakusa, Muzan and the civilian emergency, followed by Tamayo/Yushiro. Audit lawful primary references before writing the next slice.
 - **Training refinement:** authored temple intervention, Sabito/Makomo acting, expanded mountain routes, waterfall animation/sound and persistent within-chapter checkpoints. The current chapter uses condensed narrated transitions and shared procedural poses.
 - **Selection refinement:** final boss art/acting, expanded survival exploration, candidate interactions, physical route playtesting and scene-level costume/choreography audit. The current boss's attack/recovery cycle is original gameplay.
 - **Early missions:** first town disappearances and swamp rescue, Asakusa civilians and Muzan, Tamayo/Yushiro, Susamaru/Yahaba, Tsuzumi Mansion's rotating rooms and character introductions.

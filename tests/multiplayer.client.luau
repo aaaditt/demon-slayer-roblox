@@ -118,6 +118,22 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             else assert(player.PlayerGui.StoryUI.Training.Visible,"encounter HUD missing") end
             assert(#failures==0,table.concat(failures,"\n"))
             return true
+        elseif command=="swamp" then
+            if args.animation then
+                local model=args.model;assert(model and model.Head.Transparency<1,"Nezuko not visible")
+                local joint=model.Torso["Right Hip"];local first=joint.C0;local changed=false;local deadline=os.clock()+0.8
+                repeat
+                    RunService.RenderStepped:Wait();changed=changed or joint.C0.LookVector:Dot(first.LookVector)<0.9999
+                until os.clock()>deadline
+                assert(changed,"Nezuko kick joints did not animate")
+            else
+                task.wait(0.35)
+                local model=player.Character
+                assert(model:GetAttribute("HasSheath") and model.Blade.Color.R<0.2 and model:FindFirstChild("CorpsBelt"))
+                assert(model.StoryCarry:FindFirstChild("NezukoTravelBox") and not model:GetAttribute("Carrying"))
+                if not args.gear then assert(player.PlayerGui.StoryUI.Training.Visible,"swamp HUD missing") end
+            end
+            assert(#failures==0,table.concat(failures,"\n"));return true
         elseif command=="bossAnimation" then
             local boss
             for _,model in ipairs(workspace.Actors:GetChildren()) do

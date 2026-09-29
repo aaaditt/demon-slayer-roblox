@@ -45,3 +45,7 @@ The [v0.3.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-r
 The [v0.4.0-dev.1 development release](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1) adds Fujikasane, the Hand Demon encounter, induction and the return for the black sword/travel box at source `e2f34d5d426149ca82fb47c88cfbf9d091800496`. Its source passed [GitHub Actions](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/36575304044). The production place is 554,354 bytes, SHA-256 `acafe472dabc28725063d4414448351d0cdab8dd08bbbc5b5a3f42c88c90741a`. GitHub reports the place and checksum uploaded, with the expected source target and matching place digest.
 
 Open this download in Studio to play all three staged chapters. Chapter 03 unlocks after chapter 02. The Roblox cloud upload and audience settings remain unchanged; no test-injected place was published.
+
+## 2026-09-29 local northwest-town revision (not released)
+
+The local 0.5.0 production build adds chapter 04, Beneath the Town. It is not in the 0.4.0 GitHub download or Roblox cloud place. A checkpoint attempt failed because the current environment marks `.git` read-only (`index.lock: Permission denied`) and disables escalation. Commit/push, GitHub Actions and a new downloadable release remain pending; see STATUS.md for the actual local validation results. The existing Roblox universe, place and audience settings are unchanged.

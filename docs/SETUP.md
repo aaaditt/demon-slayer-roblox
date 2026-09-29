@@ -58,6 +58,8 @@ The runner temporarily injects server/client tests into its test copy. No test r
 
 Add `--selection-only` to `prepare_studio_test.py` to run only the two Final Selection/exit checks while debugging that chapter. This is an isolated diagnostic that seeds temporary chapter access; it does not replace the full suite or modify the production build.
 
+Use `--swamp-only` instead for the two northwest-town/exit checks. It seeds chapter-four access in the temporary test copy. The default suite runs every staged chapter and the existing movement/PvP checks.
+
 Add `--visual` to the preparation command for a 60-second opening review pause, or `--visual-sagiri` for two 45-second house/waterfall review pauses after the suite. Add `--virtual-input` only to investigate the currently failing synthetic menu-click diagnostic; it is not part of the passing baseline. Actual desktop mouse navigation is documented separately in QA.md.
 
 If Studio updates and run-in-roblox fails to find an executable, inspect the Windows `HKCU\Software\Roblox\RobloxStudio\ContentFolder` value. The legacy runner reads that path; on this machine the updater left it pointing at a deleted version. Repair it only to the verified, currently installed Studio content directory. Keep Rojo disconnected from unrelated servers when reviewing or publishing the built place.
@@ -66,10 +68,12 @@ Tests verify mechanics, not finished art, balance, complete lore fidelity, or ph
 
 ## Opening story revision
 
-Choose Journey -> 01 A Trail in the Snow to play the Kamado prologue, even if an earlier save has already unlocked later chapters. After it, 02 The Mountain Trial continues through the temple, mountain training and the boulder test; 03 Final Selection continues through the trial and homecoming. Chapters 4-22 say Encounter Preview. In the prologue, Tanjiro has no breathing skills or Nichirin sword; follow objective markers and interact with E / controller X / tap. Dialogue uses E / controller A / Continue. Y / controller Y / Skip Scene skips the current scene only. M -> Return to Hub safely leaves a cinematic.
+Choose Journey -> 01 A Trail in the Snow to play the Kamado prologue, even if an earlier save has already unlocked later chapters. After it, 02 The Mountain Trial continues through the temple, mountain training and the boulder test; 03 Final Selection continues through the trial and homecoming; the local 0.5.0 build adds 04 Beneath the Town. Chapters 5-22 say Encounter Preview. In the prologue, Tanjiro has no breathing skills or Nichirin sword; follow objective markers and interact with E / controller X / tap. Dialogue uses E / controller A / Continue. Y / controller Y / Skip Scene skips the current scene only. M -> Return to Hub safely leaves a cinematic.
 
 Training permits basic strikes and guard only during fighting lessons. Breathing practice uses E / controller X / the Breathe button while stationary near the marker during the gold window. Complete route markers in order; defeat or timeout restarts the lesson. Scene Skip cannot bypass exercises. The axe and practice sword are provided by the story, with breathing forms and manual weapon toggling locked throughout both staged chapters.
 
 Outside those chapters, R / D-pad right / Sword toggles single-blade sword drawing. Attacking while sheathed first draws the blade. Q / right bumper / Dodge follows movement, including held WASD. The directional dash uses bounded motion with collision checks, not a position teleport.
 
 Final Selection equips a temporary Water-form kit during encounters (1–4 / the normal controller technique keys / touch cards). Sword drawing is available between scenes. Guard and dodge the Hand Demon's marked attacks; attack while the HUD says its neck is exposed. Follow patrol markers in order and defeat each demon. Scene skipping does not finish combat or the patrol. Defeat/timeout retries the current encounter; leaving still discards chapter progress. Your saved fighter and loadout return in the hub.
+
+Chapter four uses the same combat controls with Water forms 1/2/6/8. Investigate the street markers and rescue house, then watch the pools. Evade each marked claw reach and attack while EXPOSED appears. Land three hits and survive the ambush timer; defeat the two bodies below and the last one above. Nezuko joins the scenes and final encounter without exposing an extra player command. Follow the keepsake/farewell objectives to complete the chapter. The town and swamp are separate generated spaces, not an underwater swimming simulation.

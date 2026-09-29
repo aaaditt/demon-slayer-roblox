@@ -67,6 +67,15 @@ function Rig.storySword(model, black)
     model:SetAttribute("HasSheath",true);Rig.draw(model,black==true)
 end
 
+function Rig.swampBody(model, index)
+    if model:FindFirstChild("SwampHorn") then return end
+    model.Torso.Color=Color3.fromRGB(49,58,64)
+    for i=1,math.clamp(index,1,3) do
+        local horn=part(model,"SwampHorn",Vector3.new(0.24,0.75,0.25),Color3.fromRGB(219,214,177))
+        weld(model.Head,horn,CFrame.new((i-(index+1)/2)*0.5,0.65,-0.2)*CFrame.Angles(-0.3,0,0))
+    end
+end
+
 function Rig.foxMask(model, enabled)
     local old=model:FindFirstChild("ProtectiveMask");if old then old:Destroy() end
     if not enabled then return end

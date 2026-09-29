@@ -81,7 +81,11 @@ function StoryPlayer.new(send,ui)
                 if challenge.kind=="hand_boss" then
                     local phase=challenge.phase=="exposed" and "NECK EXPOSED — STRIKE" or challenge.phase=="windup" and "ARMS REACHING — EVADE" or "ARMS GUARDING THE NECK"
                     progress=phase.."  ·  "..math.ceil(challenge.bossHp or 0).." HP"
-                elseif challenge.kind=="vigil" then progress..="  ·  Hold out: "..challenge.holdRemaining.."s" end
+                elseif challenge.kind=="vigil" then progress..="  ·  Hold out: "..challenge.holdRemaining.."s"
+                elseif challenge.kind=="swamp" then
+                    local cue=challenge.phase=="exposed" and "EXPOSED — STRIKE" or challenge.phase=="windup" and "CLAW REACH — EVADE" or "WATCH THE POOLS"
+                    progress=cue.."  ·  "..(challenge.mode=="ambush" and ("Hits "..challenge.hits.."/"..challenge.goal.." · Hold "..challenge.holdRemaining.."s") or (challenge.defeated.."/"..challenge.total.." defeated"))
+                end
             else
                 progress=challenge.kind=="route" and ("Course markers: "..math.min(challenge.routeIndex-1,challenge.routeTotal).." / "..challenge.routeTotal)
                     or ("Controlled hits: "..challenge.count.." / "..challenge.goal)

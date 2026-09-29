@@ -4,6 +4,7 @@ local Rig=require(script.Parent.Rig)
 local World=require(script.Parent.World)
 local Training=require(script.Parent.Training)
 local Encounter=require(script.Parent.Encounter)
+local SwampEncounter=require(script.Parent.SwampEncounter)
 local Story={}
 Story.__index=Story
 
@@ -27,6 +28,7 @@ function Story.new(gameService,player,mission)
         if self.data.map=="selection" then d.weapon="none" end
         local model,humanoid,root=Rig.create(World.Actors,mission.room.center+Vector3.new(table.unpack(definition.position)),d)
         if definition.id=="hand_demon" then Rig.handDemon(model) end
+        if definition.swampBody then Rig.swampBody(model,definition.swampBody) end
         if definition.scale then model:ScaleTo(definition.scale) end
         model.Head.Nameplate:Destroy() -- Speaker names and prompts identify noncombat story actors.
         local bamboo=model:FindFirstChild("Bamboo")
@@ -65,7 +67,7 @@ function Story:setCarry(kind)
     if not actor then return end
     local previous=actor.model:FindFirstChild("StoryCarry")
     if previous then previous:Destroy() end
-    self.carry=kind;actor.model:SetAttribute("Carrying",kind~="none" and kind~="box")
+    self.carry=kind;actor.model:SetAttribute("Carrying",kind=="nezuko" or kind=="charcoal")
     if kind=="nezuko" or kind=="box" then visible(self.npcs.nezuko,false) end
     if kind=="none" then return end
     local carry=Instance.new("Model");carry.Name="StoryCarry";carry.Parent=actor.model
@@ -76,9 +78,9 @@ function Story:setCarry(kind)
         p.TopSurface=Enum.SurfaceType.Smooth;p.BottomSurface=Enum.SurfaceType.Smooth;p.Parent=carry
         local w=Instance.new("WeldConstraint");w.Part0=torso;w.Part1=p;w.Parent=p
     end
-    if kind=="box" then
+    if kind=="box" or kind=="box_open" then
         piece("NezukoTravelBox",Vector3.new(2.1,2.9,1.4),CFrame.new(0,0.1,1.3),Color3.fromRGB(129,91,59))
-        piece("BoxDoor",Vector3.new(1.86,2.65,0.12),CFrame.new(0,0.1,2.06),Color3.fromRGB(153,110,72))
+        piece("BoxDoor",Vector3.new(1.86,2.65,0.12),kind=="box_open" and CFrame.new(-1.85,0.1,2.06)*CFrame.Angles(0,-math.pi*0.7,0) or CFrame.new(0,0.1,2.06),Color3.fromRGB(153,110,72))
         for _,side in ipairs({-1,1}) do
             piece("BoxBand",Vector3.new(0.13,2.95,1.5),CFrame.new(side*0.76,0.1,1.3),Color3.fromRGB(62,49,39))
             piece("ShoulderStrap",Vector3.new(0.17,2,0.12),CFrame.new(side*0.78,0,-0.57),Color3.fromRGB(153,126,88))
@@ -189,19 +191,34 @@ function Story:interact(player,target)
     self:startScene();return true
 end
 
-function Story:pose(model,name)
+function Story:pose(model,name,duration)
     if not model then return end
     model:SetAttribute("Pose",name or "idle")
-    model:SetAttribute("PoseStart",workspace:GetServerTimeNow());model:SetAttribute("PoseDuration",name and 30 or 0)
+    model:SetAttribute("PoseStart",workspace:GetServerTimeNow());model:SetAttribute("PoseDuration",name and (duration or 30) or 0)
+end
+
+function Story:finishMotions()
+    for _,motion in ipairs(self.sceneMotions or {}) do if motion.model.Parent then motion.model:PivotTo(motion.to) end end
+    self.sceneMotions={}
 end
 
 function Story:showLine()
+    self:finishMotions()
     self.serial+=1;self.changedAt=workspace:GetServerTimeNow()
     local line=self.sceneLines[self.line]
     local actor=self:actor()
     if not actor then return end
     self:pose(actor.model,line.playerPose)
-    self:pose(self.npcs.giyu,line.giyuPose);self:pose(self.npcs.nezuko,line.nezukoPose)
+    self:pose(self.npcs.giyu,line.giyuPose);self:pose(self.npcs.nezuko,line.nezukoPose,line.nezukoPose=="kick" and 0.7 or nil)
+    self:applyActors(line.actors)
+    for id,state in pairs(line.actors or {}) do
+        local model=self.npcs[id]
+        if state.pose then self:pose(model,state.pose,state.duration) end
+        if state.moveTo then
+            local destination=self.mission.room.center+Vector3.new(table.unpack(state.moveTo))
+            table.insert(self.sceneMotions,{model=model,from=model:GetPivot(),to=CFrame.new(destination)*model:GetPivot().Rotation,start=self.changedAt,duration=state.duration})
+        end
+    end
     if self.step.encounter then
         local center=self.mission.room.center
         local giyu=self.npcs.giyu
@@ -227,6 +244,10 @@ function Story:startScene(result)
         if self.step.uniformOnScene then Rig.uniform(self:actor().model) end
         if self.step.crowOnScene then Rig.crow(self:actor().model) end
         if self.step.carryOnScene then self:setCarry(self.step.carryOnScene) end
+        if self.step.collectOnScene then
+            local item=self.mission.room.folder:FindFirstChild(self.step.collectOnScene,true)
+            if item then item:Destroy() end
+        end
         self:applyActors(self.step.actors)
     end
     if self.step.encounter then
@@ -244,9 +265,11 @@ function Story:continue(skip)
     local actor=self:actor()
     if self.closed or not actor or not actor.alive or self.phase~="scene" or workspace:GetServerTimeNow()-self.changedAt<0.6 then return false end
     if skip or self.line>=#self.sceneLines then
+        self:finishMotions()
         self.slide=nil
         if self.encounter then self.npcs.giyu:PivotTo(CFrame.new(self.mission.room.center+Vector3.new(13,3,8))) end
         self:pose(actor.model,nil);self:pose(self.npcs.giyu,nil);self:pose(self.npcs.nezuko,nil)
+        for _,model in pairs(self.npcs) do self:pose(model,nil) end
         if self.step.challenge and not self.resultScene then self:startChallenge()
         else
             if self.step.maskAfter~=nil then Rig.foxMask(actor.model,self.step.maskAfter) end
@@ -261,8 +284,9 @@ function Story:startChallenge()
     self:clearPrompt();self.phase="challenge";self:freeze(false)
     local npc=self.npcs[self.step.challenge.enemy]
     if npc then visible(npc,false) end
+    for _,id in ipairs(self.step.hideChallengeActors or {}) do visible(self.npcs[id],false) end
     local kind=self.step.challenge.kind
-    self.challenge=(kind=="battle" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
+    self.challenge=kind=="swamp" and SwampEncounter.new(self) or (kind=="battle" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
     self.game:push(self.player)
 end
 
@@ -293,6 +317,10 @@ end
 
 function Story:tick(now)
     if self.challenge then self.challenge:tick(now) end
+    for _,motion in ipairs(self.sceneMotions or {}) do
+        local alpha=math.clamp((now-motion.start)/motion.duration,0,1)
+        if motion.model.Parent then motion.model:PivotTo(motion.from:Lerp(motion.to,alpha)) end
+    end
     if self.boulderSplitStart then
         local alpha=math.clamp((now-self.boulderSplitStart)/0.8,0,1)
         for _,half in ipairs(self.mission.room.boulder) do half.part.CFrame=half.closed:Lerp(half.open,alpha) end

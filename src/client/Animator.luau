@@ -91,6 +91,9 @@ function Animator.start()
                 elseif pose=="dash" or pose=="evade" then right=0.85;left=0.75;lean=0.65;rh=-0.8;lh=0.8;bob=-0.2
                 elseif pose=="kneel" then lean=0.45;rh=-0.95;lh=-0.8;right=-0.6;left=-0.6;bob=-0.5
                 elseif pose=="embrace" then right=-1.35;left=-1.35;lean=0.08
+                elseif pose=="kick" then rh=-1.8*swing;lh=0.3;lean=-0.25*swing;right=-0.9;left=-1.2;twist=0.3*swing
+                elseif pose=="recoil" then lean=-0.45*swing;right=-0.6;left=-0.8;rh=0.3
+                elseif pose=="emerge" then lean=0.4*(1-p);right=-1.1;left=-1.1;rh=-0.5*(1-p);lh=-0.5*(1-p)
                 else right=-2.1+swing*2.5;left=-0.5;twist=-0.65+swing*1.3 end
             elseif model:GetAttribute("Blocking") then right=-1.5;left=-1.4;lean=0.13;motion="guard" end
             if model:GetAttribute("Carrying") then right=-1.2;left=-1.2;lean+=0.12 end

@@ -34,8 +34,9 @@ return function(session)
         task.wait(3)
         local suiteArgs=StudioTestService:GetTestArgs()
         local selectionOnly=type(suiteArgs)=="table" and suiteArgs.selectionOnly
-        if selectionOnly then
-            session.players[p1].profile.data.chapter=3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
+        local swampOnly=type(suiteArgs)=="table" and suiteArgs.swampOnly
+        if selectionOnly or swampOnly then
+            session.players[p1].profile.data.chapter=swampOnly and 4 or 3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
         else
         check("two real clients load GUI, attach cameras, and stand on the ground",function()
             for _,p in ipairs({p1,p2}) do
@@ -251,6 +252,7 @@ return function(session)
             client(p1,"story",{scene=false})
         end)
         end
+        if not swampOnly then
         check("Final Selection fights, patrol, induction and return award once and preserve the saved kit",function()
             local Content=require(ReplicatedStorage.Shared.Content)
             local e=session.players[p1]
@@ -369,7 +371,100 @@ return function(session)
             assert(not e.actor.storyMoves and not e.actor.storyLoadout and not e.actor.healthFloor)
             client(p1,"story",{scene=false})
         end)
+        end
         if not selectionOnly then
+        check("town investigation, Nezuko rescue, swamp bodies and farewell complete once",function()
+            local e=session.players[p1]
+            client(p1,"action",{name="Story",payload=4})
+            local mission=e.mission;local story=mission and mission.story
+            assert(story and story.data.id=="northwest_investigation")
+            local before=e.profile.data.xp;local original=table.clone(e.profile.data.loadouts.tanjiro)
+            local firstRoom=mission.room
+            local function place(position,direction)
+                session.combat:stopMotion(e.actor);e.actor.root.Anchored=true
+                e.actor.model:PivotTo(CFrame.lookAt(position,position+(direction or -Vector3.zAxis)))
+                e.actor.lastPosition=e.actor.root.Position;e.actor.motionTime=workspace:GetServerTimeNow();e.actor.root.AssemblyLinearVelocity=Vector3.zero
+            end
+            local function skip() story.changedAt=workspace:GetServerTimeNow()-1;assert(story:continue(true)) end
+            for stage=1,#story.data.steps do
+                assert(story.stepIndex==stage,"town story stage out of order")
+                print("SWAMP_STAGE "..stage.." "..story.step.id)
+                if story.phase=="objective" then
+                    assert(not story:interact(p2,story.step.target) and not story:interact(p1,"forged"))
+                    place(mission.room.center+Vector3.new(140,3,140))
+                    assert(not story:interact(p1,story.step.target),"distant investigation admitted")
+                    place(mission.room.anchors[story.step.target].Position)
+                    assert(story:interact(p1,story.step.target))
+                end
+                if stage==1 then client(p1,"swamp",{gear=true}) end
+                if story.step.id=="nezuko" then
+                    assert(story.carry=="box_open" and story.npcs.nezuko.Head.Transparency==0)
+                    client(p1,"swamp",{model=story.npcs.nezuko,animation=true})
+                    story:tick(workspace:GetServerTimeNow()+1)
+                    assert((story.npcs.nezuko.PrimaryPart.Position-(mission.room.center+Vector3.new(0,3,-62))).Magnitude<0.1)
+                elseif story.step.id=="depths" then
+                    assert(story.map=="swamp" and not firstRoom.folder.Parent and e.actor.room==mission.room)
+                    assert(story.npcs.nezuko.Head.Transparency==1,"Nezuko followed Tanjiro below")
+                    firstRoom=mission.room
+                elseif story.step.id=="return" then
+                    assert(story.map=="town" and not firstRoom.folder.Parent and story.npcs.nezuko.Head.Transparency==0)
+                elseif story.step.id=="keepsake" then assert(not mission.room.folder:FindFirstChild("LostKeepsake"))
+                elseif story.step.id=="departure" then
+                    assert(story.carry=="box" and story.npcs.nezuko.Head.Transparency==1)
+                    client(p1,"swamp",{gear=true})
+                end
+                skip()
+                if story.phase=="challenge" then
+                    local c=story.challenge
+                    assert(c.data.kind=="swamp" and #c.enemies==c.data.bodyCount)
+                    assert(not story:continue(true) and not c:focus(p1),"encounter bypassed")
+                    local enemy=c.enemies[1];enemy.invulnerableUntil=0
+                    local hp=enemy.humanoid.Health
+                    session.combat:damage(e.actor,enemy,50,"none");assert(enemy.humanoid.Health==hp,"submersion bypassed")
+                    local now=workspace:GetServerTimeNow();c:beginRise(now-0.7);c:tick(now)
+                    c.nextPhase=now-0.01;c:resolveAttack(now)
+                    assert(c.phase=="exposed")
+                    session.combat:damage(session.players[p2].actor,enemy,50,"none");assert(enemy.humanoid.Health==hp,"other player damaged private body")
+                    place(enemy.home+c.direction*7,-c.direction);e.actor.busyUntil=0;e.actor.stunUntil=0
+                    client(p1,"swamp",{})
+                    client(p1,"action",{name="Skill",payload={slot=1,direction=-c.direction},wait=0.7})
+                    assert(enemy.humanoid.Health<hp,"real Water strike missed swamp opening")
+                    if c.data.mode=="ambush" then
+                        enemy.damageMultiplier=1
+                        session.combat:damage(e.actor,enemy,10,"none");session.combat:damage(e.actor,enemy,10,"none")
+                        assert(c.hits>=3 and story.challenge==c,"ambush timer bypassed")
+                        c.started=workspace:GetServerTimeNow()-c.data.duration;c:tick(workspace:GetServerTimeNow())
+                    else
+                        for _,body in ipairs(c.enemies) do body.damageMultiplier=1;body.invulnerableUntil=0;session.combat:damage(e.actor,body,1000,"none") end
+                        waitFor(function() return story.phase=="scene" end,5,"swamp deaths failed to complete")
+                    end
+                    assert(story.resultScene and c.closed and not c.pools and not e.actor.healthFloor and not e.actor.storyMoves)
+                    for _,body in ipairs(c.enemies) do assert(not body.model.Parent) end
+                    skip()
+                end
+            end
+            assert(not e.mission and e.profile.data.chapter==5 and e.profile.data.xp==before+170)
+            assert(e.actor.characterId=="giyu" and not e.actor.storyLoadout and not e.actor.root.Anchored)
+            for i,id in ipairs(original) do assert(e.profile.data.loadouts.tanjiro[i]==id,"chapter changed saved kit") end
+            for _,model in pairs(story.npcs) do assert(not model.Parent,"town actor leaked") end
+            client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+170)
+            client(p1,"story",{scene=false})
+        end)
+        check("leaving an active swamp encounter cancels attacks and cleans pools and actors",function()
+            local e=session.players[p1]
+            if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
+            session:startMission(p1,4)
+            local mission=e.mission;local story=mission.story
+            story.stepIndex=8;story:advance();story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            local c=story.challenge;local body=c.enemies[1];local pools=c.pools
+            local now=workspace:GetServerTimeNow();c:beginRise(now-0.7);c:tick(now)
+            client(p1,"action",{name="Hub"})
+            assert(c.closed and not pools.Parent and not body.model.Parent and not mission.room.folder.Parent and not session.slots[mission.slot])
+            assert(not e.actor.storyMoves and not e.actor.healthFloor and not e.actor.storyLoadout)
+            client(p1,"story",{scene=false})
+        end)
+        end
+        if not selectionOnly and not swampOnly then
         check("locked chapters cannot be started by forged remote requests",function()
             client(p2,"action",{name="Story",payload=20})
             assert(session.players[p2].mission==nil)
