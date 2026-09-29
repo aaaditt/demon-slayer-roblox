@@ -155,3 +155,29 @@
 - Two joints hold the sword: `SwordHip` (LowerTorso) and `SwordHand` (RightHand). `Rig.draw` enables exactly one. The blade now physically rests in the saya; the transparency hack and the client grip lerp are gone. Needle and serpent variants use the same builder with a thinner or straight blade and a stronger curve.
 - First engine run: 16/17. A diagnostic showed `WeldConstraint` pieces desyncing when joints moved the tsuka; switched the sword to classic `Weld`. A second run found the kissaki extending past the saya; lengthened the saya to cover it.
 - Final results: `check.py` passed. Engine **17/17** (new containment and sourced-fittings check for all 19 sword users). Two-client **18/18**, exit 0; the sword test now asserts the replicated joint swap and that the tsuka is in the hand only when drawn. No visual review yet.
+
+## 2026-09-29 — Animation foundation, phases 3–4: clip pipeline and layered player
+
+- `scripts/generate_animations.py` (run by `check.py`):
+  - Turns JSON clips into Animation Editor KeyframeSequence `.rbxmx`, with R15 pose trees, Weight-0 structural parents, easing tokens and KeyframeMarkers.
+  - Supports mirroring.
+  - Validates joints, times, loop closure, markers and attack `Hit`/`End` markers, and parses every `.rbxmx`, including Studio-saved ones.
+  - Writes `AnimationIndex.luau` and a hash manifest, and never regenerates a file that was edited in Studio.
+  - Rojo maps `assets/animations` to `ReplicatedStorage.Animations`; CI freshness now covers the index and assets.
+- Proof clips: `base/idle_sheathed` (2.4 s breathing loop, left hand on the saya) and `base/idle_drawn` (a guard stance adapted to blocky proportions; see ANIMATION.md deviations).
+- `MotionMath.luau` (pure): Roblox pose easing, keyframe bracketing, attack time-warp, fades and dash classification. `Motion.luau` loads and samples KeyframeSequences and dispatches markers.
+- `Animator.luau` rewritten to write `Motor6D.Transform`:
+  - base locomotion cross-fade
+  - a fading action stack
+  - a turn-lean overlay
+  - legacy procedural fallback per unauthored pose
+  - marker-driven sword grip and trail
+
+  Combat replicates `PoseWindup` so attacks can be time-warped.
+- Results:
+  - Core **16/16** (five new motion tests).
+  - Engine **18/18**. The new check loads the Rojo-built sequences, verifies every pose names a rig part, and confirms that sampled poses match the authored angles and interpolate.
+  - Two-client **18/18**, exit 0. The joint checks now read `Transform`; a new assertion checks that a standing player plays `base/idle_*` and that its waist breathes.
+- Not done:
+  - asset-ID playback (deferred)
+  - visual review of the two proof clips

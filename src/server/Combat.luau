@@ -211,6 +211,8 @@ function Combat:cast(actor, move, direction)
     actor.root.CFrame = CFrame.lookAt(origin, origin+direction)
     actor.castToken += 1
     local token = actor.castToken
+    -- Clients time-warp attack clips so their Hit marker lands on this windup.
+    actor.model:SetAttribute("PoseWindup", move.windup)
     actor.model:SetAttribute("Pose", move.pattern)
     actor.model:SetAttribute("PoseStart", now)
     actor.model:SetAttribute("PoseDuration", actor.busyUntil-now)

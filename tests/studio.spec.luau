@@ -250,6 +250,33 @@ check("dodge starts bounded motion without teleport and cleanup removes constrai
     combat:remove(a)
 end)
 
+check("Editor-format clips load, target real rig parts and sample their authored poses",function()
+    local Motion=require(game:GetService("StarterPlayer").StarterPlayerScripts.Client.Motion)
+    local model=Rig.create(World.Actors,Vector3.new(0,40,0),Content.characters.tanjiro)
+    local sequences=0
+    for _,item in ipairs(game:GetService("ReplicatedStorage").Animations:GetDescendants()) do
+        if item:IsA("KeyframeSequence") then
+            sequences+=1
+            for _,pose in ipairs(item:GetDescendants()) do
+                if pose:IsA("Pose") then assert(model:FindFirstChild(pose.Name),item.Name.." poses missing part "..pose.Name) end
+            end
+        end
+    end
+    model:Destroy()
+    assert(sequences>=2,"KeyframeSequences were not built into ReplicatedStorage.Animations")
+    local clip=assert(Motion.clip("base/idle_sheathed"),"idle clip missing")
+    assert(clip.entry.loop and math.abs(clip.length-2.4)<1e-4 and not clip.parts.HumanoidRootPart,"clip metadata or weight-0 structure")
+    local function angle(a,b) return math.acos(math.clamp((a.LookVector:Dot(b.LookVector)+a.UpVector:Dot(b.UpVector))/2,-1,1)) end
+    local start=Motion.sample(clip,0,{})
+    assert(angle(start.UpperTorso,CFrame.Angles(math.rad(-3),math.rad(5),0))<1e-3,"t=0 waist differs from authored pose")
+    assert(math.abs(start.LowerTorso.Position.Y+0.03)<1e-4,"root offset lost")
+    local peak=Motion.sample(clip,1.2,{})
+    assert(angle(peak.UpperTorso,CFrame.Angles(math.rad(-4.5),math.rad(5),0))<1e-3,"t=1.2 waist differs")
+    local mid=Motion.sample(clip,0.6,{}).UpperTorso
+    assert(angle(mid,start.UpperTorso)>1e-4 and angle(mid,peak.UpperTorso)>1e-4,"no interpolation between keyframes")
+    assert(Motion.clip("base/does_not_exist")==nil,"missing clips must fall back to procedural poses")
+end)
+
 check("every nichirin sword sheathes inside its saya and uses its sourced fittings",function()
     local function inside(point,saya)
         for i=1,3 do

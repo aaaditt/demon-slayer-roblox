@@ -1,0 +1,34 @@
+{
+  "category": "locomotion",
+  "priority": "Idle",
+  "loop": true,
+  "speed": 0,
+  "ease": "CubicV2/InOut",
+  "note": "Chudan-no-kamae adapted to blocky proportions: the 3-stud shoulder span puts the centreline out of reach, so the right hand holds the sword forward with the tip near throat height while the left hand guards in front of the chest. Right foot forward, knees bent, 2.0 s breathing sway.",
+  "keyframes": [
+    {"t": 0, "pose": {
+      "Root": {"r": [0, 0, 0], "p": [0, -0.12, 0]},
+      "Waist": [-4, -10, 0], "Neck": [4, 10, 0],
+      "RightShoulder": [48, 0, -40], "RightElbow": [15, 0, 0], "RightWrist": [-42, 0, 30],
+      "LeftShoulder": [40, 0, 35], "LeftElbow": [60, 0, 0], "LeftWrist": [-20, 0, 0],
+      "RightHip": [14, 0, 0], "RightKnee": [-18, 0, 0], "RightAnkle": [4, 0, 0],
+      "LeftHip": [-12, 0, 0], "LeftKnee": [-12, 0, 0], "LeftAnkle": [24, 0, 0]
+    }},
+    {"t": 1.0, "pose": {
+      "Root": {"r": [0, 0, 0], "p": [0, -0.15, 0]},
+      "Waist": [-6, -10, 0], "Neck": [5, 10, 0],
+      "RightShoulder": [50, 0, -40], "RightElbow": [16, 0, 0], "RightWrist": [-43, 0, 30],
+      "LeftShoulder": [41, 0, 35], "LeftElbow": [61, 0, 0], "LeftWrist": [-20, 0, 0],
+      "RightHip": [15, 0, 0], "RightKnee": [-20, 0, 0], "RightAnkle": [5, 0, 0],
+      "LeftHip": [-12, 0, 0], "LeftKnee": [-14, 0, 0], "LeftAnkle": [26, 0, 0]
+    }},
+    {"t": 2.0, "pose": {
+      "Root": {"r": [0, 0, 0], "p": [0, -0.12, 0]},
+      "Waist": [-4, -10, 0], "Neck": [4, 10, 0],
+      "RightShoulder": [48, 0, -40], "RightElbow": [15, 0, 0], "RightWrist": [-42, 0, 30],
+      "LeftShoulder": [40, 0, 35], "LeftElbow": [60, 0, 0], "LeftWrist": [-20, 0, 0],
+      "RightHip": [14, 0, 0], "RightKnee": [-18, 0, 0], "RightAnkle": [4, 0, 0],
+      "LeftHip": [-12, 0, 0], "LeftKnee": [-12, 0, 0], "LeftAnkle": [24, 0, 0]
+    }}
+  ]
+}

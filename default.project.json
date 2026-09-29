@@ -2,7 +2,7 @@
   "name": "WisteriaChronicles",
   "tree": {
     "$className": "DataModel",
-    "ReplicatedStorage": {"Shared": {"$path": "src/shared"}},
+    "ReplicatedStorage": {"Shared": {"$path": "src/shared"}, "Animations": {"$path": "assets/animations"}},
     "ServerScriptService": {"Server": {"$path": "src/server"}},
     "StarterPlayer": {
       "$properties": {"CameraMaxZoomDistance": 36, "CameraMinZoomDistance": 8},

@@ -1,5 +1,7 @@
 local Rules = require("../src/shared/Rules")
 local Content = require("../src/shared/Content")
+local MotionMath = require("../src/shared/MotionMath")
+local AnimationIndex = require("../src/shared/AnimationIndex")
 local passed = 0
 local function test(name, run)
     run()
@@ -128,6 +130,53 @@ test("story combat permissions allow only the current chapter kit",function()
     actor.storyMoves=nil;actor.storyCanBasic=false
     assert(not Rules.storyMoveAllowed(actor,"water_1"))
     actor.storyLocked=false;assert(Rules.storyMoveAllowed(actor,"water_1"))
+end)
+
+local function near(a, b) return math.abs(a-b) < 1e-6 end
+
+test("pose easing hits endpoints, and legacy Cubic reverses CubicV2 directions", function()
+    for _, style in ipairs({"Linear", "Cubic", "CubicV2", "Elastic", "Bounce"}) do
+        for _, direction in ipairs({"In", "Out", "InOut"}) do
+            assert(near(MotionMath.ease(style, direction, 0), 0) and near(MotionMath.ease(style, direction, 1), 1), style..direction)
+        end
+    end
+    assert(near(MotionMath.ease("CubicV2", "In", 0.5), 0.125) and near(MotionMath.ease("CubicV2", "Out", 0.5), 0.875))
+    assert(near(MotionMath.ease("CubicV2", "InOut", 0.5), 0.5))
+    assert(near(MotionMath.ease("Cubic", "In", 0.3), MotionMath.ease("CubicV2", "Out", 0.3)))
+    assert(MotionMath.ease("Constant", "In", 0.99) == 0 and MotionMath.ease("Linear", "In", 2) == 1)
+end)
+
+test("keyframe bracketing clamps and interpolates between neighbours", function()
+    local times = {0, 0.5, 1.2, 2.4}
+    local i, a = MotionMath.bracket(times, -1); assert(i == 1 and a == 0)
+    i, a = MotionMath.bracket(times, 9); assert(i == 4 and a == 0)
+    i, a = MotionMath.bracket(times, 0.85); assert(i == 2 and near(a, 0.5))
+    i, a = MotionMath.bracket(times, 1.2); assert(i == 3 and a == 0)
+end)
+
+test("attack time-warp lands the Hit marker exactly on the server windup", function()
+    local entry = {hit = 0.3, finish = 0.8, length = 1, loop = false}
+    assert(near(MotionMath.actionTime(entry, 0.12, 0.44, 0.12), 0.3), "hit not on windup")
+    assert(near(MotionMath.actionTime(entry, 0.44, 0.44, 0.12), 0.8), "end not on recovery")
+    assert(near(MotionMath.actionTime(entry, 0.06, 0.44, 0.12), 0.15) and MotionMath.actionTime(entry, 5, 0.44, 0.12) == 0.8)
+    assert(near(MotionMath.actionTime({length = 2, loop = true}, 5, 30), 1) and MotionMath.actionTime({length = 2}, 5, 30) == 2)
+    assert(MotionMath.approach(0, 1, 0.05, 0.1) == 0.5 and MotionMath.approach(0.9, 1, 1, 0.1) == 1)
+end)
+
+test("dash directions classify against the facing, not the world", function()
+    assert(MotionMath.dashDirection(0, -1, 0, -1) == "front" and MotionMath.dashDirection(0, -1, 0, 1) == "back")
+    assert(MotionMath.dashDirection(0, -1, 1, 0) == "right" and MotionMath.dashDirection(0, -1, -1, 0) == "left")
+    assert(MotionMath.dashDirection(1, 0, 0, 1) == "right" and MotionMath.dashDirection(1, 0, 0, -1) == "left")
+    assert(MotionMath.dashDirection(0, -1, 0.3, -0.9) == "front")
+end)
+
+test("generated animation index describes every clip the runtime can play", function()
+    local count = 0
+    for name, entry in pairs(AnimationIndex) do
+        count += 1
+        assert(entry.length > 0 and (entry.hit == nil or (entry.hit < entry.finish and entry.finish <= entry.length)), name)
+    end
+    assert(count >= 2 and AnimationIndex["base/idle_sheathed"].loop and AnimationIndex["base/idle_drawn"].loop)
 end)
 
 print(string.format("%d core tests passed", passed))

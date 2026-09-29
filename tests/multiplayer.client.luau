@@ -36,14 +36,23 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             controls:Disable()
             local model=player.Character
             local humanoid=model:FindFirstChildOfClass("Humanoid")
+            -- Standing still plays the authored idle clip (breathing moves the waist), not the procedural pose.
+            local waist=model.LowerTorso.Waist;local idleStart=waist.Transform;local breathing=false
+            local idleDeadline=os.clock()+1.3
+            repeat
+                RunService.RenderStepped:Wait()
+                breathing=breathing or waist.Transform.LookVector:Dot(idleStart.LookVector)<0.99999
+            until os.clock()>idleDeadline
+            assert(string.find(model:GetAttribute("MotionClip") or "","^base/idle_"),"idle clip not playing: "..tostring(model:GetAttribute("MotionClip")))
+            assert(breathing,"idle clip did not move the waist")
             local hip=model.LowerTorso.RightHip
-            local original=hip.C0
+            local original=hip.Transform
             local changed=false
             local deadline=os.clock()+0.5
             repeat
                 humanoid:Move(Vector3.new(-1,0,0),false)
                 RunService.RenderStepped:Wait()
-                if (hip.C0.Position-original.Position).Magnitude>0.01 or hip.C0.LookVector:Dot(original.LookVector)<0.99 then changed=true end
+                if (hip.Transform.Position-original.Position).Magnitude>0.01 or hip.Transform.LookVector:Dot(original.LookVector)<0.99 then changed=true end
             until os.clock()>deadline
             humanoid:Move(Vector3.zero);humanoid.Jump=true
             local states={}
@@ -124,9 +133,9 @@ bridge.OnClientEvent:Connect(function(token,command,args)
         elseif command=="swamp" then
             if args.animation then
                 local model=args.model;assert(model and model.Head.Transparency<1,"Nezuko not visible")
-                local joint=model.LowerTorso.RightHip;local first=joint.C0;local changed=false;local deadline=os.clock()+0.8
+                local joint=model.LowerTorso.RightHip;local first=joint.Transform;local changed=false;local deadline=os.clock()+0.8
                 repeat
-                    RunService.RenderStepped:Wait();changed=changed or joint.C0.LookVector:Dot(first.LookVector)<0.9999
+                    RunService.RenderStepped:Wait();changed=changed or joint.Transform.LookVector:Dot(first.LookVector)<0.9999
                 until os.clock()>deadline
                 assert(changed,"Nezuko kick joints did not animate")
             else
@@ -144,10 +153,10 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             end
             assert(boss,"Hand Demon did not replicate")
             local arm=boss.UpperTorso.HandArm1
-            local original=arm.C0;local changed=false;local deadline=os.clock()+0.7
+            local original=arm.Transform;local changed=false;local deadline=os.clock()+0.7
             repeat
                 RunService.RenderStepped:Wait()
-                changed=changed or arm.C0.LookVector:Dot(original.LookVector)<0.99999
+                changed=changed or arm.Transform.LookVector:Dot(original.LookVector)<0.99999
             until os.clock()>deadline
             assert(changed,"extra arms did not animate")
             return true

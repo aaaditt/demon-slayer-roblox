@@ -18,7 +18,7 @@ jobs:
       - run: python scripts/bootstrap.py
       - run: python scripts/check.py
       - name: Verify generated data is current
-        run: git diff --exit-code -- src/shared/Content.luau docs/CONTENT_INVENTORY.md
+        run: git diff --exit-code -- src/shared/Content.luau docs/CONTENT_INVENTORY.md src/shared/AnimationIndex.luau assets/
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: WisteriaChronicles-place

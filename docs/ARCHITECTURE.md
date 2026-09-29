@@ -19,10 +19,10 @@ flowchart LR
 - `src/shared/Content.luau`: generated catalog. `Config.luau`: runtime tuning. `Rules.luau`: pure admission, geometry, defense, profile validation, and lease transitions.
 - `src/server/Game.luau`: network allowlist, player lifecycle, chapter/wave progression, arena rounds/scoring, saves and snapshots. `Bootstrap.server.luau` starts one session.
 - `src/server/Combat.luau`: cast scheduling and cancellation, damage, shape/sight validation, dodge collision, guard/parry, statuses, NPC decisions, movement sanity checks.
-- `src/server/World.luau`: deterministic hub/arena and private mission room construction. `Rig.luau`: original R6 models and weapon silhouettes.
+- `src/server/World.luau`: deterministic hub/arena and private mission room construction. `Rig.luau`: original blocky R15 models, data-driven nichirin katana/saya and weapon silhouettes.
 - `src/server/Profiles.luau`: protected UpdateAsync load/save, session lease ownership, retry/fallback behavior, autosave integration and shutdown release.
 - `src/client/UI.luau`: Journey, Characters, Techniques, Codex, Settings, health/energy HUD, cooldown cards, and notifications.
-- `src/client/Effects.luau`: local bounded transient effect geometry. `Animator.luau`: local procedural Motor6D pose playback. `Bootstrap.client.luau`: camera, input and replication bindings.
+- `src/client/Effects.luau`: local bounded transient effect geometry. `Animator.luau` + `Motion.luau`: local layered playback of Animation Editor KeyframeSequences (`assets/animations`, generated from `data/animations`) into `Motor6D.Transform`, with legacy procedural poses for unauthored actions (see ANIMATION.md). `Bootstrap.client.luau`: camera, input and replication bindings.
 - `tests/core.spec.luau`: portable rules/security/save tests. `tests/studio.spec.luau`: Roblox engine tests. `tests/multiplayer.*.luau`: isolated two-client integration tests.
 - `scripts/check.py`: validation and build entry point. `scripts/prepare_studio_test.py`: temporary multiplayer test injection. `default.project.json`: Rojo service mapping.
 
@@ -46,4 +46,4 @@ One active enemy per story wave. NPCs share a chase/attack decision loop with ch
 
 A mission with a `story` definition uses that sequence instead of spawning waves. The first chapter temporarily selects pre-training Tanjiro without changing the saved hub character. Remaining encounter chapters still use the wave system. Story NPCs do not enter the damage registry. Client Continue/Skip requests cannot select a stage, award XP or satisfy proximity objectives.
 
-Dashes use a temporary, server-owned planar LinearVelocity with collision sweeps, a distance/time limit and cleanup on cancellation/death/removal. The client resolves held movement before facing direction. Single-blade rigs have a scabbard and Motor6D grip; Weapon requests replicate drawn state. C0 poses are applied locally for all observing clients, with replication retries and player lifecycle discovery. The built-in Animator cannot overwrite those C0 offsets.
+Dashes use a temporary, server-owned planar LinearVelocity with collision sweeps, a distance/time limit and cleanup on cancellation/death/removal. The client resolves held movement before facing direction. Single-blade rigs have a scabbard and Motor6D grip; Weapon requests replicate drawn state. Poses are applied locally to Motor6D.Transform for all observing clients (after Roblox's animation step), with replication retries and player lifecycle discovery.

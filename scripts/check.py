@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 from generate_content import generate
+import generate_animations
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -147,6 +148,7 @@ def validate():
 def main():
     validate()
     generate()
+    generate_animations.generate()
     compiler = tool("luau", "luau-compile")
     files = sorted(ROOT.glob("src/**/*.luau")) + sorted(ROOT.glob("tests/*.luau"))
     for path in files:

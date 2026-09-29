@@ -15,8 +15,8 @@ Updated: 2026-09-29. This is the working plan and tracker for character motion, 
 |---|---|---|
 | 1 | Blocky R15 rig and caller/test migration | **Done.** Engine 16/16, two-client 18/18 |
 | 2 | Nichirin katana model, scabbard and data-driven presets | **Done.** Engine 17/17, two-client 18/18 |
-| 3 | Clip pipeline: JSON → KeyframeSequence `.rbxmx`, hash-protected, validated | Planned |
-| 4 | Runtime sampler (`Motion.luau`), `MotionMath` with tests, layers, markers, time-warp | Planned |
+| 3 | Clip pipeline: JSON → KeyframeSequence `.rbxmx`, hash-protected, validated | **Done.** Two proof clips: idle_sheathed, idle_drawn |
+| 4 | Runtime sampler (`Motion.luau`), `MotionMath` with tests, layers, markers, time-warp | **Done.** Core 16/16, engine 18/18, two-client 18/18. Asset-ID playback deferred |
 | 5 | Locomotion clips | Planned |
 | 6 | Directional dashes (server and clips) | Planned |
 | 7 | Draw/sheathe state machine, three sheathe styles, auto-sheathe | Planned |
@@ -74,6 +74,57 @@ Base preset `nichirin_base`. Implemented as `Rig.buildSword`/`Rig.swordSpec`. Sw
   - an additive procedural overlay for turn lean, breathing and landing
 - **Markers:** `Hit`, `End`, `Grip`, `Release`, `TrailOn`, `TrailOff`, `Click`.
 - **Server timing stays authoritative:** attack clips are time-warped so `Hit` lands on the move's `windup` and `End` lands on `windup + recovery`.
+
+## How clips work now (phases 3–4)
+
+**Authoring a clip.**
+1. Write `data/animations/<set>/<clip>.json` with:
+   - `category`: `locomotion`, `action`, `attack` or `story`
+   - `priority`
+   - `loop`
+   - `speed` (the authored ground speed for locomotion)
+   - `ease`: default `Style/Direction`
+   - `keyframes`: `{t, pose: {Joint: [rx, ry, rz] degrees | {r, p, ease}}}`
+   - `markers`: `{t, name}`
+2. Alternatively, write `{"mirrorOf": "<clip>"}` to reflect a clip left to right.
+3. Run `python scripts/check.py`. It validates the clip and writes:
+   - `assets/animations/<set>/<clip>.rbxmx`, which Rojo maps to `ReplicatedStorage.Animations`
+   - `src/shared/AnimationIndex.luau`, the metadata that `.rbxmx` cannot carry without binary attributes
+   - `assets/animation-manifest.json`, the hashes
+
+   CI fails if any of these are stale.
+
+**Joint conventions.** Degrees are applied as `CFrame.Angles(rx, ry, rz)` on the joint:
+- +X swings arms and legs forward.
+- Knees bend at −X; elbows bend at +X.
+- +X on the Waist or Neck leans back.
+- +Z on the right shoulder raises the right arm outward; the left side mirrors this.
+- Ankle +X lifts the toes.
+
+Structural parent poses carry Weight 0, following the Animation Editor's convention, so a clip affects only the joints it keys. An upper-body draw therefore leaves the legs to locomotion.
+
+**Refining in Studio.**
+1. Open the built place.
+2. In the command bar, run `require(game.ServerScriptService.Server.Rig).create(workspace, Vector3.new(0, 5, 0), require(game.ReplicatedStorage.Shared.Content).characters.tanjiro)` to spawn a rig.
+3. Open the clip in the Animation Editor from `ReplicatedStorage.Animations` and edit it.
+4. Right-click the KeyframeSequence, choose **Save to File**, and save over `assets/animations/<set>/<clip>.rbxmx`.
+
+The generator then reports `KEPT` and never overwrites that file. The JSON still supplies category, speed and loop, and `check.py` validates the saved file's pose names and markers.
+
+**Runtime (`src/client/Animator.luau` + `Motion.luau`).**
+- Every client animates every rig into `Motor6D.Transform` in `PreSimulation`. `C0` stays at rest.
+- **Base layer:** cross-fades (0.15 s) between the locomotion state's clip and the legacy procedural pose when no clip exists. States are `idle`, `run`, `jump`, `fall` and `land`, with drawn and sheathed variants.
+- **Action layer:** a fading stack (0.08 s in, 0.12 s out). Each server `Pose` plays `base/<pose>` (or `base/<pose>_<PoseVariant>`) if authored, otherwise the legacy pose.
+- **Timing:** attack clips are time-warped from `PoseWindup` and `PoseDuration`.
+- **Markers:** `Grip`/`Release` swap the sword joints locally, and `TrailOn`/`TrailOff` drive the trail.
+- **Overlay:** a turn-lean roll is added on top.
+- **Diagnostics:** `MotionClip` and `MotionState` attributes. They are client-local and never trusted.
+
+**Deviations from the plan, recorded honestly.**
+- **Uploaded asset-ID playback (`animationAssets`) is not implemented.** No IDs exist to test it, and the offline sampler plays everything. Add it only together with a real uploaded clip to test against.
+- **The drawn stance uses a right-hand grip with the left hand guarding the chest.** The blocky rig's 3-stud shoulder span puts the body's centreline beyond arm reach (1.43 studs from the shoulder pivot), so a true two-handed chudan grip is geometrically impossible without changing proportions.
+- **Pose easing:** legacy `Cubic`, `Elastic` and `Bounce` are assumed to reverse In/Out, as Roblox documents for `Cubic`. Generated clips use `CubicV2`/`Linear` only. If a Studio-edited clip using the legacy styles previews differently in game, check this first.
+- **The two proof clips have not been visually reviewed.**
 
 ## Clip catalogue
 

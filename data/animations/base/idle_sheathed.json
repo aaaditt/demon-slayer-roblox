@@ -1,0 +1,34 @@
+{
+  "category": "locomotion",
+  "priority": "Idle",
+  "loop": true,
+  "speed": 0,
+  "ease": "CubicV2/InOut",
+  "note": "2.4 s breathing loop. Weight on the back (left) leg, left hand resting on the saya near the tsuba, right arm relaxed, slight head scan. Degrees: +X swings limbs forward, knees bend at -X, +X on Waist/Neck leans back.",
+  "keyframes": [
+    {"t": 0, "pose": {
+      "Root": {"r": [0, 0, 0], "p": [0, -0.03, 0]},
+      "Waist": [-3, 5, 0], "Neck": [2, -5, 0],
+      "RightShoulder": [4, 0, 6], "RightElbow": [12, 0, 0], "RightWrist": [0, 0, 0],
+      "LeftShoulder": [26, 0, 15], "LeftElbow": [30, 0, 0], "LeftWrist": [10, 0, 0],
+      "RightHip": [4, 0, 2], "RightKnee": [-5, 0, 0], "RightAnkle": [1, 0, 0],
+      "LeftHip": [-5, 0, -2], "LeftKnee": [-3, 0, 0], "LeftAnkle": [8, 0, 0]
+    }},
+    {"t": 1.2, "pose": {
+      "Root": {"r": [0, 0, 0], "p": [0, -0.06, 0]},
+      "Waist": [-4.5, 5, 0], "Neck": [0, 4, 0],
+      "RightShoulder": [5, 0, 7], "RightElbow": [14, 0, 0], "RightWrist": [0, 0, 0],
+      "LeftShoulder": [27, 0, 15], "LeftElbow": [31, 0, 0], "LeftWrist": [10, 0, 0],
+      "RightHip": [4, 0, 2], "RightKnee": [-7, 0, 0], "RightAnkle": [3, 0, 0],
+      "LeftHip": [-5, 0, -2], "LeftKnee": [-5, 0, 0], "LeftAnkle": [10, 0, 0]
+    }},
+    {"t": 2.4, "pose": {
+      "Root": {"r": [0, 0, 0], "p": [0, -0.03, 0]},
+      "Waist": [-3, 5, 0], "Neck": [2, -5, 0],
+      "RightShoulder": [4, 0, 6], "RightElbow": [12, 0, 0], "RightWrist": [0, 0, 0],
+      "LeftShoulder": [26, 0, 15], "LeftElbow": [30, 0, 0], "LeftWrist": [10, 0, 0],
+      "RightHip": [4, 0, 2], "RightKnee": [-5, 0, 0], "RightAnkle": [1, 0, 0],
+      "LeftHip": [-5, 0, -2], "LeftKnee": [-3, 0, 0], "LeftAnkle": [8, 0, 0]
+    }}
+  ]
+}
