@@ -32,6 +32,6 @@ Chapters **6-22 remain encounter previews**. The full objective remains all nine
 
 Local production place: `build/WisteriaChronicles.rbxlx`, **3,372,157 bytes**, SHA-256 `9cf06c489cdf5c512c9b1650be90522cb0aaa17ea4735587b8db8c92c0145b56`. Build output and Studio logs are ignored. The shipping place excludes test bridges/hooks.
 
-The last verified release download is [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), source `e2f34d5`, chapters 1-3. Prior animation commit `4fd6110` has [passing CI](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/36588934297). Current checkpoint delivery is pending.
+Source checkpoint [5ad7b51](https://github.com/aaaditt/demon-slayer-roblox/commit/5ad7b5106aa089f9ecae54f1899a2a0add106229) is committed and pushed to `origin/main`. Its [portable build CI passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37200299789); CI does not run Studio and does not resolve the full-suite failure above. A following documentation commit records delivery. The last release download remains [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), source `e2f34d5`, chapters 1-3; no new release was created.
 
 The [private Roblox target](DEPLOYMENT.md) remains universe `10766590718`, place `139004028759819`, containing the earlier upload. No new cloud upload, public-access success or live-save validation is claimed. GitHub pushes do not update Roblox automatically.

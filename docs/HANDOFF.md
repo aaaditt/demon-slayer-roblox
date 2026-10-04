@@ -1,6 +1,6 @@
 # Fresh-session handoff — 2026-10-04
 
-The user requested a fresh-session handoff because the session allowance is nearly exhausted. **Preserve this checkpoint and continue from here; do not restart completed implementation.**
+The user requested a fresh-session handoff because the session allowance is nearly exhausted. **Preserve this checkpoint and continue from here; do not restart completed implementation.** Source checkpoint **`5ad7b51` is committed and pushed** to `origin/main`; [portable CI passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37200299789). A following documentation commit records delivery. Full Studio regression remains unresolved as described below.
 
 Workspace: `C:\Aadit\Personal\code-ide\antigravity\demon-slayer-roblox`. Read README.md, STATUS.md, PLAN.md, latest WORKLOG.md, RESEARCH.md and ANIMATION.md. Follow AGENTS.md. Implementation, research, testing, commits and pushes to the configured GitHub repository are authorized.
 
@@ -26,7 +26,7 @@ Workspace: `C:\Aadit\Personal\code-ide\antigravity\demon-slayer-roblox`. Read RE
 
 ## Next session, in order
 
-1. Inspect `git status --short`, `git log -3 --oneline` and the last WORKLOG entry for checkpoint push/CI and full Studio regression results. Session began at `4fd6110`; saved code is being committed/pushed with this handoff. Preserve any residual edits. GitHub and Studio writes now work; the installed Studio content registry path was already correct on October 4.
+1. Inspect `git status --short`, `git log -3 --oneline` and the last WORKLOG entry. Source checkpoint `5ad7b51` was pushed and its portable CI passed; a documentation commit follows it. No source edits were left pending after that checkpoint. GitHub and Studio writes now work; the installed Studio content registry path was already correct on October 4. No test Studio processes remained after the full suite exited.
 2. **First next task: diagnose the prologue E-input failure and rerun full regression.** Inspect server line 150 and the client `sceneKey` handler (virtual E press, then a fixed wait). **Strong timing candidate:** the revised client `story` readiness check returns as soon as the camera/UI are ready, replacing an unconditional 0.4-second wait. The prologue immediately sends E, potentially before `Story:continue` allows input at scene age 0.6 seconds. Instrument the scene age and actual StoryContinue receipt; if confirmed, wait for eligibility before sending the real key without weakening the server gate. Also check input focus/nextRequest. Improve failure isolation so a prologue failure does not obscure all later chapter results, while preserving the real sequential-unlock assertion. Do not treat focused Asakusa success as full regression success. Full suite commands:
 
    ```powershell
