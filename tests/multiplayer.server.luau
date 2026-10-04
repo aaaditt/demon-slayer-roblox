@@ -36,8 +36,9 @@ return function(session)
         local suiteArgs=StudioTestService:GetTestArgs()
         local selectionOnly=type(suiteArgs)=="table" and suiteArgs.selectionOnly
         local swampOnly=type(suiteArgs)=="table" and suiteArgs.swampOnly
-        if selectionOnly or swampOnly then
-            session.players[p1].profile.data.chapter=swampOnly and 4 or 3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
+        local asakusaOnly=type(suiteArgs)=="table" and suiteArgs.asakusaOnly
+        if selectionOnly or swampOnly or asakusaOnly then
+            session.players[p1].profile.data.chapter=asakusaOnly and 5 or swampOnly and 4 or 3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
         else
         check("two real clients load GUI, attach cameras, and stand on the ground",function()
             for _,p in ipairs({p1,p2}) do
@@ -49,6 +50,32 @@ return function(session)
             assert(client(p1,"move")>5,"rig failed to walk")
         end)
         check("locomotion animates joints through walking, jumping and landing",function() client(p1,"animation") end)
+        check("both clients observe Tanjiro's stance, combo and guard with shared fallback for Giyu",function()
+            local Rig=require(game.ServerScriptService.Server.Rig)
+            local Content=require(ReplicatedStorage.Shared.Content)
+            local models={}
+            local ok,err=pcall(function()
+                for _,id in ipairs({"tanjiro","giyu"}) do
+                    local model=Rig.create(workspace.Actors,Vector3.new(id=="tanjiro" and -8 or 8,4,25),Content.characters[id])
+                    table.insert(models,model);model.HumanoidRootPart.Anchored=true
+                    model.Humanoid:ChangeState(Enum.HumanoidStateType.Physics);Rig.draw(model,true)
+                    local profile=id=="tanjiro" and "tanjiro" or "base"
+                    local function observe(action)
+                        for _,p in ipairs({p1,p2}) do client(p,"motionProfile",{model=model,profile=profile,base=profile.."/idle_drawn",action=action}) end
+                    end
+                    task.wait(0.5);observe(nil)
+                    for i=1,3 do
+                        model:SetAttribute("Pose","slash");model:SetAttribute("PoseVariant","combo_"..i)
+                        model:SetAttribute("PoseStart",workspace:GetServerTimeNow());model:SetAttribute("PoseDuration",4);model:SetAttribute("PoseWindup",0.8)
+                        observe(profile.."/combo_"..i)
+                    end
+                    model:SetAttribute("PoseDuration",0);model:SetAttribute("Blocking",true)
+                    observe(profile.."/guard_hold")
+                end
+            end)
+            for _,model in ipairs(models) do model:Destroy() end
+            assert(ok,err)
+        end)
         check("W plus Q produces a moving animated dash",function()
             local actor=session.players[p1].actor
             actor.model:PivotTo(CFrame.new(0,4,35));actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow()
@@ -281,7 +308,7 @@ return function(session)
             client(p1,"story",{scene=false})
         end)
         end
-        if not swampOnly then
+        if not swampOnly and not asakusaOnly then
         check("Final Selection fights, patrol, induction and return award once and preserve the saved kit",function()
             local Content=require(ReplicatedStorage.Shared.Content)
             local e=session.players[p1]
@@ -401,7 +428,7 @@ return function(session)
             client(p1,"story",{scene=false})
         end)
         end
-        if not selectionOnly then
+        if not selectionOnly and not asakusaOnly then
         check("town investigation, Nezuko rescue, swamp bodies and farewell complete once",function()
             local e=session.players[p1]
             client(p1,"action",{name="Story",payload=4})
@@ -494,6 +521,114 @@ return function(session)
         end)
         end
         if not selectionOnly and not swampOnly then
+        check("Asakusa rescue, house reveal, Water encounters and farewell complete once",function()
+            local e=session.players[p1]
+            if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
+            local selected=e.profile.data.selected
+            local saved=game:GetService("HttpService"):JSONEncode(e.profile.data.loadouts)
+            local before=e.profile.data.xp
+            session:startMission(p1,5)
+            local mission=assert(e.mission);local story=assert(mission.story)
+            local street=mission.room
+            assert(story.data.id=="asakusa_rescue" and e.actor.characterId=="tanjiro")
+            local function place(position,direction)
+                session.combat:stopMotion(e.actor);e.actor.root.Anchored=true
+                e.actor.model:PivotTo(CFrame.lookAt(position,position+(direction or -Vector3.zAxis)))
+                e.actor.root.AssemblyLinearVelocity=Vector3.zero;e.actor.lastPosition=position;e.actor.motionTime=workspace:GetServerTimeNow()
+            end
+            local function skip() story.changedAt=workspace:GetServerTimeNow()-1;assert(story:continue(true)) end
+            for stage=1,#story.data.steps do
+                assert(story.stepIndex==stage,"Asakusa stage order")
+                print("ASAKUSA_STAGE "..stage.." "..story.step.id)
+                if stage==1 then client(p1,"story",{scene=true}) end
+                if story.phase=="objective" then
+                    assert(not story:interact(p2,story.step.target) and not story:interact(p1,"forged"))
+                    place(mission.room.center+Vector3.new(140,3,140));assert(not story:interact(p1,story.step.target))
+                    place(mission.room.anchors[story.step.target].Position);assert(story:interact(p1,story.step.target))
+                end
+                if story.step.id=="hidden_house" then
+                    assert(story.map=="clinic" and not street.folder.Parent and e.actor.room==mission.room)
+                    assert(mission.room.folder:FindFirstChild("TamayoHouse"))
+                elseif story.step.id=="leave" then
+                    assert(story.carry=="box" and story.npcs.nezuko.Head.Transparency==1)
+                end
+                skip()
+                if story.phase=="challenge" then
+                    local c=story.challenge
+                    assert(not story:continue(true),"scene skip bypassed challenge")
+                    if c.data.kind=="restrain" then
+                        assert(not e.actor.storyCanBasic and not e.actor.storyCanWeapon and not e.actor.storyMoves and story.carry=="box")
+                        place(mission.room.anchors.civilian.Position)
+                        c.started=workspace:GetServerTimeNow()
+                        assert(not c:focus(p2))
+                        local ok,err=pcall(function() client(p1,"brace",{victim=story.npcs.civilian,started=c.started,period=c.data.period,opens=c.data.window[1]}) end)
+                        assert(ok,string.format("%s; count=%d elapsed=%.2f range=%.2f velocity=%.2f",tostring(err),c.count,
+                            workspace:GetServerTimeNow()-c.started,(e.actor.root.Position-c:position()).Magnitude,e.actor.root.AssemblyLinearVelocity.Magnitude))
+                        assert(c.count==1)
+                        local count=c.count
+                        client(p1,"action",{name="Skill",payload={slot=1,direction=-Vector3.zAxis},wait=0.1})
+                        assert(not e.actor.cooldowns.water_1 and c.count==count,"skill admitted during restraint")
+                        for cycle=c.lastCycle+1,c.lastCycle+3 do
+                            c.started=workspace:GetServerTimeNow()-(cycle*c.data.period+1.2);c.nextFocus=0
+                            assert(c:focus(p1),string.format("restraint beat rejected: cycle=%d last=%d range=%.2f velocity=%.2f",cycle,c.lastCycle,
+                                (e.actor.root.Position-c:position()).Magnitude,e.actor.root.AssemblyLinearVelocity.Magnitude))
+                            assert(not c:focus(p1),"duplicate restraint beat")
+                        end
+                        c:tick(workspace:GetServerTimeNow())
+                    else
+                        local enemy=c.enemies[1];enemy.invulnerableUntil=0
+                        assert(not enemy.basicOnly,"Arrow/Temari techniques disabled")
+                        -- Test remote hit admission/replication at fixed geometry, without an AI cast racing the input.
+                        session.combat:stopMotion(enemy);enemy.root.Anchored=true
+                        enemy.root.AssemblyLinearVelocity=Vector3.zero;enemy.castToken+=1
+                        enemy.busyUntil=workspace:GetServerTimeNow()+4
+                        local hp=enemy.humanoid.Health
+                        session.combat:damage(session.players[p2].actor,enemy,30,"none");assert(enemy.humanoid.Health==hp)
+                        place(enemy.root.Position+Vector3.zAxis*7)
+                        e.actor.busyUntil=0;e.actor.stunUntil=0;e.actor.cooldowns={}
+                        client(p1,"action",{name="Skill",payload={slot=1,direction=-Vector3.zAxis},wait=1.1})
+                        assert(enemy.humanoid.Health<hp,string.format("real Water strike missed: admitted=%s range=%.2f sight=%s pose=%s",
+                            tostring(e.actor.cooldowns.water_1~=nil),(e.actor.root.Position-enemy.root.Position).Magnitude,
+                            tostring(session.combat:lineOfSight(e.actor,enemy,e.actor.root.Position)),tostring(e.actor.model:GetAttribute("Pose"))))
+                        if c.data.kind=="hold" then
+                            for _=1,3 do session.combat:damage(e.actor,enemy,10,"none") end
+                            assert(c.hits>=3 and story.challenge==c,"hold timer bypassed")
+                            session.combat:damage(e.actor,enemy,1000,"none");assert(enemy.humanoid.Health==1)
+                            c.started=workspace:GetServerTimeNow()-c.data.duration;c:tick(workspace:GetServerTimeNow())
+                        else
+                            session.combat:damage(e.actor,enemy,1000,"none")
+                            waitFor(function() return story.phase=="scene" end,5,"Yahaba defeat failed to progress")
+                        end
+                    end
+                    assert(story.resultScene and c.closed and not e.actor.healthFloor and not e.actor.storyMoves)
+                    skip()
+                end
+            end
+            assert(not e.mission and e.profile.data.chapter==6 and e.profile.data.xp==before+190)
+            assert(e.actor.characterId==selected and not e.actor.root.Anchored and not e.actor.storyLoadout)
+            assert(game:GetService("HttpService"):JSONEncode(e.profile.data.loadouts)==saved,"saved kit changed")
+            for _,model in pairs(story.npcs) do assert(not model.Parent,"Asakusa actor leaked") end
+            client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+190)
+            client(p1,"story",{scene=false})
+        end)
+        check("leaving Asakusa defense cleans the nonlethal demon and story permissions",function()
+            local e=session.players[p1]
+            if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
+            session:startMission(p1,5)
+            local mission=e.mission;local story=mission.story
+            story.stepIndex=8;story:advance() -- Enter the clinic through the normal map transition.
+            story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            story.stepIndex=12;story:advance()
+            e.actor.model:PivotTo(CFrame.new(mission.room.anchors.temari.Position))
+            assert(story:interact(p1,"temari"))
+            story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            local c=story.challenge;local enemy=c.enemies[1]
+            client(p1,"action",{name="Hub"})
+            assert(c.closed and not enemy.model.Parent and not mission.room.folder.Parent and not session.slots[mission.slot])
+            assert(not e.actor.storyMoves and not e.actor.healthFloor and not e.actor.storyLoadout)
+            client(p1,"story",{scene=false})
+        end)
+        if not asakusaOnly then
         check("locked chapters cannot be started by forged remote requests",function()
             client(p2,"action",{name="Story",payload=20})
             assert(session.players[p2].mission==nil)
@@ -525,6 +660,7 @@ return function(session)
             assert(not session.round.active and e1.profile.data.wins==wins+1)
         end)
         check("client UI survives mission and arena character respawns",function() client(p1,"ui");client(p2,"ui") end)
+        end
         end
         local args=StudioTestService:GetTestArgs()
         if type(args)=="table" and args.visual then

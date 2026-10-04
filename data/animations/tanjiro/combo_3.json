@@ -1,0 +1,145 @@
+{
+  "category": "attack",
+  "priority": "Action",
+  "note": "Tanjiro third cut: coiled preparation, planted front knee and direct thrust; the free hand stays near the chest. Original gameplay choreography.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    },
+    {
+      "t": 0.1,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightShoulder": [66, 0, -30],
+        "RightElbow": [70, 0, 0],
+        "RightWrist": [-60, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-9, -23.6, 0],
+        "Neck": [2, 16.5, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.25, 0]
+        },
+        "RightHip": [21, 0, 0],
+        "RightKnee": [-38, 0, 0],
+        "RightAnkle": [11, 0, 0],
+        "LeftHip": [-12, 0, 0],
+        "LeftKnee": [-31, 0, 0],
+        "LeftAnkle": [36, 0, 0]
+      }
+    },
+    {
+      "t": 0.2,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [96, 0, -15],
+        "RightElbow": [0, 0, 0],
+        "RightWrist": [-90, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-19, 17.7, 0],
+        "Neck": [10, -12.4, 0],
+        "Root": {
+          "r": [-5, 0, 0],
+          "p": [0, -0.37, 0]
+        },
+        "RightHip": [52, 0, 0],
+        "RightKnee": [-38, 0, 0],
+        "RightAnkle": [6, 0, 0],
+        "LeftHip": [-30, 0, 0],
+        "LeftKnee": [-16, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.32,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [94, 0, -15],
+        "RightElbow": [0, 0, 0],
+        "RightWrist": [-90, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-18, 17.7, 0],
+        "Neck": [10, -12.4, 0],
+        "Root": {
+          "r": [-5, 0, 0],
+          "p": [0, -0.37, 0]
+        },
+        "RightHip": [52, 0, 0],
+        "RightKnee": [-38, 0, 0],
+        "RightAnkle": [6, 0, 0],
+        "LeftHip": [-30, 0, 0],
+        "LeftKnee": [-16, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.55,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.14,
+      "name": "TrailOn"
+    },
+    {
+      "t": 0.2,
+      "name": "Hit"
+    },
+    {
+      "t": 0.28,
+      "name": "TrailOff"
+    },
+    {
+      "t": 0.55,
+      "name": "End"
+    }
+  ]
+}

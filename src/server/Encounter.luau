@@ -26,13 +26,18 @@ function Encounter:clearEnemies()
 end
 
 function Encounter:spawn(id,position,boss)
+    local attempt=self.attempt
     local definition=table.clone(Content.characters[id])
     if boss then definition.color={119,144,107};definition.skinColor={119,144,107} end
     local model,humanoid,root=Rig.create(World.Actors,position,definition)
     if boss then Rig.handDemon(model);model:ScaleTo(1.5) end
     local enemy=self.story.game.combat:register(model,humanoid,root,{
         kind="npc",mode="Story",zone=self.story:actor().zone,room=self.story.mission.room,characterId=id,
-        maxHealth=self.data.health,basicOnly=true,attackInterval=1.5,damageScale=self.data.damageScale or 1,
+        maxHealth=self.data.health,basicOnly=not self.data.techniques,attackInterval=1.5,damageScale=self.data.damageScale or 1,
+        healthFloor=self.data.kind=="hold" and 1 or nil,
+        onDamaged=function(source,damage)
+            if not self.closed and self.attempt==attempt and source==self.story:actor() and damage>0 then self.hits+=1 end
+        end,
         target=not boss and self.story:actor() or nil,damageMultiplier=boss and 0 or 1,
         controlImmuneUntil=boss and math.huge or 0,
     })
@@ -48,18 +53,20 @@ function Encounter:reset(retry)
     if self.closed or not actor or not actor.alive then return end
     self:clearEnemies();self.attempt+=1
     local now=workspace:GetServerTimeNow()
-    self.started=now;self.deadline=now+self.data.limit;self.defeated=0;self.watchIndex=1;self.waveActive=false
+    self.started=now;self.deadline=now+self.data.limit;self.defeated=0;self.watchIndex=1;self.waveActive=false;self.hits=0;self.nextAlly=now+1
     self.phase="pursuit";self.nextAttack=now+1.8;self.attack=nil;self.attackNumber=0
     self.story:freeze(false)
     actor.castToken+=1;actor.storyCanBasic=true;actor.storyMoves={};actor.healthFloor=1;actor.basicStyle="water"
     for _,id in ipairs(self.story.data.loadout) do actor.storyMoves[id]=true end
     actor.humanoid.Health=actor.humanoid.MaxHealth;actor.energy=100;actor.status={};actor.stunUntil=0;actor.busyUntil=0;actor.blocking=false
     actor.cooldowns={};actor.invulnerableUntil=now+1.5
+    -- Time spent in dialogue must not trigger auto-sheathe as control returns for a fight.
+    actor.weaponSince=now
     actor.model:PivotTo(CFrame.new(self.story.mission.room.center+Vector3.new(table.unpack(self.data.start))))
     actor.lastPosition=actor.root.Position;actor.motionTime=now;actor.root.AssemblyLinearVelocity=Vector3.zero
     if self.data.kind=="hand_boss" then
         self:spawn("hand_demon",self.story.mission.room.center+Vector3.new(table.unpack(self.data.spawn)),true)
-    elseif self.data.kind=="battle" then
+    elseif self.data.kind=="battle" or self.data.kind=="hold" then
         for _,definition in ipairs(self.data.enemies) do self:spawn(definition.id,self.story.mission.room.center+Vector3.new(table.unpack(definition.position)),false) end
     end
     self:updateMarker();self.story.serial+=1
@@ -134,6 +141,11 @@ function Encounter:tick(now)
             if distance>12 then boss.humanoid:MoveTo(actor.root.Position) else boss.humanoid:Move(Vector3.zero) end
             if now>=self.nextAttack and distance<=self.data.reach then self:beginAttack(now) end
         end
+    elseif self.data.kind=="hold" then
+        if self.data.ally and now>=self.nextAlly then
+            self.nextAlly=now+2;self.story:pose(self.story.npcs[self.data.ally],"kick",0.7)
+        end
+        if self.hits>=self.data.hits and now-self.started>=self.data.duration then self.story:finishChallenge() end
     elseif self.data.kind=="battle" then
         if alive==0 then self.story:finishChallenge() end
     else
@@ -151,7 +163,7 @@ end
 
 function Encounter:snapshot()
     return {kind=self.data.kind,combat=true,defeated=self.defeated,total=self.data.kind=="vigil" and #self.data.checkpoints or self.data.enemies and #self.data.enemies or 1,
-        remaining=math.max(0,math.ceil(self.deadline-workspace:GetServerTimeNow())),phase=self.phase,
+        remaining=math.max(0,math.ceil(self.deadline-workspace:GetServerTimeNow())),phase=self.phase,hits=self.hits,goal=self.data.hits,
         bossHp=self.enemy and self.enemy.humanoid.Health,bossMax=self.data.health,
         watchIndex=self.watchIndex,holdRemaining=self.data.duration and math.max(0,math.ceil(self.data.duration-(workspace:GetServerTimeNow()-self.started))) or nil}
 end

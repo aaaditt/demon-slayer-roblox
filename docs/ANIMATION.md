@@ -1,6 +1,6 @@
 # Character animation production
 
-Updated: 2026-09-29. This is the working plan and tracker for character motion, the sword model and sword handling. The base rig performs every action first; characters then specialize it through data (`motionProfiles`, `swordPresets`), not forked code.
+Updated: 2026-10-04. This is the working plan and tracker for character motion, the sword model and sword handling. The base rig performs every action first; characters then specialize it through data (`motionProfiles`, `swordPresets`), not forked code.
 
 ## Owner decisions (2026-09-29)
 
@@ -21,8 +21,8 @@ Updated: 2026-09-29. This is the working plan and tracker for character motion, 
 | 6 | Directional dashes (server and clips) | **Done.** Camera-relative; engine 20/20, two-client 19/19 |
 | 7 | Draw/sheathe state machine, three sheathe styles, auto-sheathe | **Done.** Procedural sword path; engine 22/22, two-client 20/20 |
 | 8 | Sword attack, combo, guard/parry and reaction clips | **Done.** 21 clips; Click sound deferred |
-| 9 | Per-character motion profiles; Tanjiro as the first specialization | Planned |
-| 10 | Studio authoring workflow (this document) | Planned |
+| 9 | Per-character motion profiles; Tanjiro as the first specialization | Implemented: six Tanjiro clips and shared server/client resolution. Visual refinement pending |
+| 10 | Studio authoring workflow (this document) | Documented; checked importer and edit-preservation tests implemented. Manual editor round-trip pending |
 
 Automated tests prove wiring, not appearance. No visual quality is claimed until a human reviews the motion in Studio.
 
@@ -103,22 +103,16 @@ Base preset `nichirin_base`. Implemented as `Rig.buildSword`/`Rig.swordSpec`. Sw
 
 Structural parent poses carry Weight 0, following the Animation Editor's convention, so a clip affects only the joints it keys. An upper-body draw therefore leaves the legs to locomotion.
 
-**Refining in Studio.**
-1. Open the built place.
-2. In the command bar, run `require(game.ServerScriptService.Server.Rig).create(workspace, Vector3.new(0, 5, 0), require(game.ReplicatedStorage.Shared.Content).characters.tanjiro)` to spawn a rig.
-3. Open the clip in the Animation Editor from `ReplicatedStorage.Animations` and edit it.
-4. Right-click the KeyframeSequence, choose **Save to File**, and save over `assets/animations/<set>/<clip>.rbxmx`.
-
-The generator then reports `KEPT` and never overwrites that file. The JSON still supplies category, speed and loop, and `check.py` validates the saved file's pose names and markers.
+**Refining in Studio.** Use the complete workflow below. Export to `build/` and run the checked importer; it backs up the previous asset before adopting a valid edit. The generator reports `KEPT` for an edited file. JSON still supplies category, speed, loop, priority and mask; actual XML marker times and duration populate the runtime index.
 
 **Runtime (`src/client/Animator.luau` + `Motion.luau`).**
 - Every client animates every rig into `Motor6D.Transform` in `PreSimulation`. `C0` stays at rest.
 - **Base layer:** cross-fades (0.15 s) between the locomotion state's clip and the legacy procedural pose when no clip exists. States are `idle`, `run`, `jump`, `fall` and `land`, with drawn and sheathed variants.
-- **Action layer:** a fading stack (0.08 s in, 0.12 s out). Each server `Pose` plays `base/<pose>` (or `base/<pose>_<PoseVariant>`) if authored, otherwise the legacy pose.
+- **Action layer:** a fading stack (0.08 s in, 0.12 s out). `MotionProfile` resolves `PoseVariant` first, then `Pose`, using the character override or the matching `base/<slot>`. Missing clips retain the legacy pose. Held guard resolves separately so an expired combo variant cannot replace it.
 - **Timing:** attack clips are time-warped from `PoseWindup` and `PoseDuration`.
 - **Markers:** `Grip`/`Release` swap the sword joints locally, and `TrailOn`/`TrailOff` drive the trail.
 - **Overlay:** a turn-lean roll is added on top.
-- **Diagnostics:** `MotionClip` and `MotionState` attributes. They are client-local and never trusted.
+- **Diagnostics:** `MotionClip`, `MotionActionClip`, `MotionProfile` and `MotionState` attributes. They are client-local and never trusted.
 
 **Deviations from the plan, recorded honestly.**
 - **Uploaded asset-ID playback (`animationAssets`) is not implemented.** No IDs exist to test it, and the offline sampler plays everything. Add it only together with a real uploaded clip to test against.
@@ -237,7 +231,7 @@ The generator then reports `KEPT` and never overwrites that file. The JSON still
 | Clip | Beats |
 |---|---|
 | idle_sheathed | 2.4 s breathing loop. Weight on the back leg, left hand resting on the saya, slight head scan. |
-| idle_drawn | Chudan-no-kamae with a two-handed grip, tip at throat height, knees 15°, left foot back, ±2° waist sway. |
+| idle_drawn | Forward right-hand guard adapted to the blocky shoulder span; left hand protects the chest, bent knees, left foot back and breathing sway. |
 | walk_sheathed | 1.0 s cycle: contact, down, pass, up. Heel-to-toe roll, left hand steadying the saya. |
 | run_sheathed | 0.62 s cycle. Torso pitched 12°, knee lift up to 70°, arms driving at 90° elbows. |
 | run_drawn | Run legs; blade held low and trailing about 40° back. |
@@ -279,7 +273,73 @@ The generator then reports `KEPT` and never overwrites that file. The JSON still
 | summon | Blade raised overhead. |
 | hit_light / hit_heavy / stun | Hit reactions. |
 
-**Story poses.** kneel, embrace, kick, emerge and carry move to the same player.
+**Story poses.** kneel, embrace, kick, emerge and carry currently use the procedural fallback. Authored acting clips remain production work.
+
+Asakusa adds `base/restrain` and `base/struggle`, two original 0.8-second story clips for bracing against the transformed civilian. Scene/focus poses clear stale combat variants and windup metadata, so a previous combo cannot replace story acting. Total bundled clips: 44. October 4 engine and focused two-client checks verify the new clip selection/playback; appearance review remains pending. Encounter starts/retries refresh the weapon idle timer so dialogue cannot trigger immediate auto-sheathing on the first attack.
+
+## Character profiles (phase 9)
+
+`data/catalog.json` owns `motionProfiles[profile].clips` (logical slot → asset name) and each character's optional `motionProfile`. `base` has no overrides. Tanjiro is the first specialization; other characters retain the shared set. Story actors with unknown character IDs safely fall back to base.
+
+| Tanjiro slot | First authored interpretation |
+|---|---|
+| `idle_drawn` | Lower forward guard, deeper knees, 2.4-second breathing cycle |
+| `walk_drawn` | Short bent-knee advance with the sword held steady |
+| `combo_1` | Compact chamber and diagonal cut with a forward weight shift |
+| `combo_2` | Low chamber, rising counter-cut and waist unwind |
+| `combo_3` | Coiled thrust with a planted front knee |
+| `guard_hold` | Tucked shoulder and inward blade angle; legs remain free |
+
+These are original gameplay interpretations, not traced or verified anime choreography. They still need a human appearance review. Technique-specific Water/Hinokami choreography, sheathed locomotion and sword transitions currently use base clips.
+
+`src/shared/MotionProfile.luau` resolves both server weapon timing and observer animations. For each slot, the character override wins, then the exact base slot. Locomotion tries drawn, sheathed, then unsuffixed slots in that order; an unsuffixed override does not supersede a more specific existing variant. Attacks still time-warp to server `PoseWindup`/`PoseDuration`, without changing damage or cooldowns. Draw/sheathe overrides would instead supply their actual duration and joint-swap markers to the server.
+
+To add another profile, create its JSON clips, add the catalog mappings and character assignment, then run `python scripts/check.py`. Validation rejects unknown targets, mismatched categories/looping/masks and missing or invalid timing gates. Extend the pure selection checks and engine/observer coverage when adding new behavior.
+
+## Studio authoring workflow (phase 10)
+
+The file pipeline is automated and tested. The following Animation Editor workflow is based on the current [Roblox Animation Editor documentation](https://create.roblox.com/docs/animation/editor) and [local animation import/export guide](https://create.roblox.com/docs/education/build-it-play-it-island-of-move/sharing-animations); a manual round-trip in this installed Studio version is still pending. Newer saves use an `AnimSaves` ObjectValue pointing into ServerStorage; older saves may use a folder directly.
+
+1. Run `python scripts/check.py` and open `build/WisteriaChronicles.rbxlx` in Studio, in edit mode. Use the command bar to create a review rig:
+
+   ```lua
+   local Rig = require(game.ServerScriptService.Server.Rig)
+   local Content = require(game.ReplicatedStorage.Shared.Content)
+   local rig = Rig.create(workspace, Vector3.new(0, 5, 0), Content.characters.tanjiro)
+   rig.Name = "AnimationWorkshop"
+   rig.HumanoidRootPart.Anchored = true
+   Rig.draw(rig, true)
+   game:GetService("Selection"):Set({rig})
+   ```
+
+2. Open **Avatar → Animation Editor**, select this rig, create a scratch animation and **Save** it. This establishes Studio's own save reference. Then clone a bundled clip into those saves from the command bar:
+
+   ```lua
+   local rig = workspace.AnimationWorkshop
+   local saves = assert(rig:FindFirstChild("AnimSaves"), "Save a scratch animation first")
+   local folder = saves:IsA("ObjectValue") and saves.Value or saves
+   assert(folder, "Animation save reference is empty")
+   assert(not folder:FindFirstChild("combo_1"), "This save already exists; load it to preserve edits")
+   game.ReplicatedStorage.Animations.tanjiro.combo_1:Clone().Parent = folder
+   ```
+
+3. In the editor's **⋯ → Load** menu, load `combo_1`. Scrub chamber, Hit, follow-through and recovery; review front, side and rear views. Retain the R15 hierarchy, loop setting and priority. Keep `Hit` before `End`; keep the first/last guard connected. For loops, match the first and last pose. Keep pose weights 0 (structure) or 1 (keyed); fractional weights and curve animations are not supported by this sampler.
+
+4. **Save** in the editor. Follow the rig's `AnimSaves` reference to select the actual `KeyframeSequence`, then use **Save to File**, choosing **XML Model (.rbxmx)**. Save to `build/combo_1.rbxmx`. Export the whole sequence with Name `combo_1`; neither the rig nor a single keyframe is a clip.
+
+5. Validate and import from PowerShell:
+
+   ```powershell
+   python scripts/import_animation.py tanjiro/combo_1 build/combo_1.rbxmx --check-only
+   python scripts/import_animation.py tanjiro/combo_1 build/combo_1.rbxmx
+   python scripts/check.py
+   ```
+
+   Invalid exports leave the asset unchanged. Successful imports save the previous bytes under ignored `build/animation-backups/`, preserve the generator baseline hash and update the index. Commit the edited `.rbxmx`, relevant JSON metadata, generated index and current docs. Do not replace the manifest hash with the edited file's hash: that would remove overwrite protection. To resume JSON generation intentionally, restore the last generated asset from Git or a known baseline backup first.
+
+6. Reopen the rebuilt place and **Play**. Verify the imported clip on Tanjiro, combos under repeated input, guard after a combo, movement blending and another observer. The editor previews body keys; the game's sword extraction path, action blending and server time-warp require this runtime review. A save or successful compile does not establish visual quality.
+
+The importer rejects scripts/unsupported instances, unknown or mis-parented joints, invalid CFrames, duplicate timing gates, unclosed loops and mismatched metadata. Backups and the workshop rig are local review material and are not shipped.
 
 ## Remaining beyond this plan
 

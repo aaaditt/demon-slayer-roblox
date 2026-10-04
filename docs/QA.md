@@ -120,6 +120,15 @@ The first multiplayer attempt exposed a **test-runner** issue: run-in-roblox's p
 - **Still unqualified:** sustained low-FPS and network-lag dash smoothness remain a real, unqualified risk.
 - No visual review of the new clips has taken place.
 
+### 2026-09-30 Tanjiro profile and Studio import pipeline
+
+- `python scripts/check.py`: **42 clips**, two profiles, **6/6 Python authoring tests**, **18/18 core tests**, **30 compiled Luau files**, place build passed. Import coverage includes preserved edits after regeneration, backups, actual XML retiming, dry runs, malformed exports, missing/duplicate timing gates, invalid numeric poses, loop closure and incompatible profile mappings.
+- New engine coverage samples Tanjiro's actual clip poses at server Hit time and checks guard after an expired combo. New two-client coverage observes Tanjiro and Giyu stance/combo/guard selection on both clients. Fixtures use anchored Physics-state humanoids to isolate clip selection from locomotion. Both suites compile; these additions have **not run**.
+- First `run-in-roblox` engine attempt: **exit 1**, timeout waiting for Studio. No PASS/FAIL test output. Studio updated to `0.741.19.7411056`; its log reports `Cannot open place file for reading.: iostream stream error` for the runner's temporary place.
+- Read-only diagnostics found installed version `version-76e1a02649ad4f35`, while `HKCU/Software/Roblox/RobloxStudio/ContentFolder` still names removed `version-6b0e880a1a144428`. This is an observed mismatch, not a proven sole cause of the timeout. Registry was not edited.
+- Retry after the update: **exit 1** before test execution; creation of `C:/Users/aadit/AppData/Local/Roblox/Plugins/run_in_roblox-50312.rbxmx` denied (OS error 5). Stopping the identified orphaned first-test Studio process (PID 16816, start 2026-09-30 11:30:58 Dubai) was also denied. No further launches were attempted. The full multiplayer runner was prepared but not launched through the same blocked plugin path.
+- Previous **22/22 engine** and **20/20 two-client** results belong to the preceding checkpoint, not this change. Human visual review, an actual Studio editor save/import round-trip, physical-device controls and sustained low-FPS/lag qualification remain pending.
+
 ### 2026-09-29 animation phases 7–8 (draw/sheathe state machine, sword path, attacks)
 
 - **Portable:** `check.py` passed: 36 clips, 29 Luau files and the build.
@@ -136,3 +145,15 @@ The first multiplayer attempt exposed a **test-runner** issue: run-in-roblox's p
   - The sword "no jump" check compared the largest step with the straight-line hip-to-hand distance (2.05). The path is deliberately longer, so the check now compares against the total distance travelled; a teleport would still fail it.
   - The behaviour under test was correct in that run (slid 2.68, ended 0.27 from the hand).
 - No visual review has taken place.
+
+### 2026-10-04 Tanjiro and Asakusa qualification
+
+- Portable validation passed: 44 clips, two profiles, six Python authoring tests, eighteen core tests, 31 Luau compilations and build. Current engine run: **25/25**, exit 0. New coverage includes sampled Tanjiro poses, city/clinic route and floor casts, civilian restraint ownership/range/timing/retry, and nonlethal defense ownership/hit/time/cleanup. The twelve-rig animation benchmark was 3.415 ms/frame in this run.
+- Initial focused multiplayer run: **0/2**. Rescue acting was not observed, and the next check inherited its unfinished mission. Exit setup now explicitly clears any earlier mission. One further launch failed at the harness level when two clients did not join; Studio logged a memory-allocation error. It executed no chapter checks.
+- Subsequent focused results: **1/2** at a later direct restraint input (both client clips were observed); **1/2** at fixed-delay cutscene readiness; **1/2** at a Water hit after reaching the clinic. The exit check passed in each. The fixture now pins repositioned actors, waits for a fresh gold window and bounded replicated camera/UI readiness, and pins/suppresses the target AI only while testing the remote Water hit. Server gameplay thresholds are unchanged. These are fixture corrections; they do not establish movement balance or a manual playthrough.
+- The Windows computer-use helper could not connect its native pipe (OS error 2), so no new visual/editor round-trip evidence is available. Automated routes reposition actors and accelerate later beats, damage and timers. Physical controls, full human traversal, appearance, pacing and difficulty remain unverified.
+
+- A further **1/2** focused diagnostic found the first Water input was rejected at seven studs with clear line of sight while `sheathe_noto` began. This was a gameplay idle-timer race, not hit geometry. Refreshing weapon activity at encounter start/retry prevents dialogue time from immediately sheathing the sword. The new engine regression and final engine suite passed **25/25** (2.502 ms for twelve rigs).
+- Focused two-client Asakusa after the fix: **2/2**, exit 0, `RUNTIME_JSON.failures=0`. All fifteen stages, restraint client clips, Water attacks, private ownership, nonlethal/time requirements, 190 XP once, chapter-six unlock, restored hub fighter/loadout, camera/UI and actor/map/slot cleanup passed.
+- Final full regression: **14 passed / 9 failed**, exit 1. First failure was virtual E not advancing the prologue at server test line 150. Because that run did not unlock chapter two, subsequent chapter start/exit assertions failed on locked/absent missions. The cause of the first input failure remains unconfirmed; next session should inspect scene readiness, server dialogue gating and client input/remote receipt. The user requested handoff, so no further implementation or test launch was started.
+- Full-run profile, movement, sword and PvP checks passed. W+Q measured 16.1127 studs server / 15.3623 client, largest step 7.6875 studs and worst frame 0.0686 seconds. Side dash: 11.5086 studs, facing dot 0.99905. Observer sword draw: 2.72-stud axial slide, largest step 2.61 of 9.33 travelled, 0.27-stud final hand gap. No thresholds were loosened. Focused Asakusa 2/2 remains a separate passing result; the full suite is not green.

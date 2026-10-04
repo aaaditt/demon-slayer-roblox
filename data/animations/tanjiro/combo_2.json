@@ -1,0 +1,145 @@
+{
+  "category": "attack",
+  "priority": "Action",
+  "note": "Tanjiro second cut: low counter-chamber into a rising diagonal, waist unwinding before the recovery to his forward guard.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    },
+    {
+      "t": 0.1,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightShoulder": [0, 0, -38],
+        "RightElbow": [10, 0, 0],
+        "RightWrist": [-88, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-16, 41.3, 0],
+        "Neck": [8, -28.9, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.27, 0]
+        },
+        "RightHip": [25, 0, 0],
+        "RightKnee": [-43, 0, 0],
+        "RightAnkle": [18, 0, 0],
+        "LeftHip": [-15, 0, 0],
+        "LeftKnee": [-26, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.18,
+      "ease": "Linear/In",
+      "pose": {
+        "RightShoulder": [100, 0, 22],
+        "RightElbow": [0, 0, 0],
+        "RightWrist": [-48, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-10, 0.0, 0],
+        "Neck": [4, -0.0, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.22, 0]
+        },
+        "RightHip": [25, 0, 0],
+        "RightKnee": [-33, 0, 0],
+        "RightAnkle": [13, 0, 0],
+        "LeftHip": [-15, 0, 0],
+        "LeftKnee": [-21, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.28,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [160, 0, 47],
+        "RightElbow": [10, 0, 0],
+        "RightWrist": [-28, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-6, -35.4, 0],
+        "Neck": [0, 24.8, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.22, 0]
+        },
+        "RightHip": [25, 0, 0],
+        "RightKnee": [-33, 0, 0],
+        "RightAnkle": [13, 0, 0],
+        "LeftHip": [-15, 0, 0],
+        "LeftKnee": [-21, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.5,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.1,
+      "name": "TrailOn"
+    },
+    {
+      "t": 0.18,
+      "name": "Hit"
+    },
+    {
+      "t": 0.3,
+      "name": "TrailOff"
+    },
+    {
+      "t": 0.5,
+      "name": "End"
+    }
+  ]
+}

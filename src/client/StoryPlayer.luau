@@ -71,7 +71,7 @@ function StoryPlayer.new(send,ui)
         local challenge=self.state.challenge
         self.exercise.Visible=challenge~=nil and not self.ui.shade.Visible
         if challenge then
-            local focus=challenge.kind=="breath" or challenge.kind=="cut"
+            local focus=challenge.kind=="breath" or challenge.kind=="cut" or challenge.kind=="restrain"
             self.breathBar.Visible=focus;self.focusButton.Visible=focus
             self.exercise.Size=UDim2.new(0.72,0,0,focus and 98 or challenge.combat and 54 or 36)
             self.progress.Size=UDim2.new(1,-24,0,challenge.combat and 46 or 27)
@@ -82,6 +82,7 @@ function StoryPlayer.new(send,ui)
                     local phase=challenge.phase=="exposed" and "NECK EXPOSED — STRIKE" or challenge.phase=="windup" and "ARMS REACHING — EVADE" or "ARMS GUARDING THE NECK"
                     progress=phase.."  ·  "..math.ceil(challenge.bossHp or 0).." HP"
                 elseif challenge.kind=="vigil" then progress..="  ·  Hold out: "..challenge.holdRemaining.."s"
+                elseif challenge.kind=="hold" then progress="Cover Tamayo: "..challenge.hits.." / "..challenge.goal.." hits  ·  Hold "..challenge.holdRemaining.."s"
                 elseif challenge.kind=="swamp" then
                     local cue=challenge.phase=="exposed" and "EXPOSED — STRIKE" or challenge.phase=="windup" and "CLAW REACH — EVADE" or "WATCH THE POOLS"
                     progress=cue.."  ·  "..(challenge.mode=="ambush" and ("Hits "..challenge.hits.."/"..challenge.goal.." · Hold "..challenge.holdRemaining.."s") or (challenge.defeated.."/"..challenge.total.." defeated"))
@@ -91,6 +92,7 @@ function StoryPlayer.new(send,ui)
                     or ("Controlled hits: "..challenge.count.." / "..challenge.goal)
             end
             if challenge.kind=="breath" then progress="Steady breaths: "..challenge.count.." / "..challenge.goal end
+            if challenge.kind=="restrain" then progress="Contain the civilian: "..challenge.count.." / "..challenge.goal.."  ·  No sword" end
             if challenge.kind=="cut" then progress="Stand still. Breathe in gold, then strike." end
             if challenge.kind=="survive" then progress..="  ·  Hold out: "..challenge.surviveRemaining.."s" end
             self.progress.Text=progress.."  ·  "..challenge.remaining.."s"
@@ -102,7 +104,7 @@ function StoryPlayer.new(send,ui)
                 self.window.Size=UDim2.fromScale((challenge.window[2]-challenge.window[1])/challenge.period,1)
                 self.window.BackgroundColor3=ready and Color3.fromRGB(255,214,129) or Color3.fromRGB(175,142,78)
                 self.cursor.Position=UDim2.new(phase/challenge.period,-2,0,-2)
-                self.focusButton.Text=challenge.kind=="cut" and now<challenge.focusUntil and ("STRIKE NOW  ·  "..math.ceil(challenge.focusUntil-now).."s") or "BREATHE IN GOLD  [E / X]"
+                self.focusButton.Text=challenge.kind=="restrain" and "BRACE IN GOLD  [E / X]" or challenge.kind=="cut" and now<challenge.focusUntil and ("STRIKE NOW  ·  "..math.ceil(challenge.focusUntil-now).."s") or "BREATHE IN GOLD  [E / X]"
             end
         end
         local character=Players.LocalPlayer.Character
@@ -122,7 +124,7 @@ end
 
 function StoryPlayer:canFocus()
     local challenge=self.state and self.state.challenge
-    return challenge and (challenge.kind=="breath" or challenge.kind=="cut") and not self.ui.shade.Visible and not UserInputService:GetFocusedTextBox()
+    return challenge and (challenge.kind=="breath" or challenge.kind=="cut" or challenge.kind=="restrain") and not self.ui.shade.Visible and not UserInputService:GetFocusedTextBox()
 end
 
 function StoryPlayer:focus()

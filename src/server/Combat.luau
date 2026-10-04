@@ -5,6 +5,7 @@ local Rules = require(Shared.Rules)
 local Content = require(Shared.Content)
 local MotionMath = require(Shared.MotionMath)
 local AnimationIndex = require(Shared.AnimationIndex)
+local Profiles = require(Shared.MotionProfile).new(Content, AnimationIndex)
 local Rig = require(script.Parent.Rig)
 local Combat = {}
 Combat.__index = Combat
@@ -311,7 +312,7 @@ function Combat:weapon(actor, drawn, style)
     local clip
     if drawn then clip = style == "iai" and "draw_iai" or "draw"
     else clip = "sheathe_"..(style or (now-actor.lastCombat < Config.FastSheatheWindow and "fast" or "noto")) end
-    local entry = AnimationIndex["base/"..clip]
+    local entry = AnimationIndex[Profiles.clip(model:GetAttribute("CharacterId"), clip)]
     local duration = entry.length
     local swapAt = drawn and duration or entry.markers.Release
     actor.castToken += 1; actor.blocking = false

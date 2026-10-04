@@ -1,0 +1,147 @@
+{
+  "category": "story",
+  "priority": "Action",
+  "note": "Original non-graphic Asakusa rescue body acting; visual refinement pending.",
+  "keyframes": [
+    {
+      "t": 0,
+      "pose": {
+        "Waist": [
+          -14,
+          -18,
+          -5
+        ],
+        "Neck": [
+          8,
+          12,
+          3
+        ],
+        "RightShoulder": [
+          45,
+          0,
+          35
+        ],
+        "LeftShoulder": [
+          60,
+          0,
+          -35
+        ],
+        "RightElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          55,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.25,
+      "pose": {
+        "Waist": [
+          -5,
+          23,
+          7
+        ],
+        "Neck": [
+          5,
+          -18,
+          -4
+        ],
+        "RightShoulder": [
+          85,
+          0,
+          25
+        ],
+        "LeftShoulder": [
+          35,
+          0,
+          -25
+        ],
+        "RightElbow": [
+          20,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          70,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.55,
+      "pose": {
+        "Waist": [
+          -14,
+          -18,
+          -5
+        ],
+        "Neck": [
+          8,
+          12,
+          3
+        ],
+        "RightShoulder": [
+          45,
+          0,
+          35
+        ],
+        "LeftShoulder": [
+          60,
+          0,
+          -35
+        ],
+        "RightElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          55,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.8,
+      "pose": {
+        "Waist": [
+          -14,
+          -18,
+          -5
+        ],
+        "Neck": [
+          8,
+          12,
+          3
+        ],
+        "RightShoulder": [
+          45,
+          0,
+          35
+        ],
+        "LeftShoulder": [
+          60,
+          0,
+          -35
+        ],
+        "RightElbow": [
+          60,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          55,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

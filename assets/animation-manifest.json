@@ -25,14 +25,22 @@
   "base/land_light": "80b6bb9475f5936043be3da0a9e05373496768d233785eefa3473b1a402b79fa",
   "base/parry": "920aa6940720950da7eb124822fc6c3d9d73b16e6f828cfadebf6a02e4d1f0b5",
   "base/projectile": "62f54d29795e00af79a5042c0347964f5c1c00412fbb9376f03a34add8a8add0",
+  "base/restrain": "530e69e9631de9ebfed75dd4c441afe90998e50656c067b896cd57fd58435863",
   "base/run_drawn": "524c38666d30c76c35e262b34bed43d9d90e2decb9a465b9026cfc8d57ca17aa",
   "base/run_sheathed": "8c16df8389fc9151b87432a2363cdadab101f962e23d6fdc66f244796891e80a",
   "base/sheathe_fast": "ebcb5f502e24d1cf81056a35d8c4b8b4fc31417b8338dd1551c86aa586e4bf70",
   "base/sheathe_noto": "3ab6b9b1e74ba32c5dbba9d8e63fd535a7dbdb50946d482c4897539a8c95fdf4",
   "base/slash": "c14b4084427caae15b036f47368cca6dd1d8169c25a2bf860ccc6df37cc27063",
   "base/spin": "3df1eb699512360cddde171f13053813c64194aeb7c0048657f2a8c051e19dab",
+  "base/struggle": "08308c709385e84fb2734820ce87e3b25ae204082138b93044ff81ce0bfee1ce",
   "base/summon": "74e35edbb45100a6899de208d81cf67356b9d434ac3f51ed7e16378cf4ff09ab",
   "base/thrust": "736373a00588f26c5993881363127d486be8d26c85447ff94da04efb7b7d7541",
   "base/trap": "056a7147991bb50127c82369f81b82acd0ea6949b701ab3e01f09be16b0fc973",
-  "base/walk_sheathed": "4ffb1a14f88f560b73ae56126bd4c711dd9dfab237bc3637e169629e929cd85a"
+  "base/walk_sheathed": "4ffb1a14f88f560b73ae56126bd4c711dd9dfab237bc3637e169629e929cd85a",
+  "tanjiro/combo_1": "90ce9437b8e5b750903b1ff189fdadc26d4714e4349a6d8d504dd60a23fef0ca",
+  "tanjiro/combo_2": "49c08e001dd19054e185ab8e6bb58e019d9d4673e3b10a2fdd01708aba1eb8fa",
+  "tanjiro/combo_3": "cdfa5395eff9b32efd5a65154dd674dd475dffba362ba5a0c6313d8256a4bbaf",
+  "tanjiro/guard_hold": "b0690762f242527e8e9680b9d6aa6e9df410b5502dc2b3e7d724d943dc4d285a",
+  "tanjiro/idle_drawn": "c29cda9a7fc0e0e71d92f3ee28fd5625ef8862bb77505e717c7c630b0a1232c8",
+  "tanjiro/walk_drawn": "28f73abd8a1a5851c6767404a3160d0ca51b796d3c4b22cc62d63b49c3cedf7c"
 }

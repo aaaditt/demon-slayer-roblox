@@ -1,0 +1,145 @@
+{
+  "category": "attack",
+  "priority": "Action",
+  "note": "Tanjiro first cut: a compact right-side chamber, deeper forward weight shift, diagonal follow-through and return to his low guard.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    },
+    {
+      "t": 0.1,
+      "ease": "CubicV2/In",
+      "pose": {
+        "RightShoulder": [165, 0, 15],
+        "RightElbow": [17, 0, 0],
+        "RightWrist": [-30, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-6, -29.5, 0],
+        "Neck": [0, 20.6, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.17, 0]
+        },
+        "RightHip": [14, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [12, 0, 0],
+        "LeftHip": [-12, 0, 0],
+        "LeftKnee": [-18, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    },
+    {
+      "t": 0.18,
+      "ease": "Linear/In",
+      "pose": {
+        "RightShoulder": [80, 0, -20],
+        "RightElbow": [12, 0, 0],
+        "RightWrist": [-60, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-14, 11.8, 0],
+        "Neck": [5, -8.3, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.22, 0]
+        },
+        "RightHip": [25, 0, 0],
+        "RightKnee": [-33, 0, 0],
+        "RightAnkle": [13, 0, 0],
+        "LeftHip": [-15, 0, 0],
+        "LeftKnee": [-21, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.28,
+      "ease": "CubicV2/Out",
+      "pose": {
+        "RightShoulder": [20, 0, -50],
+        "RightElbow": [12, 0, 0],
+        "RightWrist": [-70, 0, 0],
+        "LeftShoulder": [55, 0, 28],
+        "LeftElbow": [68, 0, 0],
+        "LeftWrist": [-20, 0, 0],
+        "Waist": [-18, 35.4, 0],
+        "Neck": [8, -24.8, 0],
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.22, 0]
+        },
+        "RightHip": [25, 0, 0],
+        "RightKnee": [-33, 0, 0],
+        "RightAnkle": [13, 0, 0],
+        "LeftHip": [-15, 0, 0],
+        "LeftKnee": [-21, 0, 0],
+        "LeftAnkle": [31, 0, 0]
+      }
+    },
+    {
+      "t": 0.5,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    }
+  ],
+  "markers": [
+    {
+      "t": 0.1,
+      "name": "TrailOn"
+    },
+    {
+      "t": 0.18,
+      "name": "Hit"
+    },
+    {
+      "t": 0.3,
+      "name": "TrailOff"
+    },
+    {
+      "t": 0.5,
+      "name": "End"
+    }
+  ]
+}

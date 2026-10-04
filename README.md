@@ -6,13 +6,13 @@ A Roblox action RPG and PvP project. Minimum cast: **Infinity Castle (2025)**, a
 
 ## Project principles
 
-**Continuing in a fresh session:** read [the current handoff](docs/HANDOFF.md) first. It records the tested chapter-four build and newer concurrent rig changes; verify the latest workspace and delivery status before continuing.
+**Continuing in a fresh session:** read [the current handoff](docs/HANDOFF.md) first. It records the Tanjiro animation and Asakusa checkpoint, validation limits and next work; verify the latest workspace before continuing.
 
 - Server decides damage, cooldowns, energy, progression, arena membership, and rewards.
 - PvP uses equal combat stats; story progression never buys a PvP advantage.
 - Every researched technique is distinguishable from an original gameplay adaptation.
 - Unrevealed canon techniques remain unknown; invented abilities are labeled.
-- Original procedural assets ship first; authored animation/model replacements are tracked.
+- Procedural models and bundled R15 animation clips support basic play without uploaded assets; character-specific motion and likeness production remain tracked work.
 - Small, documented Git commits preserve context between sessions.
 
 ## Play locally
@@ -26,8 +26,8 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 ## Implemented
 
 - **44 selectable characters**, including all nine Hashira, Tanjiro, Nezuko, Zenitsu, Inosuke, Kanao, Genya, Muzan, and all named anime-era Upper/Lower Moons.
-- **210 technique entries** with selectable loadouts, energy/cooldowns, shared procedural animation, colored effects, and canon/adaptation labels.
-- **Four staged story chapters in local source**: the Kamado prologue; Sagiri training; Final Selection and homecoming; then the northwest town investigation and Swamp Demon rescue. **18 later chapters remain encounter previews**, with the full storyline still in production. The published 0.4.0 download contains the first three chapters.
+- **210 technique entries** with selectable loadouts, energy/cooldowns, shared attack clips, colored effects, and canon/adaptation labels. Tanjiro has the first motion profile (six stance/walk/combo/guard clips); individual technique choreography remains unfinished. See the [animation tracker and Studio workflow](docs/ANIMATION.md).
+- **Five staged story chapters**: the Kamado prologue; Sagiri training; Final Selection and homecoming; northwest town/Swamp Demon; and the new Asakusa first pass. **17 later chapters remain encounter previews**. Asakusa has passed engine and focused two-client checks; visual review remains pending. The published 0.4.0 download contains the first three chapters; build current source for version 0.6.0.
 - **PvP free-for-all**, three-minute rounds, five-elimination victory, respawns, equal health/energy, and opt-in combat.
 - Server-side action validation, hit geometry/line-of-sight checks, guard/parry, dodge, status effects, and DataStore session ownership.
 - Visible procedural walk/run, jump/fall/landing and combat poses; camera-relative directional dashes (W/Q front dash, A or D + Q sidestep, S + Q back-hop); single-blade sword drawing/sheathing with **R** (the blade slides out of and back into the saya; a slow noto sheathe out of combat, a fast one in combat, and auto-sheathe after 8 s idle), controller D-pad right or the Sword button.
@@ -35,7 +35,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 
 ## Verified
 
-Portable validation, Roblox engine checks and real two-client Studio integration cover the current development systems. New checks measure joint animation, held W + Q input, replicated sword state, opening-story stage validation/rewards and camera restoration. [QA evidence](docs/QA.md) records exact results, intermediate failures and the limits of automated route tests.
+Portable validation and the 25-check Studio engine suite pass for this checkpoint. The focused Asakusa two-client suite passes both route and exit checks. **Full regression is unresolved (14 passed / 9 failed)**: prologue E-dialogue input failed, preventing later chapter unlocks. [QA evidence](docs/QA.md) records the results and limitations. Automated checks do not establish visual quality or a human playthrough.
 
 To review the new opening, choose **Journey -> 01 A Trail in the Snow**, including on an existing save. Use E / controller X / the prompt to interact, and E / controller A / Continue for dialogue. Skip Scene skips only that conversation. M -> Return to Hub leaves the chapter. [Story production roadmap](docs/STORY_PRODUCTION.md).
 
@@ -44,6 +44,8 @@ After the opening, choose **02 The Mountain Trial**. Follow the marked course, u
 **03 Final Selection** opens an original Fujikasane forest with a wisteria entrance, demon encounters and a night patrol. Use the chapter's four Water forms. Against the Hand Demon, evade its marked reach/sweep and strike during recovery. The chapter continues through ore selection, a Kasugai Crow, reunion at Sagiri, the black Nichirin blade and Nezuko's visible travel box. Seven days are condensed into gameplay and scenes; leaving discards the current attempt.
 
 **04 Beneath the Town** continues with the black sword, Corps uniform and Nezuko's box. Investigate the lantern streets with Kazumi, rescue a young woman, hold off three swamp bodies, and descend while Nezuko guards the survivors. Watch the pools, evade the marked claw attacks, then strike during exposure. A keepsake and farewell lead toward Asakusa. This chapter is in the local build; its current validation/delivery status is in [STATUS.md](docs/STATUS.md).
+
+**05 Lights of Asakusa** adds streets, a noodle stall, Muzan's encounter, a nonlethal civilian restraint exercise, Yushiro's route and Tamayo's house/garden. Defeat Yahaba, then distract Susamaru with Nezuko until Tamayo intervenes. This tested 15-stage first pass includes original dialogue and acting clips; visual review and refinement remain pending. The fights use the shared Arrow/Temari mechanics, with exact canon choreography still in production.
 
 ## Still in production
 

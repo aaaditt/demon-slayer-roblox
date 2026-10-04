@@ -1,0 +1,227 @@
+{
+  "category": "story",
+  "priority": "Action",
+  "note": "Original non-graphic Asakusa rescue body acting; visual refinement pending.",
+  "keyframes": [
+    {
+      "t": 0,
+      "pose": {
+        "Waist": [
+          -12,
+          0,
+          0
+        ],
+        "Neck": [
+          8,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          70,
+          0,
+          -12
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          12
+        ],
+        "RightElbow": [
+          25,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          25,
+          0,
+          0
+        ],
+        "RightHip": [
+          12,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -22,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -10,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -18,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.25,
+      "pose": {
+        "Waist": [
+          -22,
+          0,
+          0
+        ],
+        "Neck": [
+          13,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          92,
+          0,
+          -9
+        ],
+        "LeftShoulder": [
+          92,
+          0,
+          9
+        ],
+        "RightElbow": [
+          12,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          12,
+          0,
+          0
+        ],
+        "RightHip": [
+          18,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -30,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -10,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -22,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.55,
+      "pose": {
+        "Waist": [
+          -12,
+          0,
+          0
+        ],
+        "Neck": [
+          8,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          70,
+          0,
+          -12
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          12
+        ],
+        "RightElbow": [
+          25,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          25,
+          0,
+          0
+        ],
+        "RightHip": [
+          12,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -22,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -10,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -18,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "t": 0.8,
+      "pose": {
+        "Waist": [
+          -12,
+          0,
+          0
+        ],
+        "Neck": [
+          8,
+          0,
+          0
+        ],
+        "RightShoulder": [
+          70,
+          0,
+          -12
+        ],
+        "LeftShoulder": [
+          70,
+          0,
+          12
+        ],
+        "RightElbow": [
+          25,
+          0,
+          0
+        ],
+        "LeftElbow": [
+          25,
+          0,
+          0
+        ],
+        "RightHip": [
+          12,
+          0,
+          0
+        ],
+        "RightKnee": [
+          -22,
+          0,
+          0
+        ],
+        "LeftHip": [
+          -10,
+          0,
+          0
+        ],
+        "LeftKnee": [
+          -18,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

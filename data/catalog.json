@@ -341,6 +341,20 @@
       "kind": "secondary",
       "reviewed": "2026-09-29",
       "evidence": "Search-result summaries agree on Giyu deep blue/hexagonal tsuba, Rengoku red/flame tsuba, Kanao pink/flower tsuba and Tanjiro's green four-point wheel tsuba; the fandom wiki was unreachable (HTTP 402). Shapes are blocky approximations."
+    },
+    "episode_9": {
+      "title": "Official episode 9: Temari Demon and Arrow Demon",
+      "url": "https://demonslayer-anime.com/risshihen/story/09.html",
+      "kind": "primary",
+      "reviewed": "2026-09-30",
+      "evidence": "Synopsis-level sequence; dialogue, layout and mechanical challenges are original adaptations"
+    },
+    "episode_10": {
+      "title": "Official episode 10: Together Forever",
+      "url": "https://demonslayer-anime.com/risshihen/story/10.html",
+      "kind": "primary",
+      "reviewed": "2026-09-30",
+      "evidence": "Synopsis-level sequence; dialogue, layout and mechanical challenges are original adaptations"
     }
   },
   "styles": {
@@ -6293,7 +6307,8 @@
           74
         ],
         "source": "sword_guides"
-      }
+      },
+      "motionProfile": "tanjiro"
     },
     "nezuko": {
       "id": "nezuko",
@@ -12070,19 +12085,1101 @@
     {
       "id": "asakusa",
       "index": 5,
-      "name": "Arrows and Temari",
+      "name": "Lights of Asakusa",
       "location": "asakusa",
       "enemies": [
         "yahaba",
         "susamaru"
       ],
-      "objective": "Help Tamayo by overcoming the arrow and temari demons.",
+      "objective": "Find Muzan, protect a civilian and help defend Tamayo's hidden house.",
       "mentor": "tamayo",
       "spoiler": false,
       "reward": 190,
       "bossHealth": 160,
-      "timeLimit": 600,
-      "production": "encounter blockout; story scenes pending"
+      "timeLimit": 1200,
+      "production": "staged story first pass; visual review pending",
+      "story": {
+        "id": "asakusa_rescue",
+        "map": "asakusa",
+        "character": "tanjiro",
+        "sources": [
+          "episode_8",
+          "episode_9",
+          "episode_10",
+          "original"
+        ],
+        "initialWeapon": "black",
+        "initialCarry": "box",
+        "loadout": [
+          "water_1",
+          "water_2",
+          "water_4",
+          "water_8"
+        ],
+        "targets": {
+          "arrival": [
+            0,
+            3,
+            135
+          ],
+          "stall": [
+            -26,
+            3,
+            78
+          ],
+          "scent": [
+            0,
+            3,
+            28
+          ],
+          "muzan": [
+            0,
+            3,
+            -23
+          ],
+          "civilian": [
+            4,
+            3,
+            -23
+          ],
+          "alley": [
+            -87,
+            3,
+            -76
+          ],
+          "gate": [
+            0,
+            3,
+            65
+          ],
+          "consult": [
+            0,
+            3,
+            -66
+          ],
+          "courtyard": [
+            0,
+            3,
+            -23
+          ],
+          "arrows": [
+            0,
+            3,
+            6
+          ],
+          "temari": [
+            0,
+            3,
+            -13
+          ],
+          "farewell": [
+            0,
+            3,
+            -53
+          ],
+          "exit": [
+            0,
+            3,
+            120
+          ]
+        },
+        "shots": {
+          "city": {
+            "from": [
+              30,
+              19,
+              157
+            ],
+            "to": [
+              0,
+              5,
+              70
+            ]
+          },
+          "stall": {
+            "from": [
+              -9,
+              9,
+              72
+            ],
+            "to": [
+              -26,
+              4,
+              86
+            ]
+          },
+          "scent": {
+            "from": [
+              18,
+              9,
+              40
+            ],
+            "to": [
+              0,
+              4,
+              12
+            ]
+          },
+          "muzan": {
+            "from": [
+              14,
+              8,
+              -10
+            ],
+            "to": [
+              0,
+              4,
+              -31
+            ]
+          },
+          "civilian": {
+            "from": [
+              17,
+              8,
+              -14
+            ],
+            "to": [
+              4,
+              3,
+              -27
+            ]
+          },
+          "tamayo": {
+            "from": [
+              -15,
+              8,
+              -13
+            ],
+            "to": [
+              0,
+              4,
+              -28
+            ]
+          },
+          "alley": {
+            "from": [
+              -70,
+              10,
+              -59
+            ],
+            "to": [
+              -87,
+              4,
+              -89
+            ]
+          },
+          "garden": {
+            "from": [
+              36,
+              24,
+              85
+            ],
+            "to": [
+              0,
+              5,
+              -48
+            ]
+          },
+          "consult": {
+            "from": [
+              6,
+              8,
+              -53
+            ],
+            "to": [
+              -9,
+              4,
+              -72
+            ]
+          },
+          "duel": {
+            "from": [
+              39,
+              15,
+              29
+            ],
+            "to": [
+              0,
+              4,
+              -5
+            ]
+          },
+          "temari": {
+            "from": [
+              -25,
+              10,
+              -21
+            ],
+            "to": [
+              8,
+              4,
+              8
+            ]
+          },
+          "farewell": {
+            "from": [
+              14,
+              9,
+              -39
+            ],
+            "to": [
+              -4,
+              4,
+              -62
+            ]
+          }
+        },
+        "actors": [
+          {
+            "id": "muzan",
+            "name": "Muzan",
+            "color": [
+              211,
+              67,
+              91
+            ],
+            "position": [
+              0,
+              3,
+              -31
+            ],
+            "visible": true,
+            "template": "muzan",
+            "unarmed": true
+          },
+          {
+            "id": "tamayo",
+            "name": "Tamayo",
+            "color": [
+              200,
+              117,
+              160
+            ],
+            "position": [
+              -22,
+              3,
+              -38
+            ],
+            "visible": false,
+            "template": "tamayo"
+          },
+          {
+            "id": "yushiro",
+            "name": "Yushiro",
+            "color": [
+              150,
+              199,
+              164
+            ],
+            "position": [
+              -87,
+              3,
+              -87
+            ],
+            "visible": false,
+            "template": "yushiro"
+          },
+          {
+            "id": "nezuko",
+            "name": "Nezuko Kamado",
+            "color": [
+              255,
+              111,
+              159
+            ],
+            "position": [
+              -25,
+              3,
+              78
+            ],
+            "visible": false,
+            "template": "nezuko"
+          },
+          {
+            "id": "yahaba",
+            "name": "Yahaba",
+            "color": [
+              226,
+              117,
+              91
+            ],
+            "position": [
+              -26,
+              3,
+              8
+            ],
+            "visible": false,
+            "template": "yahaba"
+          },
+          {
+            "id": "susamaru",
+            "name": "Susamaru",
+            "color": [
+              247,
+              145,
+              78
+            ],
+            "position": [
+              19,
+              3,
+              8
+            ],
+            "visible": false,
+            "template": "susamaru"
+          },
+          {
+            "id": "vendor",
+            "name": "Noodle vendor",
+            "color": [
+              150,
+              126,
+              91
+            ],
+            "position": [
+              -26,
+              3,
+              89
+            ],
+            "visible": true
+          },
+          {
+            "id": "civilian",
+            "name": "Transformed civilian",
+            "color": [
+              110,
+              131,
+              155
+            ],
+            "position": [
+              4,
+              3,
+              -27
+            ],
+            "visible": true
+          },
+          {
+            "id": "companion",
+            "name": "Companion",
+            "color": [
+              169,
+              131,
+              155
+            ],
+            "position": [
+              11,
+              3,
+              -29
+            ],
+            "visible": true
+          },
+          {
+            "id": "passerby_a",
+            "name": "Passerby",
+            "color": [
+              136,
+              118,
+              91
+            ],
+            "position": [
+              15,
+              3,
+              45
+            ],
+            "visible": true
+          },
+          {
+            "id": "passerby_b",
+            "name": "Passerby",
+            "color": [
+              124,
+              146,
+              136
+            ],
+            "position": [
+              -14,
+              3,
+              1
+            ],
+            "visible": true
+          }
+        ],
+        "steps": [
+          {
+            "id": "arrival",
+            "title": "A city that never sleeps",
+            "objective": "Find a quiet place beside the street.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "ASAKUSA",
+                "text": "Electric lights stretch above the crowds. The mountain paths already feel far away.",
+                "shot": "city"
+              }
+            ],
+            "automatic": true,
+            "uniformOnScene": true
+          },
+          {
+            "id": "stall",
+            "title": "A moment to breathe",
+            "objective": "Speak to the noodle vendor.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "VENDOR",
+                "text": "Take a moment here. There is room away from the crowd.",
+                "shot": "stall"
+              },
+              {
+                "speaker": "TANJIRO",
+                "text": "Thank you. Nezuko, we will rest before the next assignment.",
+                "shot": "stall"
+              }
+            ],
+            "target": "stall",
+            "action": "Speak to the noodle vendor."
+          },
+          {
+            "id": "scent",
+            "title": "A scent from the mountain",
+            "objective": "Follow the unfamiliar scent through the street.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "That scent... the one left at our home. It is here.",
+                "shot": "scent"
+              }
+            ],
+            "target": "scent",
+            "action": "Follow the unfamiliar scent through the street."
+          },
+          {
+            "id": "muzan",
+            "title": "Among the crowd",
+            "objective": "Approach the man in the street.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "You were at our home. Tell me what happened to my family!",
+                "shot": "muzan"
+              },
+              {
+                "speaker": "A SUDDEN CRY",
+                "text": "A passerby staggers and changes. Muzan turns away while the crowd breaks apart.",
+                "shot": "civilian",
+                "actors": {
+                  "civilian": {
+                    "pose": "struggle",
+                    "duration": 1
+                  },
+                  "muzan": {
+                    "moveTo": [
+                      0,
+                      3,
+                      -86
+                    ],
+                    "duration": 2,
+                    "pose": "walk_sheathed"
+                  },
+                  "companion": {
+                    "moveTo": [
+                      14,
+                      3,
+                      -19
+                    ],
+                    "duration": 1,
+                    "pose": "walk_sheathed"
+                  }
+                },
+                "effect": {
+                  "at": "civilian",
+                  "pattern": "burst",
+                  "color": [
+                    193,
+                    98,
+                    124
+                  ],
+                  "range": 3
+                }
+              },
+              {
+                "speaker": "TANJIRO",
+                "text": "He is still a person. I cannot leave him here with everyone else.",
+                "shot": "civilian"
+              }
+            ],
+            "target": "muzan",
+            "action": "Approach the man in the street.",
+            "weaponOnScene": "none"
+          },
+          {
+            "id": "contain",
+            "title": "Protect, do not kill",
+            "objective": "Stay close and brace during the gold window.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "Move back! I will keep him here until someone can help.",
+                "shot": "civilian"
+              }
+            ],
+            "target": "civilian",
+            "action": "Stay close and brace during the gold window.",
+            "weaponOnScene": "none",
+            "actors": {
+              "muzan": {
+                "visible": false
+              },
+              "civilian": {
+                "position": [
+                  4,
+                  3,
+                  -27
+                ]
+              },
+              "companion": {
+                "position": [
+                  14,
+                  3,
+                  -19
+                ]
+              }
+            },
+            "challenge": {
+              "kind": "restrain",
+              "victim": "civilian",
+              "start": [
+                4,
+                3,
+                -23
+              ],
+              "radius": 3,
+              "limit": 70,
+              "period": 2.6,
+              "window": [
+                1,
+                1.9
+              ],
+              "cycles": 4
+            },
+            "outro": [
+              {
+                "speaker": "TANJIRO",
+                "text": "Easy. Stay with me. I will not draw my sword.",
+                "shot": "civilian",
+                "playerPose": "restrain"
+              }
+            ]
+          },
+          {
+            "id": "help",
+            "title": "An unexpected doctor",
+            "objective": "Accept help from the stranger.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TAMAYO",
+                "text": "Keep your hands steady. Let me take care of him.",
+                "shot": "tamayo",
+                "actors": {
+                  "tamayo": {
+                    "moveTo": [
+                      0,
+                      3,
+                      -27
+                    ],
+                    "duration": 1.3,
+                    "pose": "heal"
+                  },
+                  "civilian": {
+                    "pose": "kneel"
+                  }
+                },
+                "effect": {
+                  "at": "civilian",
+                  "pattern": "heal",
+                  "color": [
+                    215,
+                    155,
+                    196
+                  ],
+                  "range": 6
+                }
+              },
+              {
+                "speaker": "TANJIRO",
+                "text": "You are a demon... and you are helping him?",
+                "shot": "tamayo"
+              },
+              {
+                "speaker": "TAMAYO",
+                "text": "There are things we should discuss somewhere safe. Bring your sister.",
+                "shot": "tamayo"
+              }
+            ],
+            "automatic": true,
+            "actors": {
+              "tamayo": {
+                "visible": true
+              }
+            },
+            "resultActors": {},
+            "weaponOnScene": "black"
+          },
+          {
+            "id": "return",
+            "title": "Back to Nezuko",
+            "objective": "Return to the noodle stall.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "Nezuko, come with me. We have found someone who may understand.",
+                "shot": "stall",
+                "nezukoPose": "guard"
+              }
+            ],
+            "target": "stall",
+            "action": "Return to the noodle stall.",
+            "carryOnScene": "none",
+            "actors": {
+              "nezuko": {
+                "visible": true,
+                "position": [
+                  -22,
+                  3,
+                  76
+                ]
+              },
+              "yushiro": {
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "guide",
+            "title": "A path behind the noise",
+            "objective": "Meet Yushiro in the side lane.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "YUSHIRO",
+                "text": "This way. Stay close and remember which turn we take.",
+                "shot": "alley",
+                "actors": {
+                  "yushiro": {
+                    "moveTo": [
+                      -87,
+                      3,
+                      -105
+                    ],
+                    "duration": 1.4,
+                    "pose": "walk_sheathed"
+                  }
+                }
+              }
+            ],
+            "target": "alley",
+            "action": "Meet Yushiro in the side lane."
+          },
+          {
+            "id": "hidden_house",
+            "title": "The hidden house",
+            "objective": "Follow Yushiro into the garden.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "The city noise fades. A house stands beyond the concealed path.",
+                "shot": "garden"
+              }
+            ],
+            "automatic": true,
+            "map": "clinic",
+            "playerPosition": [
+              0,
+              3,
+              65
+            ],
+            "hideActors": true,
+            "actors": {
+              "tamayo": {
+                "visible": true,
+                "position": [
+                  -9,
+                  3,
+                  -73
+                ]
+              },
+              "yushiro": {
+                "visible": true,
+                "position": [
+                  12,
+                  3,
+                  -63
+                ]
+              },
+              "nezuko": {
+                "visible": true,
+                "position": [
+                  -17,
+                  3,
+                  -65
+                ]
+              },
+              "civilian": {
+                "visible": true,
+                "position": [
+                  -23,
+                  3,
+                  -77
+                ]
+              },
+              "companion": {
+                "visible": true,
+                "position": [
+                  -29,
+                  3,
+                  -70
+                ]
+              }
+            }
+          },
+          {
+            "id": "consult",
+            "title": "A possibility of a cure",
+            "objective": "Speak with Tamayo inside the house.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TAMAYO",
+                "text": "I am searching for a way to return demons to human life. I cannot promise an answer yet.",
+                "shot": "consult",
+                "actors": {
+                  "civilian": {
+                    "pose": "kneel"
+                  }
+                }
+              },
+              {
+                "speaker": "TANJIRO",
+                "text": "Then I want to help. I will keep searching for Nezuko.",
+                "shot": "consult"
+              },
+              {
+                "speaker": "YUSHIRO",
+                "text": "For now, let them rest. We need to keep this place quiet.",
+                "shot": "consult"
+              }
+            ],
+            "target": "consult",
+            "action": "Speak with Tamayo inside the house."
+          },
+          {
+            "id": "attack",
+            "title": "The quiet shatters",
+            "objective": "Investigate the noise in the garden.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "AN IMPACT OUTSIDE",
+                "text": "A temari strikes near the house. Two pursuers have found the garden.",
+                "shot": "duel",
+                "actors": {
+                  "susamaru": {
+                    "pose": "projectile",
+                    "duration": 0.8
+                  },
+                  "yahaba": {
+                    "pose": "thrust",
+                    "duration": 0.8
+                  }
+                }
+              },
+              {
+                "speaker": "TANJIRO",
+                "text": "Nezuko, stay near Tamayo! I will draw the arrow demon away.",
+                "shot": "temari",
+                "nezukoPose": "kick",
+                "actors": {
+                  "nezuko": {
+                    "moveTo": [
+                      12,
+                      3,
+                      0
+                    ],
+                    "duration": 0.7
+                  }
+                }
+              }
+            ],
+            "target": "courtyard",
+            "action": "Investigate the noise in the garden.",
+            "actors": {
+              "yahaba": {
+                "visible": true
+              },
+              "susamaru": {
+                "visible": true
+              },
+              "nezuko": {
+                "position": [
+                  12,
+                  3,
+                  -12
+                ]
+              },
+              "tamayo": {
+                "position": [
+                  -10,
+                  3,
+                  -40
+                ]
+              },
+              "yushiro": {
+                "position": [
+                  20,
+                  3,
+                  -36
+                ]
+              }
+            },
+            "weaponOnScene": "black"
+          },
+          {
+            "id": "arrows",
+            "title": "Against the arrows",
+            "objective": "Evade Yahaba and answer with Water forms.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "Watch his hands. Keep moving, then close the distance.",
+                "shot": "duel"
+              }
+            ],
+            "target": "arrows",
+            "action": "Evade Yahaba and answer with Water forms.",
+            "hideChallengeActors": [
+              "yahaba"
+            ],
+            "challenge": {
+              "kind": "battle",
+              "start": [
+                0,
+                3,
+                6
+              ],
+              "radius": 56,
+              "limit": 220,
+              "health": 145,
+              "damageScale": 0.65,
+              "techniques": true,
+              "enemies": [
+                {
+                  "id": "yahaba",
+                  "position": [
+                    -20,
+                    3,
+                    8
+                  ]
+                }
+              ]
+            },
+            "outro": [
+              {
+                "speaker": "TANJIRO",
+                "text": "The arrows have stopped. Nezuko still needs help.",
+                "shot": "duel"
+              }
+            ]
+          },
+          {
+            "id": "temari",
+            "title": "Hold the garden",
+            "objective": "Keep Susamaru occupied while Tamayo prepares.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TAMAYO",
+                "text": "Keep her attention here. Give me a little more time.",
+                "shot": "temari"
+              },
+              {
+                "speaker": "TANJIRO",
+                "text": "Nezuko, together!",
+                "shot": "temari",
+                "nezukoPose": "kick"
+              }
+            ],
+            "target": "temari",
+            "action": "Keep Susamaru occupied while Tamayo prepares.",
+            "actors": {
+              "nezuko": {
+                "visible": true,
+                "position": [
+                  12,
+                  3,
+                  3
+                ],
+                "rotation": [
+                  0,
+                  90,
+                  0
+                ]
+              }
+            },
+            "hideChallengeActors": [
+              "susamaru"
+            ],
+            "challenge": {
+              "kind": "hold",
+              "start": [
+                0,
+                3,
+                -13
+              ],
+              "radius": 56,
+              "limit": 200,
+              "health": 180,
+              "damageScale": 0.65,
+              "techniques": true,
+              "duration": 20,
+              "hits": 3,
+              "ally": "nezuko",
+              "enemies": [
+                {
+                  "id": "susamaru",
+                  "position": [
+                    0,
+                    3,
+                    9
+                  ]
+                }
+              ]
+            },
+            "resultActors": {
+              "susamaru": {
+                "visible": true,
+                "position": [
+                  0,
+                  3,
+                  9
+                ]
+              }
+            },
+            "outro": [
+              {
+                "speaker": "TAMAYO",
+                "text": "Enough. This ends here.",
+                "shot": "temari",
+                "actors": {
+                  "tamayo": {
+                    "pose": "heal",
+                    "duration": 1
+                  },
+                  "susamaru": {
+                    "pose": "hit_heavy",
+                    "duration": 1
+                  }
+                },
+                "effect": {
+                  "at": "susamaru",
+                  "pattern": "heal",
+                  "color": [
+                    215,
+                    155,
+                    196
+                  ],
+                  "range": 6
+                }
+              },
+              {
+                "speaker": "THE GARDEN",
+                "text": "Tamayo intervenes. The assault ends, and the garden falls quiet.",
+                "shot": "duel",
+                "actors": {
+                  "susamaru": {
+                    "visible": false
+                  },
+                  "nezuko": {
+                    "pose": "kneel"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "trust",
+            "title": "Shelter before sunrise",
+            "objective": "Return to Tamayo.",
+            "clock": 21,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "You protected us. Nezuko knows it too.",
+                "shot": "farewell",
+                "nezukoPose": "embrace"
+              },
+              {
+                "speaker": "TAMAYO",
+                "text": "Rest here until you are ready. Our work can continue beyond tonight.",
+                "shot": "farewell"
+              }
+            ],
+            "target": "farewell",
+            "action": "Return to Tamayo.",
+            "actors": {
+              "tamayo": {
+                "position": [
+                  -7,
+                  3,
+                  -62
+                ]
+              },
+              "yushiro": {
+                "position": [
+                  9,
+                  3,
+                  -60
+                ]
+              },
+              "nezuko": {
+                "position": [
+                  -12,
+                  3,
+                  -60
+                ]
+              },
+              "yahaba": {
+                "visible": false
+              },
+              "susamaru": {
+                "visible": false
+              }
+            }
+          },
+          {
+            "id": "leave",
+            "title": "The road continues",
+            "objective": "Leave the garden for the next assignment.",
+            "clock": 5.5,
+            "scene": [
+              {
+                "speaker": "TANJIRO",
+                "text": "We have a direction now. We will come back with whatever help we can find.",
+                "shot": "garden"
+              }
+            ],
+            "target": "exit",
+            "action": "Leave the garden for the next assignment.",
+            "carryOnScene": "box"
+          }
+        ]
+      }
     },
     {
       "id": "drums",
@@ -12431,6 +13528,23 @@
       "curve": 0.03,
       "bladeDepth": 0.22,
       "source": "original"
+    }
+  },
+  "motionProfiles": {
+    "base": {
+      "clips": {},
+      "design": "Shared blocky-R15 motion fallback."
+    },
+    "tanjiro": {
+      "clips": {
+        "idle_drawn": "tanjiro/idle_drawn",
+        "walk_drawn": "tanjiro/walk_drawn",
+        "combo_1": "tanjiro/combo_1",
+        "combo_2": "tanjiro/combo_2",
+        "combo_3": "tanjiro/combo_3",
+        "guard_hold": "tanjiro/guard_hold"
+      },
+      "design": "Original forward guard, bent-knee advance and connected cuts; animation interpretation, not a claim of exact canon choreography."
     }
   }
 }

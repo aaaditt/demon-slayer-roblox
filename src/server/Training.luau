@@ -39,7 +39,7 @@ function Training:reset(retry)
     actor.model:PivotTo(CFrame.new(self.story.mission.room.center+Vector3.new(table.unpack(self.data.start))))
     actor.root.AssemblyLinearVelocity=Vector3.zero;actor.lastPosition=actor.root.Position;actor.motionTime=now
     Rig.storyWeapon(actor.model,self.data.weapon)
-    self.story:setCarry("none")
+    self.story:setCarry(self.data.kind=="restrain" and "box" or "none")
     if self.data.enemy then
         local definition=table.clone(Content.characters[self.data.enemy])
         if self.data.enemy=="training" then definition.name="Practice target";definition.weapon="none" end
@@ -83,25 +83,34 @@ function Training:updateMarker()
     if self.data.kind=="route" then
         self.story:mark(self.story.mission.room.anchors[self.data.checkpoints[self.routeIndex]],"Course marker "..self.routeIndex)
     elseif self.enemy then self.story:mark(self.enemy.root,self.data.kind=="cut" and "Focus, then strike" or "Land controlled hits")
-    else self.story:mark(self.story.mission.room.anchors[self.story.step.target],"Stand here and breathe") end
+    else self.story:mark(self.story.mission.room.anchors[self.story.step.target],self.data.kind=="restrain" and "Stay close; brace in gold" or "Stand here and breathe") end
 end
 
 function Training:focus(player)
     local actor=self.story:actor()
     local now=workspace:GetServerTimeNow()
     if self.closed or player~=self.story.player or not actor or not actor.alive or self.story.phase~="challenge" then return false end
-    if self.data.kind~="breath" and self.data.kind~="cut" then return false end
+    if self.data.kind~="breath" and self.data.kind~="cut" and self.data.kind~="restrain" then return false end
     if now<self.nextFocus or now>self.deadline then return false end
     local v=actor.root.AssemblyLinearVelocity
     if (actor.root.Position-self:position()).Magnitude>self.data.radius or Vector2.new(v.X,v.Z).Magnitude>2 then return false end
     local window=self.data.window
     local accepted,cycle=Rules.focusWindow(now-self.started,self.data.period,window[1],window[2],self.lastCycle)
     self.nextFocus=now+0.55
-    if not accepted then self.story.game:toast(player,"Stay still and breathe while the bar is gold.");return false end
+    if not accepted then self.story.game:toast(player,self.data.kind=="restrain" and "Keep close and brace while the bar is gold." or "Stay still and breathe while the bar is gold.");return false end
     self.lastCycle=cycle
     if self.data.kind=="cut" then self.focusUntil=now+4
     else self.count+=1 end
-    actor.model:SetAttribute("Pose","heal");actor.model:SetAttribute("PoseStart",now);actor.model:SetAttribute("PoseDuration",0.5)
+    local restrain=self.data.kind=="restrain"
+    actor.model:SetAttribute("PoseVariant",nil);actor.model:SetAttribute("PoseWindup",nil)
+    actor.model:SetAttribute("Pose",restrain and "restrain" or "heal");actor.model:SetAttribute("PoseStart",now);actor.model:SetAttribute("PoseDuration",restrain and 0.8 or 0.5)
+    if restrain then
+        local victim=self.story.npcs[self.data.victim]
+        local delta=victim.PrimaryPart.Position-actor.root.Position
+        local flat=Vector3.new(delta.X,0,delta.Z)
+        if flat.Magnitude>0.01 then actor.root.CFrame=CFrame.lookAt(actor.root.Position,actor.root.Position+flat) end
+        self.story:pose(victim,"struggle",0.8)
+    end
     self.story.game:push(player)
     return true
 end
@@ -140,7 +149,7 @@ function Training:tick(now)
         end
     else
         if (actor.root.Position-(self.story.mission.room.center+Vector3.new(table.unpack(self.data.start)))).Magnitude>self.data.radius+12 then self:reset(true);return end
-        if self.data.kind=="breath" then complete=self.count>=self.data.cycles
+        if self.data.kind=="breath" or self.data.kind=="restrain" then complete=self.count>=self.data.cycles
         elseif self.data.kind=="cut" then complete=self.count>=1
         elseif self.data.kind=="survive" then complete=self.count>=self.data.hits and now-self.started>=self.data.duration
         else complete=self.count>=self.data.hits end

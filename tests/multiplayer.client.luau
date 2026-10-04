@@ -5,6 +5,7 @@ local LogService=game:GetService("LogService")
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local player=Players.LocalPlayer
 local bridge=ReplicatedStorage:WaitForChild("RuntimeTestBridge")
+local Profiles=require(ReplicatedStorage.Shared.MotionProfile).new(require(ReplicatedStorage.Shared.Content),require(ReplicatedStorage.Shared.AnimationIndex))
 local failures={}
 LogService.MessageOut:Connect(function(message,kind)
     if kind==Enum.MessageType.MessageError and (string.find(message,"Client") or string.find(message,"Wisteria")) then table.insert(failures,message) end
@@ -43,7 +44,7 @@ bridge.OnClientEvent:Connect(function(token,command,args)
                 RunService.RenderStepped:Wait()
                 breathing=breathing or waist.Transform.LookVector:Dot(idleStart.LookVector)<0.99999
             until os.clock()>idleDeadline
-            assert(string.find(model:GetAttribute("MotionClip") or "","^base/idle_"),"idle clip not playing: "..tostring(model:GetAttribute("MotionClip")))
+            assert(model:GetAttribute("MotionClip")==Profiles.locomotion(model:GetAttribute("CharacterId"),"idle",model:GetAttribute("WeaponDrawn")),"idle clip not playing: "..tostring(model:GetAttribute("MotionClip")))
             assert(breathing,"idle clip did not move the waist")
             local hip=model.LowerTorso.RightHip
             local original=hip.Transform
@@ -61,6 +62,36 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             controls:Enable()
             assert(changed,"walking did not change the leg joint")
             assert(states.jump and states.fall and states.land,"missing jump, fall or landing poses")
+            return true
+        elseif command=="brace" then
+            -- Wait for a fresh gold window after replication, instead of spending it on the bridge trip.
+            local untilWindow=os.clock()+5
+            repeat
+                RunService.RenderStepped:Wait()
+                local phase=(workspace:GetServerTimeNow()-args.started)%args.period
+                if phase>=args.opens+0.1 and phase<args.opens+0.3 then break end
+            until os.clock()>untilWindow
+            ReplicatedStorage.Network.Action:FireServer("Focus")
+            local deadline=os.clock()+1.1
+            local playerActed,victimActed=false,false
+            repeat
+                RunService.RenderStepped:Wait()
+                playerActed=playerActed or player.Character:GetAttribute("MotionActionClip")=="base/restrain"
+                victimActed=victimActed or args.victim:GetAttribute("MotionActionClip")=="base/struggle"
+            until os.clock()>deadline
+            assert(playerActed and victimActed,string.format("rescue acting missing: player=%s victim=%s playerPose=%s victimPose=%s distance=%.2f",
+                tostring(playerActed),tostring(victimActed),tostring(player.Character:GetAttribute("Pose")),tostring(args.victim:GetAttribute("Pose")),
+                (player.Character.HumanoidRootPart.Position-args.victim.PrimaryPart.Position).Magnitude))
+            return true
+        elseif command=="motionProfile" then
+            local model=assert(args.model,"profile fixture did not replicate")
+            local deadline=os.clock()+5
+            local function matches()
+                return model:GetAttribute("MotionProfile")==args.profile and model:GetAttribute("MotionClip")==args.base
+                    and model:GetAttribute("MotionActionClip")==args.action
+            end
+            repeat RunService.RenderStepped:Wait() until matches() or os.clock()>deadline
+            assert(matches(),"observer clip mismatch: "..tostring(model:GetAttribute("MotionClip")).." / "..tostring(model:GetAttribute("MotionActionClip")))
             return true
         elseif command=="dashInput" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
@@ -157,16 +188,20 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             task.wait(0.65)
             return true
         elseif command=="story" then
-            task.wait(0.4)
-            local gui=player.PlayerGui:FindFirstChild("StoryUI")
-            assert(gui,"story UI missing")
-            if args.scene then
-                assert(gui.Cutscene.Visible and workspace.CurrentCamera.CameraType==Enum.CameraType.Scriptable,"cutscene did not start")
-                assert(player.Character.HumanoidRootPart.Anchored,"server did not lock cinematic movement")
-            else
-                assert(not gui.Cutscene.Visible and not gui.Objective.Visible,"story UI leaked")
-                assert(workspace.CurrentCamera.CameraType==Enum.CameraType.Custom and workspace.CurrentCamera.CameraSubject==player.Character:FindFirstChildOfClass("Humanoid"),"camera was not restored")
+            local function ready()
+                local gui=player.PlayerGui:FindFirstChild("StoryUI")
+                local model=player.Character
+                local root=model and model:FindFirstChild("HumanoidRootPart")
+                if not gui or not root then return false end
+                if args.scene then
+                    return gui.Cutscene.Visible and workspace.CurrentCamera.CameraType==Enum.CameraType.Scriptable and root.Anchored
+                end
+                return not gui.Cutscene.Visible and not gui.Objective.Visible and workspace.CurrentCamera.CameraType==Enum.CameraType.Custom
+                    and workspace.CurrentCamera.CameraSubject==model:FindFirstChildOfClass("Humanoid")
             end
+            local deadline=os.clock()+5
+            repeat RunService.RenderStepped:Wait() until ready() or os.clock()>deadline
+            assert(ready(),args.scene and "cutscene/cinematic lock did not start" or "story UI/camera was not restored")
             return true
         elseif command=="selection" then
             task.wait(0.4)

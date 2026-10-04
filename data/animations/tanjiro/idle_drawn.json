@@ -1,0 +1,79 @@
+{
+  "category": "locomotion",
+  "priority": "Idle",
+  "loop": true,
+  "speed": 0,
+  "ease": "CubicV2/InOut",
+  "note": "Original Tanjiro motion interpretation: compact forward guard, deeper knees and a steady water-like breathing sway. Adapted to the one-hand grip of this blocky rig, not traced anime choreography.",
+  "keyframes": [
+    {
+      "t": 0,
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    },
+    {
+      "t": 1.2,
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.22, 0]
+        },
+        "Waist": [-11, -17, 0],
+        "Neck": [8, 17, 0],
+        "RightShoulder": [57, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [47, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    },
+    {
+      "t": 2.4,
+      "pose": {
+        "Root": {
+          "r": [0, 0, 0],
+          "p": [0, -0.19, 0]
+        },
+        "Waist": [-9, -17, 0],
+        "Neck": [7, 17, 0],
+        "RightShoulder": [55, 0, -33],
+        "RightElbow": [24, 0, 0],
+        "RightWrist": [-48, 0, 22],
+        "LeftShoulder": [46, 0, 28],
+        "LeftElbow": [72, 0, 0],
+        "LeftWrist": [-25, 0, 0],
+        "RightHip": [18, 0, 0],
+        "RightKnee": [-26, 0, 0],
+        "RightAnkle": [8, 0, 0],
+        "LeftHip": [-10, 0, 0],
+        "LeftKnee": [-20, 0, 0],
+        "LeftAnkle": [30, 0, 0]
+      }
+    }
+  ]
+}

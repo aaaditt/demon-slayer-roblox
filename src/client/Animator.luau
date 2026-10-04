@@ -10,6 +10,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MotionMath = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MotionMath"))
 local Motion = require(script.Parent.Motion)
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Profiles = require(Shared.MotionProfile).new(require(Shared.Content), require(Shared.AnimationIndex))
 local Animator = {}
 local rigs = {}
 local watched = setmetatable({}, {__mode="k"})
@@ -116,13 +118,14 @@ local function smooth(store, targets, alpha)
 end
 
 -- Most specific authored clip for a locomotion state: drawn variant, then sheathed, then shared.
-local function baseClip(state, drawn)
-    return (drawn and Motion.clip("base/"..state.."_drawn")) or Motion.clip("base/"..state.."_sheathed") or Motion.clip("base/"..state)
+local function baseClip(model, state, drawn)
+    local name=Profiles.locomotion(model:GetAttribute("CharacterId"),state,drawn)
+    return name and Motion.clip(name)
 end
 
-local function actionClip(model, pose)
-    local variant=model:GetAttribute("PoseVariant")
-    return (variant and Motion.clip("base/"..variant)) or Motion.clip("base/"..pose)
+local function actionClip(model, pose, variant)
+    local name=Profiles.action(model:GetAttribute("CharacterId"),pose,variant)
+    return name and Motion.clip(name)
 end
 
 -- Markers of the live action clip. Grip/Seat start the procedural sword path (the blocky hand cannot reach
@@ -239,7 +242,7 @@ function Animator.step(model, rig, now, dt)
     local landing=now-rig.landed<rig.landDuration
     local locomotion=air and (velocity.Y>1 and "jump" or "fall") or landing and (rig.landHeavy and "land_heavy" or "land_light")
         or speed>WALK_MAX and "run" or speed>IDLE_MAX and "walk" or "idle"
-    local clip=baseClip(locomotion,drawn)
+    local clip=baseClip(model,locomotion,drawn)
     local key=clip and clip.name or "legacy"
     if key~=rig.baseKey then
         -- One-shot clips (jump, landings) restart when they become current again.
@@ -273,7 +276,7 @@ function Animator.step(model, rig, now, dt)
     -- A stack: a new action fades in over the previous one while that fades out, so clip-to-clip chains
     -- (combo 1 -> combo 2) blend instead of popping.
     local blocking=not active and not dead and model:GetAttribute("Blocking")
-    local wantClip=active and not dead and actionClip(model,pose) or blocking and Motion.clip("base/guard_hold") or nil
+    local wantClip=active and not dead and actionClip(model,pose,model:GetAttribute("PoseVariant")) or blocking and actionClip(model,"guard_hold") or nil
     local wantKey=wanting and (wantClip and wantClip.name.."@"..(blocking and "block" or tostring(model:GetAttribute("PoseStart"))) or "legacy") or nil
     local top=rig.actions[#rig.actions]
     if wantKey and (not top or top.key~=wantKey) then
@@ -321,6 +324,8 @@ function Animator.step(model, rig, now, dt)
     local motionState=string.sub(locomotion,1,5)=="land_" and "land" or locomotion
     model:SetAttribute("MotionState",dead and "dead" or active and pose or (model:GetAttribute("Blocking") and "guard") or motionState)
     model:SetAttribute("MotionClip",key)
+    model:SetAttribute("MotionProfile",Profiles.id(model:GetAttribute("CharacterId")))
+    model:SetAttribute("MotionActionClip",wantClip and wantClip.name or nil)
 
     -- Non-humanoid joints keep small procedural drivers.
     local function extra(name,cf)

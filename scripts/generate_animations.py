@@ -40,6 +40,24 @@ CATEGORIES = {"locomotion", "action", "attack", "story"}
 MARKERS = {"Hit", "End", "Grip", "Clear", "Seat", "Release", "TrailOn", "TrailOff", "Click", "Step"}
 
 
+def validate_timing(name, category, length, markers):
+    assert math.isfinite(length) and 0 < length <= 30, name + ": length must be between 0 and 30 seconds"
+    marks = {}
+    for marker in markers:
+        key, time = marker["name"], marker["t"]
+        assert key in MARKERS and math.isfinite(time) and 0 <= time <= length, name + ": invalid marker"
+        # Steps/trails may repeat; timing gates must have exactly one interpretation on server and client.
+        assert key not in marks or key in {"Step", "TrailOn", "TrailOff", "Click"}, name + ": duplicate " + key
+        marks[key] = time
+    if category == "attack" or "Hit" in marks:
+        assert 0 < marks.get("Hit", -1) < marks.get("End", -1) <= length, name + ": attacks need Hit < End"
+    leaf = name.split("/")[-1]
+    if leaf.startswith("draw"):
+        assert 0 < marks.get("Grip", -1) < marks.get("Clear", -1) < length, name + ": draws need Grip < Clear < end"
+    if leaf.startswith("sheathe"):
+        assert 0 < marks.get("Seat", -1) < marks.get("Release", -1) <= length, name + ": sheathes need Seat < Release"
+
+
 def rotation(rx, ry, rz):
     """Row-major matrix of CFrame.Angles(rx, ry, rz) = Rx * Ry * Rz (radians)."""
     cx, sx, cy, sy, cz, sz = math.cos(rx), math.sin(rx), math.cos(ry), math.sin(ry), math.cos(rz), math.sin(rz)
@@ -110,23 +128,13 @@ def validate_clip(name, clip):
             style, _, direction = v["ease"].partition("/")
             assert style in STYLES and direction in DIRECTIONS, f"{name}: easing {v['ease']}"
             assert len(v["r"]) == 3 and len(v["p"]) == 3 and all(abs(n) <= 360 for n in v["r"]) and all(abs(n) <= 4 for n in v["p"]), f"{name}: {joint} range"
-    for marker in clip.get("markers", []):
-        assert marker["name"] in MARKERS and 0 <= marker["t"] <= length, f"{name}: marker {marker}"
+    validate_timing(name, clip["category"], length, clip.get("markers", []))
     if clip.get("loop"):
         first, last = frames[0]["pose"], frames[-1]["pose"]
         norm = lambda pose: {j: (normalise(v, "")["r"], normalise(v, "")["p"]) for j, v in pose.items()}
         assert norm(first) == norm(last), name + ": looping clips must end on their first pose"
-    if clip["category"] == "attack":
-        marks = {m["name"]: m["t"] for m in clip.get("markers", [])}
-        assert "Hit" in marks and "End" in marks and 0 < marks["Hit"] < marks["End"] <= length, name + ": attack clips need Hit < End"
     if clip["category"] == "locomotion":
-        assert clip.get("speed", 0) >= 0, name + ": speed"
-    marks = {m["name"]: m["t"] for m in clip.get("markers", [])}
-    leaf = name.split("/")[-1]
-    if leaf.startswith("draw"):
-        assert 0 < marks.get("Grip", -1) < marks.get("Clear", -1) < length, name + ": draws need Grip < Clear < end"
-    if leaf.startswith("sheathe"):
-        assert 0 < marks.get("Seat", -1) < marks.get("Release", -1) <= length, name + ": sheathes need Seat < Release"
+        assert math.isfinite(clip.get("speed", 0)) and clip.get("speed", 0) >= 0, name + ": speed"
     # "lower": while the sword is drawn only the legs and root play, so the upper body keeps its stance.
     assert clip.get("drawnMask") in (None, "lower"), name + ": drawnMask"
 
@@ -203,23 +211,63 @@ def build_xml(name, clip):
     return ElementTree.tostring(root, encoding="unicode") + "\n"
 
 
-def read_rbxmx(path):
+def read_rbxmx(path, clip=None, name=None):
     """Parse a KeyframeSequence file (generated or saved by Studio) into times, pose names and markers."""
     tree = ElementTree.parse(path)
-    sequence = tree.getroot().find("Item[@class='KeyframeSequence']")
-    assert sequence is not None, f"{path}: no KeyframeSequence"
+    items = tree.getroot().findall("Item")
+    assert len(items) == 1 and items[0].get("class") == "KeyframeSequence", f"{path}: export one KeyframeSequence, not the rig"
+    sequence = items[0]
     def prop(item, query):
         found = item.find("Properties/" + query)
         assert found is not None and found.text is not None, f"{path}: missing {query}"
         return found.text
 
-    frames = []
+    frames, tracks = [], {}
+    parent_of = {p: parent for p, parent in JOINTS.values()}
+    allowed_children = {"KeyframeSequence": {"Keyframe"}, "Keyframe": {"Pose", "KeyframeMarker"}, "Pose": {"Pose"}, "KeyframeMarker": set()}
+    for item in sequence.iter("Item"):
+        cls = item.get("class")
+        assert cls in allowed_children, f"{path}: unsupported instance {cls}"
+        assert all(child.get("class") in allowed_children[cls] for child in item.findall("Item")), f"{path}: invalid animation hierarchy"
+        if cls == "Pose":
+            part = prop(item, "string[@name='Name']")
+            assert part in PARTS, f"{path}: unknown rig part {part}"
+            for child in item.findall("Item"):
+                assert parent_of.get(prop(child, "string[@name='Name']")) == part, f"{path}: pose parent does not match the R15 rig"
+            weight = float(prop(item, "float[@name='Weight']"))
+            assert weight in (0, 1), f"{path}: sampler supports pose Weight 0 or 1"
+            assert int(prop(item, "token[@name='EasingStyle']")) in STYLES.values(), f"{path}: easing style"
+            assert int(prop(item, "token[@name='EasingDirection']")) in DIRECTIONS.values(), f"{path}: easing direction"
+            for axis in ["X", "Y", "Z"] + [f"R{i}{j}" for i in range(3) for j in range(3)]:
+                value = float(prop(item, f"CoordinateFrame[@name='CFrame']/{axis}"))
+                assert math.isfinite(value) and abs(value) <= (4 if axis in {"X", "Y", "Z"} else 1.001), f"{path}: invalid pose CFrame"
     for keyframe in sequence.findall("Item[@class='Keyframe']"):
         time = float(prop(keyframe, "float[@name='Time']"))
+        assert math.isfinite(time) and 0 <= time <= 30, f"{path}: invalid keyframe time"
         poses = [prop(p, "string[@name='Name']") for p in keyframe.iter("Item") if p.get("class") == "Pose"]
+        assert len(poses) == len(set(poses)), f"{path}: duplicate pose at {time}"
+        for pose in keyframe.findall("Item[@class='Pose']"):
+            assert prop(pose, "string[@name='Name']") == "HumanoidRootPart", f"{path}: root pose must be HumanoidRootPart"
+        for pose in keyframe.iter("Item"):
+            if pose.get("class") == "Pose" and float(prop(pose, "float[@name='Weight']")) > 0:
+                frame = tuple(float(prop(pose, f"CoordinateFrame[@name='CFrame']/{axis}")) for axis in ["X", "Y", "Z"] + [f"R{i}{j}" for i in range(3) for j in range(3)])
+                tracks.setdefault(prop(pose, "string[@name='Name']"), []).append((time, frame))
         markers = [prop(m, "string[@name='Name']") for m in keyframe.findall("Item[@class='KeyframeMarker']")]
         frames.append((time, poses, markers))
-    return sorted(frames, key=lambda f: f[0])
+    frames.sort(key=lambda f: f[0])
+    assert frames and frames[0][0] == 0 and tracks, f"{path}: need a pose and first keyframe at 0"
+    assert len({f[0] for f in frames}) == len(frames), f"{path}: duplicate keyframe time"
+    if clip is not None:
+        assert prop(sequence, "string[@name='Name']") == (name or path.stem).split("/")[-1], f"{path}: sequence Name must match the clip filename"
+        looping = prop(sequence, "bool[@name='Loop']") == "true"
+        assert looping == bool(clip.get("loop")), f"{path}: Loop must match JSON metadata"
+        assert int(prop(sequence, "token[@name='Priority']")) == PRIORITY[clip.get("priority", "Action")], f"{path}: Priority must match JSON metadata"
+        validate_timing(name or path.stem, clip["category"], frames[-1][0], [{"name": m, "t": t} for t, _, ms in frames for m in ms])
+        if looping:
+            for part, values in tracks.items():
+                values.sort(key=lambda v: v[0])
+                assert all(abs(a-b) < 1e-4 for a, b in zip(values[0][1], values[-1][1])), f"{path}: {part} loop does not close"
+    return frames
 
 
 def digest(text):
@@ -251,11 +299,7 @@ def generate(check_only=False):
     for path in sorted(TARGET.rglob("*.rbxmx")):
         name = path.relative_to(TARGET).with_suffix("").as_posix()
         assert name in clips, f"{path}: clip has no JSON source for its metadata"
-        frames = read_rbxmx(path)
-        assert frames and frames[0][0] == 0, f"{path}: first keyframe must be at 0"
-        for _, poses, markers in frames:
-            assert all(p in PARTS for p in poses), f"{path}: pose names must be rig parts"
-            assert all(m in MARKERS for m in markers), f"{path}: unknown marker"
+        frames = read_rbxmx(path, clips[name], name)
         clips[name]["length"] = frames[-1][0]
         clips[name]["markerTimes"] = {m: t for t, _, ms in frames for m in ms}
     index = {}

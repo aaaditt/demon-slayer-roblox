@@ -125,6 +125,70 @@ check("Fujikasane objectives have floors and forest routes are unobstructed",fun
     World.remove(1)
 end)
 
+check("Asakusa streets and the hidden clinic have clear routes and objective floors",function()
+    local chapter=Content.chapters[5]
+    for _,map in ipairs({"asakusa","clinic"}) do
+        local data=table.clone(chapter.story);data.map=map
+        local room=World.mission(1,Content.locations.asakusa,data)
+        assert(room.folder:FindFirstChild(map=="clinic" and "TamayoHouse" or "NoodleCounter"))
+        local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Include;params.FilterDescendantsInstances={room.folder};params.RespectCanCollide=true
+        for _,pair in ipairs(room.paths) do
+            local hit=workspace:Blockcast(CFrame.new(room.center+pair[1]+Vector3.yAxis*4),Vector3.new(2,4,2),pair[2]-pair[1],params)
+            assert(not hit,map.." route blocked by "..(hit and hit.Instance.Name or ""))
+        end
+        for id,anchor in pairs(room.anchors) do
+            assert(World.inside(room,anchor.Position) and workspace:Raycast(anchor.Position+Vector3.yAxis*2,-Vector3.yAxis*8,params),map.." objective floor: "..id)
+        end
+        World.remove(1)
+    end
+end)
+
+check("civilian restraint validates owner/range/timing and temari defense keeps the enemy alive",function()
+    local Story=require(ServerScriptService.Server.Story)
+    local Training=require(ServerScriptService.Server.Training)
+    local data=Content.chapters[5].story
+    local room=World.mission(1,Content.locations.asakusa,data)
+    local a=actor("tanjiro","player",room.center+Vector3.new(4,3,-23));a.room=room;a.storyLocked=true;a.storyCanWeapon=false
+    local victim=Rig.create(World.Actors,room.center+Vector3.new(4,3,-27),{id="civilian",name="Civilian",color={110,131,155},weapon="none"})
+    victim.HumanoidRootPart.Anchored=true
+    local owner,other={},{}
+    local finished=0
+    local story={data=data,step=data.steps[5],mission={room=room},serial=0,phase="challenge",player=owner,npcs={civilian=victim,nezuko=victim},
+        actor=function() return a end,freeze=function() end,clearPrompt=function() end,mark=function() end,pose=Story.pose,
+        setCarry=function(_,kind) assert(kind=="box") end,finishChallenge=function() finished+=1 end,
+        game={combat=combat,toast=function() end,push=function() end}}
+    local restraint=Training.new(story)
+    local now=workspace:GetServerTimeNow();restraint.started=now-1.2
+    assert(not restraint:focus(other),"another player contained the civilian")
+    a.root.CFrame=CFrame.new(room.center+Vector3.new(30,3,-23))
+    assert(not restraint:focus(owner),"distant restraint admitted")
+    a.root.CFrame=CFrame.new(room.anchors.civilian.Position);a.root.AssemblyLinearVelocity=Vector3.zero
+    a.model:SetAttribute("PoseVariant","combo_3")
+    assert(restraint:focus(owner) and restraint.count==1)
+    assert(a.model:GetAttribute("Pose")=="restrain" and a.model:GetAttribute("PoseVariant")==nil and victim:GetAttribute("Pose")=="struggle")
+    assert(not restraint:focus(owner) and restraint.count==1,"repeated beat admitted")
+    assert(not combat:cast(a,Content.moves.water_1,Vector3.zAxis) and not combat:weapon(a,true),"rescue admitted a sword")
+    restraint.deadline=now-1;restraint:tick(now)
+    assert(restraint.attempt==2 and restraint.count==0 and finished==0,"restraint retry state")
+    restraint:destroy()
+    -- The hold phase requires real owner damage plus time; health floor preserves its result scene.
+    story.step=data.steps[13]
+    Rig.storySword(a.model,true);a.storyCanWeapon=true;a.weaponSince=now-100;a.lastCombat=0
+    local hold=Encounter.new(story);local enemy=hold.enemies[1];enemy.invulnerableUntil=0
+    combat:tick(0.01)
+    assert(a.model:GetAttribute("WeaponDrawn") and a.model:GetAttribute("Pose")~="sheathe_noto","scene idle timer sheathed the sword as combat began")
+    assert(not enemy.basicOnly and enemy.healthFloor==1)
+    local stranger=actor("giyu","player",a.root.Position);stranger.zone="other-private-room"
+    combat:damage(stranger,enemy,20,"none");assert(hold.hits==0)
+    for _=1,3 do combat:damage(a,enemy,10,"none") end
+    hold:tick(workspace:GetServerTimeNow());assert(hold.hits==3 and finished==0,"hold timer skipped")
+    combat:damage(a,enemy,1000,"none");assert(enemy.humanoid.Health==1 and enemy.alive)
+    hold.started=workspace:GetServerTimeNow()-hold.data.duration
+    hold:tick(workspace:GetServerTimeNow());assert(finished==1)
+    hold:destroy();assert(not enemy.model.Parent and not a.healthFloor and not a.storyMoves)
+    combat:remove(stranger);combat:remove(a);victim:Destroy();World.remove(1)
+end)
+
 check("Hand Demon guarding, telegraphed damage and recovery windows are authoritative",function()
     local chapter=Content.chapters[3]
     local room=World.mission(1,Content.locations[chapter.location],chapter.story)
@@ -302,6 +366,36 @@ check("Editor-format clips load, target real rig parts and sample their authored
     local mid=Motion.sample(clip,0.6,{}).UpperTorso
     assert(angle(mid,start.UpperTorso)>1e-4 and angle(mid,peak.UpperTorso)>1e-4,"no interpolation between keyframes")
     assert(Motion.clip("base/does_not_exist")==nil,"missing clips must fall back to procedural poses")
+end)
+
+check("Tanjiro profile drives distinct poses, all combo variants and guard after a combo",function()
+    local client=game:GetService("StarterPlayer").StarterPlayerScripts.Client
+    local Animator,Motion=require(client.Animator),require(client.Motion)
+    local profiles=require(ReplicatedStorage.Shared.MotionProfile).new(Content,AnimationIndex)
+    local model=Rig.create(World.Actors,Vector3.new(0,40,0),Content.characters.tanjiro)
+    model.HumanoidRootPart.Anchored=true;model.Humanoid:ChangeState(Enum.HumanoidStateType.Physics);Rig.draw(model,true)
+    local rig=assert(Animator.track(model))
+    local now=workspace:GetServerTimeNow()
+    Animator.step(model,rig,now,0.2)
+    assert(model:GetAttribute("MotionClip")=="tanjiro/idle_drawn" and model:GetAttribute("MotionProfile")=="tanjiro")
+    local tanjiro=Motion.sample(Motion.clip("tanjiro/idle_drawn"),0,{})
+    local base=Motion.sample(Motion.clip("base/idle_drawn"),0,{})
+    assert(tanjiro.UpperTorso.LookVector:Dot(base.UpperTorso.LookVector)<0.995,"stance is indistinguishable from base")
+    for i=1,3 do
+        model:SetAttribute("Pose","slash");model:SetAttribute("PoseVariant","combo_"..i)
+        model:SetAttribute("PoseStart",now);model:SetAttribute("PoseDuration",1);model:SetAttribute("PoseWindup",0.25)
+        Animator.step(model,rig,now+0.25,0.2)
+        local name=profiles.action("tanjiro","slash","combo_"..i)
+        assert(model:GetAttribute("MotionActionClip")==name)
+        local expected=Motion.sample(Motion.clip(name),AnimationIndex[name].hit,{})
+        assert(model.RightLowerArm.RightWrist.Transform.LookVector:Dot(expected.RightHand.LookVector)>0.9999,"combo wrist does not reach the Hit pose")
+        now+=2
+    end
+    -- PoseVariant intentionally remains set, as it does after a real basic attack.
+    model:SetAttribute("Blocking",true)
+    Animator.step(model,rig,now,0.2)
+    assert(model:GetAttribute("MotionActionClip")=="tanjiro/guard_hold","stale combo replaced held guard")
+    model:Destroy()
 end)
 
 check("animator per-frame cost stays small for a crowded scene",function()

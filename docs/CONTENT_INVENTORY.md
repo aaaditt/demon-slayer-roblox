@@ -1,6 +1,6 @@
 # Content inventory
 
-Generated from data/catalog.json. All timings, damage, and mechanical adaptations are original game design. Every move currently uses procedural poses and shared combat primitives; authored clips are pending.
+Generated from data/catalog.json. All timings, damage, and mechanical adaptations are original game design. Moves use shared combat primitives and offline animation clips, with procedural fallback. Tanjiro has the first character motion profile; individual technique choreography and other character sets remain production work.
 
 ## Characters
 

@@ -25,6 +25,7 @@ function Story.new(gameService,player,mission)
         local d=definition.template and table.clone(Content.characters[definition.template]) or {weapon="none"}
         d.id=definition.id;d.name=definition.name;d.color=definition.color
         if definition.skinColor then d.skinColor=definition.skinColor end
+        if definition.unarmed then d.weapon="none" end
         if self.data.map=="selection" then d.weapon="none" end
         local model,humanoid,root=Rig.create(World.Actors,mission.room.center+Vector3.new(table.unpack(definition.position)),d)
         if definition.id=="hand_demon" then Rig.handDemon(model) end
@@ -193,6 +194,7 @@ end
 
 function Story:pose(model,name,duration)
     if not model then return end
+    model:SetAttribute("PoseVariant",nil);model:SetAttribute("PoseWindup",nil)
     model:SetAttribute("Pose",name or "idle")
     model:SetAttribute("PoseStart",workspace:GetServerTimeNow());model:SetAttribute("PoseDuration",name and (duration or 30) or 0)
 end
@@ -218,6 +220,12 @@ function Story:showLine()
             local destination=self.mission.room.center+Vector3.new(table.unpack(state.moveTo))
             table.insert(self.sceneMotions,{model=model,from=model:GetPivot(),to=CFrame.new(destination)*model:GetPivot().Rotation,start=self.changedAt,duration=state.duration})
         end
+    end
+    if line.effect then
+        local effect=line.effect
+        local source=self.npcs[effect.at]
+        self.game.combat:emit(actor,"cast",{position=source.PrimaryPart.Position,direction=source.PrimaryPart.CFrame.LookVector,
+            pattern=effect.pattern,color=effect.color,range=effect.range})
     end
     if self.step.encounter then
         local center=self.mission.room.center
@@ -286,7 +294,7 @@ function Story:startChallenge()
     if npc then visible(npc,false) end
     for _,id in ipairs(self.step.hideChallengeActors or {}) do visible(self.npcs[id],false) end
     local kind=self.step.challenge.kind
-    self.challenge=kind=="swamp" and SwampEncounter.new(self) or (kind=="battle" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
+    self.challenge=kind=="swamp" and SwampEncounter.new(self) or (kind=="battle" or kind=="hold" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
     self.game:push(self.player)
 end
 

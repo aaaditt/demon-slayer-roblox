@@ -2,6 +2,7 @@ local Rules = require("../src/shared/Rules")
 local Content = require("../src/shared/Content")
 local MotionMath = require("../src/shared/MotionMath")
 local AnimationIndex = require("../src/shared/AnimationIndex")
+local MotionProfile = require("../src/shared/MotionProfile")
 local passed = 0
 local function test(name, run)
     run()
@@ -177,6 +178,29 @@ test("generated animation index describes every clip the runtime can play", func
         assert(entry.length > 0 and (entry.hit == nil or (entry.hit < entry.finish and entry.finish <= entry.length)), name)
     end
     assert(count >= 2 and AnimationIndex["base/idle_sheathed"].loop and AnimationIndex["base/idle_drawn"].loop)
+end)
+
+test("character motion picks specific clips and safely falls back for partial or missing profiles", function()
+    local profiles=MotionProfile.new(Content,AnimationIndex)
+    assert(profiles.id("tanjiro")=="tanjiro" and profiles.id("giyu")=="base")
+    assert(profiles.locomotion("tanjiro","idle",true)=="tanjiro/idle_drawn")
+    assert(profiles.locomotion("tanjiro","walk",true)=="tanjiro/walk_drawn")
+    assert(profiles.locomotion("tanjiro","walk",false)=="base/walk_sheathed")
+    assert(profiles.locomotion("giyu","walk",true)=="base/walk_sheathed")
+    assert(profiles.action("tanjiro","slash","combo_2")=="tanjiro/combo_2")
+    assert(profiles.action("tanjiro","slash","unknown")=="base/slash")
+    assert(profiles.action("story_actor_3","slash")=="base/slash")
+    assert(profiles.action("tanjiro","kneel")==nil)
+    local partial=MotionProfile.new({characters={test={motionProfile="missing"}},motionProfiles={base={clips={slash="missing/clip"}}}},AnimationIndex)
+    assert(partial.id("test")=="base" and partial.clip("test","slash")=="base/slash")
+end)
+
+test("Tanjiro combo Hit and End align to server timing for every override", function()
+    for i=1,3 do
+        local entry=AnimationIndex["tanjiro/combo_"..i]
+        assert(math.abs(MotionMath.actionTime(entry,0.23,0.72,0.23)-entry.hit)<1e-6)
+        assert(math.abs(MotionMath.actionTime(entry,0.72,0.72,0.23)-entry.finish)<1e-6)
+    end
 end)
 
 print(string.format("%d core tests passed", passed))

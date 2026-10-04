@@ -79,3 +79,9 @@ Chapter four uses original dialogue, lantern streets, an open rescue house, mark
 - These four are the only character overrides in `data/catalog.json`. They are blocky approximations, not likeness-accurate fittings.
 - All other sword users get the original `nichirin_base` preset until their fittings are sourced from primary material.
 - Tanjiro's later tsuba change (story-dependent) is not modelled yet.
+
+## 2026-09-30 Asakusa first-pass audit
+
+Read the official [episode 8](https://demonslayer-anime.com/risshihen/story/08.html), [episode 9](https://demonslayer-anime.com/risshihen/story/09.html) and [episode 10](https://demonslayer-anime.com/risshihen/story/10.html) summaries. They support the urban Asakusa setting, Tanjiro following Muzan's scent, a civilian transformation causing a diversion, Tamayo/Yushiro's assistance, the concealed house, discussion of a possible cure, the two pursuers' attack and Tamayo intervening during the fight. These are primary synopsis sources, not a scene-level manga/anime audit.
+
+The 15-stage chapter is a condensed original adaptation. Street/stall architecture, garden/clinic layout, dialogue, four timed nonlethal bracing inputs, spell colors, camera positions, fight order, hit/time requirements and protected retries are game design. The story preserves civilian survival and gives Susamaru a nonlethal gameplay phase before Tamayo's result scene. Her exact curse/death sequence, Yahaba's forced trajectory mechanics, simultaneous split combat, Nezuko's regeneration/temari choreography, blood-collection details, costumes and scene-accurate acting are unfinished. The Arrow/Temari encounters use the existing shared technique primitives; they are not new canonical boss simulations. Transitioning to dawn and the next route is a condensed gameplay ending. No whole-manga reading or frame-exact reconstruction is claimed; no extracted anime assets were used.

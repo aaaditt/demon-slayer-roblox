@@ -1,6 +1,6 @@
 # Story production and next sessions
 
-Updated 2026-09-29. The whole intended campaign remains the goal. Four locally staged chapters and 18 encounter previews are not a finished storyline.
+Updated 2026-09-30. The whole intended campaign remains the goal. Five locally staged chapters and 17 encounter previews are not a finished storyline. The new Asakusa first pass has not run in Studio yet.
 
 ## Current playable chapter: A Trail in the Snow
 
@@ -49,7 +49,7 @@ The ambush requires three damaging hits and sixteen seconds; the later encounter
 
 ## Proposed session sequence
 
-- **Next:** commit/push/release chapter four once Git writes are available, and review all four staged chapters for navigation, pacing and input feel; build Asakusa, Muzan and the civilian emergency, followed by Tamayo/Yushiro. Audit lawful primary references before writing the next slice.
+- **Next:** visually review the five staged chapters and base/Tanjiro clips, complete an Animation Editor export/import round-trip, and refine navigation, acting and difficulty. Then build Tsuzumi Mansion, Zenitsu/Inosuke's introductions and rotating-room encounters from primary references. See STATUS.md for current validation and delivery.
 - **Training refinement:** authored temple intervention, Sabito/Makomo acting, expanded mountain routes, waterfall animation/sound and persistent within-chapter checkpoints. The current chapter uses condensed narrated transitions and shared procedural poses.
 - **Selection refinement:** final boss art/acting, expanded survival exploration, candidate interactions, physical route playtesting and scene-level costume/choreography audit. The current boss's attack/recovery cycle is original gameplay.
 - **Early missions:** first town disappearances and swamp rescue, Asakusa civilians and Muzan, Tamayo/Yushiro, Susamaru/Yahaba, Tsuzumi Mansion's rotating rooms and character introductions.
@@ -63,3 +63,11 @@ The ambush requires three damaging hits and sixteen seconds; the later encounter
 Catalog story steps, actors, shots, sources and original dialogue live in `data/catalog.json`; generate `src/shared/Content.luau`. Primary official episode summaries establish the broad opening sequence. No full manga reading, shot-by-shot audit, licensed media extraction or authored motion-capture work has occurred. See RESEARCH.md.
 
 A chapter is ready for review only after its objectives are navigable, story actions are validated, camera/input state is restored on exits, rewards cannot duplicate, and the actual runtime has been checked. Automated route tests may reposition a player to objective anchors; that verifies state progression, not a human walking the entire route. Record that distinction in QA.md.
+
+## Fifth chapter first pass: Lights of Asakusa
+
+Fifteen stages cover city arrival, a noodle stall, the scent trail, Muzan, civilian restraint, Tamayo's help, returning for Nezuko, Yushiro's lane, the hidden clinic, consultation, the attack, Yahaba, Susamaru's defense phase, trust and departure. The house is a separate map in the same private mission slot, with an enterable clinic, patient mats, medicine table and garden.
+
+The civilian is never a combat target. Sword use and skills are disabled during four timed, stationary bracing inputs near the marker; `restrain` and `struggle` are bundled body clips. Ownership, distance, phase, timing and repeated-input rejection are server-checked. Yahaba uses his existing Arrow techniques; Susamaru uses Temari techniques and stays alive until the three-hit/20-second defense objective triggers Tamayo's scene. Nezuko plays repeated short kicks beside that encounter. Defeat/timeout restarts the current challenge, and chapter completion restores the saved hub fighter/loadout.
+
+Portable validation, the 25-check engine suite and both focused two-client chapter checks pass. Tests cover map access, restraint restrictions and client playback, nonlethal defense, real Water attacks, ownership, progression/rewards and cleanup. They reposition actors and accelerate clocks/damage; this is not a manual route or difficulty review. The chapter has not been uploaded to Roblox. Exact boss choreography/physics, blood-collection scenes, detailed acting and visual refinement remain work.

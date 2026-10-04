@@ -1,0 +1,50 @@
+{
+  "category": "action",
+  "priority": "Action",
+  "loop": true,
+  "note": "Tanjiro held guard: blade angled inward, shoulder tucked and free hand close to the chest. Upper-body keys leave his advancing legs free.",
+  "keyframes": [
+    {
+      "t": 0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [70, 0, -38],
+        "RightElbow": [48, 0, 0],
+        "RightWrist": [-20, 0, 0],
+        "LeftShoulder": [55, 0, 25],
+        "LeftElbow": [75, 0, 0],
+        "LeftWrist": [-10, 0, 0],
+        "Waist": [-5, -10, 0],
+        "Neck": [3, 10, 0]
+      }
+    },
+    {
+      "t": 0.5,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [72, 0, -38],
+        "RightElbow": [48, 0, 0],
+        "RightWrist": [-21, 0, 0],
+        "LeftShoulder": [55, 0, 25],
+        "LeftElbow": [75, 0, 0],
+        "LeftWrist": [-10, 0, 0],
+        "Waist": [-6, -10, 0],
+        "Neck": [4, 10, 0]
+      }
+    },
+    {
+      "t": 1.0,
+      "ease": "CubicV2/InOut",
+      "pose": {
+        "RightShoulder": [70, 0, -38],
+        "RightElbow": [48, 0, 0],
+        "RightWrist": [-20, 0, 0],
+        "LeftShoulder": [55, 0, 25],
+        "LeftElbow": [75, 0, 0],
+        "LeftWrist": [-10, 0, 0],
+        "Waist": [-5, -10, 0],
+        "Neck": [3, 10, 0]
+      }
+    }
+  ]
+}
