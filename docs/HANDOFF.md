@@ -1,3 +1,15 @@
+# Continuation update — 2026-10-05
+
+The October 4 source remains intact. Continued from clean `ee86352`; the prologue E-input test race is now **confirmed and fixed**. Camera/UI readiness returned at 0.334 s and the real E request was rejected at 0.433 s, before the unchanged 0.6 s server gate. The test waits until `changedAt + 0.65`, then presses the real key and checks actual server admission. Corrected receipt: 0.765 s, accepted.
+
+**Latest full regression: 23 passed / 1 failed, exit 1.** All five routes, reward/cleanup checks, natural sequential unlocks, profiles, sword handling and PvP passed. W+Q failed the unchanged smoothness limit: 14.17 studs in one 0.069 s frame (worst 0.072 s), server distance 16.6447 studs. Next priority is focused dash/ownership/replication diagnosis, then full regression. Do not revert the prologue fix or report full qualification.
+
+Story checks now recover leftover missions and saved test loadouts; fallback chapter seeds are logged and make the separate sequential-unlock assertion fail. Portable checks pass (6 authoring, 18 core, 31 compilations). Production code/place hash is unchanged; the October 4 engine 25/25 remains the latest engine result. Visual/editor review and Tsuzumi production remain next after qualification. Git delivery and further diagnostic results are recorded in WORKLOG.md.
+
+The original handoff below is historical context; its prologue diagnosis/next-task items are superseded by this update.
+
+---
+
 # Fresh-session handoff — 2026-10-04
 
 The user requested a fresh-session handoff because the session allowance is nearly exhausted. **Preserve this checkpoint and continue from here; do not restart completed implementation.** Source checkpoint **`5ad7b51` is committed and pushed** to `origin/main`; [portable CI passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37200299789). A following documentation commit records delivery. Full Studio regression remains unresolved as described below.

@@ -35,7 +35,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 
 ## Verified
 
-Portable validation and the 25-check Studio engine suite pass for this checkpoint. The focused Asakusa two-client suite passes both route and exit checks. **Full regression is unresolved (14 passed / 9 failed)**: prologue E-dialogue input failed, preventing later chapter unlocks. [QA evidence](docs/QA.md) records the results and limitations. Automated checks do not establish visual quality or a human playthrough.
+Portable validation passes; the unchanged production build previously passed the 25-check Studio engine suite. The October 5 full two-client run passes all five story routes, natural sequential unlocks and PvP, but **full regression remains unresolved (23 passed / 1 failed)** because W+Q showed a visible frame jump. The prologue E-input test race is fixed. [QA evidence](docs/QA.md) records the results and limitations. Automated checks do not establish visual quality or a human playthrough.
 
 To review the new opening, choose **Journey -> 01 A Trail in the Snow**, including on an existing save. Use E / controller X / the prompt to interact, and E / controller A / Continue for dialogue. Skip Scene skips only that conversation. M -> Return to Hub leaves the chapter. [Story production roadmap](docs/STORY_PRODUCTION.md).
 

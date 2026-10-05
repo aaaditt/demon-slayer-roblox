@@ -183,7 +183,15 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             assert(args.drawn==(gap<1.2),"sword not where its enabled joint places it: "..gap)
             return true
         elseif command=="sceneKey" then
-            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            -- Camera/UI readiness can precede the server's dialogue input gate.
+            if args and args.readyAt then
+                local deadline=os.clock()+5
+                while workspace:GetServerTimeNow()<args.readyAt and os.clock()<deadline do RunService.RenderStepped:Wait() end
+                assert(workspace:GetServerTimeNow()>=args.readyAt,"dialogue input never became eligible")
+            end
+            local inputService=game:GetService("UserInputService")
+            assert(not inputService:GetFocusedTextBox(),"text field owns the story key")
+            local input=inputService:CreateVirtualInput()
             input:SendKey(true,Enum.KeyCode.E,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.E,false)
             task.wait(0.65)
             return true

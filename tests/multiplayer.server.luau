@@ -26,6 +26,7 @@ return function(session)
         local ok,err=pcall(run)
         table.insert(results,{name=name,ok=ok,error=not ok and tostring(err) or nil})
         print((ok and "PASS " or "FAIL ")..name..(not ok and (": "..tostring(err)) or ""))
+        return ok
     end
     local ok,err=pcall(function()
         waitFor(function()return #Players:GetPlayers()>=2 end,100,"two clients did not join")
@@ -37,6 +38,24 @@ return function(session)
         local selectionOnly=type(suiteArgs)=="table" and suiteArgs.selectionOnly
         local swampOnly=type(suiteArgs)=="table" and suiteArgs.swampOnly
         local asakusaOnly=type(suiteArgs)=="table" and suiteArgs.asakusaOnly
+        local seededChapters,completedRoutes={},{}
+        local function storyCheck(chapter,route,name,run)
+            local e=session.players[p1]
+            local savedLoadout=table.clone(e.profile.data.loadouts.tanjiro)
+            local passed=check(name,function()
+                -- A failed route must not leave the next check in an unfinished or locked mission.
+                -- Record every fallback seed so the separate sequential-unlock check cannot pass on it.
+                if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
+                if e.profile.data.chapter<chapter then
+                    table.insert(seededChapters,chapter)
+                    print("STORY_ISOLATION_SEED chapter="..chapter)
+                    e.profile.data.chapter=chapter
+                end
+                run()
+            end)
+            e.profile.data.loadouts.tanjiro=savedLoadout
+            if route then completedRoutes[chapter]=passed end
+        end
         if selectionOnly or swampOnly or asakusaOnly then
             session.players[p1].profile.data.chapter=asakusaOnly and 5 or swampOnly and 4 or 3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
         else
@@ -137,7 +156,7 @@ return function(session)
             assert(session.players[p1].profile.data.loadouts.giyu[1]=="water_11","foreign move admitted")
             client(p1,"ui")
         end)
-        check("prologue validates objectives, plays every scene, rewards once and cleans up",function()
+        storyCheck(1,true,"prologue validates objectives, plays every scene, rewards once and cleans up",function()
             client(p1,"action",{name="Story",payload=1})
             local e=session.players[p1]
             assert(e.mission and e.actor.mode=="Story" and e.actor.characterId=="tanjiro")
@@ -145,8 +164,21 @@ return function(session)
             local story=mission.story
             local before=e.profile.data.xp
             assert(story and not mission.enemy,"prologue spawned a combat enemy")
+            local continue=story.continue
+            local receipt
+            story.continue=function(self,skip)
+                local age=workspace:GetServerTimeNow()-self.changedAt
+                local line=self.line
+                local accepted=continue(self,skip)
+                receipt={age=age,line=line,accepted=accepted}
+                print(string.format("STORY_INPUT_RECEIPT age=%.3f line=%d skip=%s accepted=%s",age,line,tostring(skip),tostring(accepted)))
+                return accepted
+            end
             client(p1,"story",{scene=true})
-            client(p1,"sceneKey")
+            print(string.format("STORY_INPUT_READY age=%.3f",workspace:GetServerTimeNow()-story.changedAt))
+            client(p1,"sceneKey",{readyAt=story.changedAt+0.65})
+            story.continue=continue
+            assert(receipt and receipt.age>=0.6 and receipt.accepted,"eligible E did not reach and pass the server gate")
             assert(story.line==2,"E did not advance cinematic dialogue")
             assert(not story:interact(p2,"mother"),"another player advanced the story")
             client(p1,"action",{name="Skill",payload={slot=1,direction=Vector3.xAxis}})
@@ -178,7 +210,7 @@ return function(session)
             assert(e.profile.data.xp==before+110,"duplicate completion reward")
             client(p1,"story",{scene=false})
         end)
-        check("leaving a cutscene restores camera and frees the mission slot",function()
+        storyCheck(1,false,"leaving a cutscene restores camera and frees the mission slot",function()
             client(p1,"action",{name="Story",payload=1})
             local e=session.players[p1]
             local slot=e.mission.slot
@@ -187,7 +219,7 @@ return function(session)
             assert(not e.mission and not session.slots[slot])
             client(p1,"story",{scene=false})
         end)
-        check("Sagiri exercises validate progress, retry safely and unlock Final Selection",function()
+        storyCheck(2,true,"Sagiri exercises validate progress, retry safely and unlock Final Selection",function()
             client(p1,"action",{name="Story",payload=2})
             local e=session.players[p1]
             local mission=e.mission;local story=mission and mission.story
@@ -292,7 +324,7 @@ return function(session)
             client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+130)
             client(p1,"story",{scene=false})
         end)
-        check("leaving active training removes its enemy and restores normal controls",function()
+        storyCheck(2,false,"leaving active training removes its enemy and restores normal controls",function()
             local e=session.players[p1]
             if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
             session:startMission(p1,2)
@@ -309,7 +341,7 @@ return function(session)
         end)
         end
         if not swampOnly and not asakusaOnly then
-        check("Final Selection fights, patrol, induction and return award once and preserve the saved kit",function()
+        storyCheck(3,true,"Final Selection fights, patrol, induction and return award once and preserve the saved kit",function()
             local Content=require(ReplicatedStorage.Shared.Content)
             local e=session.players[p1]
             local original=table.clone(e.profile.data.loadouts.tanjiro)
@@ -411,7 +443,7 @@ return function(session)
             client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+150)
             client(p1,"story",{scene=false})
         end)
-        check("leaving a Hand Demon windup cancels the encounter and clears its room",function()
+        storyCheck(3,false,"leaving a Hand Demon windup cancels the encounter and clears its room",function()
             local e=session.players[p1]
             if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
             session:startMission(p1,3)
@@ -429,7 +461,7 @@ return function(session)
         end)
         end
         if not selectionOnly and not asakusaOnly then
-        check("town investigation, Nezuko rescue, swamp bodies and farewell complete once",function()
+        storyCheck(4,true,"town investigation, Nezuko rescue, swamp bodies and farewell complete once",function()
             local e=session.players[p1]
             client(p1,"action",{name="Story",payload=4})
             local mission=e.mission;local story=mission and mission.story
@@ -506,7 +538,7 @@ return function(session)
             client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+170)
             client(p1,"story",{scene=false})
         end)
-        check("leaving an active swamp encounter cancels attacks and cleans pools and actors",function()
+        storyCheck(4,false,"leaving an active swamp encounter cancels attacks and cleans pools and actors",function()
             local e=session.players[p1]
             if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
             session:startMission(p1,4)
@@ -521,7 +553,7 @@ return function(session)
         end)
         end
         if not selectionOnly and not swampOnly then
-        check("Asakusa rescue, house reveal, Water encounters and farewell complete once",function()
+        storyCheck(5,true,"Asakusa rescue, house reveal, Water encounters and farewell complete once",function()
             local e=session.players[p1]
             if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
             local selected=e.profile.data.selected
@@ -611,7 +643,7 @@ return function(session)
             client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+190)
             client(p1,"story",{scene=false})
         end)
-        check("leaving Asakusa defense cleans the nonlethal demon and story permissions",function()
+        storyCheck(5,false,"leaving Asakusa defense cleans the nonlethal demon and story permissions",function()
             local e=session.players[p1]
             if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
             session:startMission(p1,5)
@@ -629,6 +661,13 @@ return function(session)
             client(p1,"story",{scene=false})
         end)
         if not asakusaOnly then
+        if not selectionOnly and not swampOnly then
+        check("all five story routes unlock sequentially without fallback seeds",function()
+            assert(#seededChapters==0,"chapter isolation required fallback seeds: "..table.concat(seededChapters,","))
+            for chapter=1,5 do assert(completedRoutes[chapter],"chapter route failed: "..chapter) end
+            assert(session.players[p1].profile.data.chapter==6,"chapter six was not unlocked")
+        end)
+        end
         check("locked chapters cannot be started by forged remote requests",function()
             client(p2,"action",{name="Story",payload=20})
             assert(session.players[p2].mission==nil)
