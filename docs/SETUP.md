@@ -56,6 +56,8 @@ python scripts/prepare_studio_test.py
 
 The runner temporarily injects server/client tests into its test copy. No test remotes or test hooks are included in the shipping Rojo tree. The legacy runner also loads its plugin in child Studio DataModels; the generated wrapper holds those copies idle so only the edit instance launches or terminates the suite.
 
+For focused W+Q replication diagnostics, prepare with `--dash-only`. It runs the client bootstrap/movement/profile checks and three real held-W+Q attempts, recording timestamped client frame displacement and server ownership/position samples. It keeps the normal distance and frame-jump thresholds; a focused pass does not qualify the full suite or sustained lag.
+
 Add `--selection-only` to `prepare_studio_test.py` to run only the two Final Selection/exit checks while debugging that chapter. This is an isolated diagnostic that seeds temporary chapter access; it does not replace the full suite or modify the production build.
 
 Use `--swamp-only` instead for the two northwest-town/exit checks. It seeds chapter-four access in the temporary test copy. The default suite runs every staged chapter and the existing movement/PvP checks.

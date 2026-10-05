@@ -104,14 +104,22 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             local root=model.HumanoidRootPart
             input:SendKey(true,Enum.KeyCode.W,false);task.wait(0.15)
             local start=root.Position;local previous=start;local largest=0;local animated=false
+            local frames={}
             -- Frame times separate low-FPS hitches from genuine position snaps at normal frame rates.
             local worstFrame,frameAtLargest=0,0
+            local function sample(frame)
+                worstFrame=math.max(worstFrame,frame)
+                local step=(root.Position-previous).Magnitude;previous=root.Position
+                if step>largest then largest=step;frameAtLargest=frame end
+                if args and args.trace then
+                    table.insert(frames,{time=workspace:GetServerTimeNow(),dt=frame,step=step,distance=(root.Position-start).Magnitude,
+                        speed=root.AssemblyLinearVelocity.Magnitude,velocity=root:FindFirstChild("DashVelocity")~=nil})
+                end
+            end
             input:SendKey(true,Enum.KeyCode.Q,false)
             local deadline=os.clock()+0.5
             repeat
-                local frame=RunService.RenderStepped:Wait();worstFrame=math.max(worstFrame,frame)
-                local step=(root.Position-previous).Magnitude;previous=root.Position
-                if step>largest then largest=step;frameAtLargest=frame end
+                sample(RunService.RenderStepped:Wait())
                 animated=animated or model:GetAttribute("MotionState")=="dash_front"
             until os.clock()>deadline
             input:SendKey(false,Enum.KeyCode.Q,false);input:SendKey(false,Enum.KeyCode.W,false)
@@ -119,14 +127,13 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             -- Keep sampling through replication settling instead of measuring only the local prediction.
             deadline=os.clock()+0.65
             repeat
-                local frame=RunService.RenderStepped:Wait();worstFrame=math.max(worstFrame,frame)
-                local step=(root.Position-previous).Magnitude;previous=root.Position
-                if step>largest then largest=step;frameAtLargest=frame end
+                sample(RunService.RenderStepped:Wait())
             until os.clock()>deadline
+            local trace=#frames>0 and (" DASH_FRAMES "..game:GetService("HttpService"):JSONEncode(frames)) or ""
             assert(animated,"Q was not admitted while holding W")
             assert((root.Position-start).Magnitude>10,string.format("dash failed to travel: %.2f; largest step %.2f; worst frame %.3f s",(root.Position-start).Magnitude,largest,worstFrame))
-            assert(largest<12,string.format("dash jumped an entire frame: %.2f studs in a %.3f s frame (worst frame %.3f s)",largest,frameAtLargest,worstFrame))
-            return {distance=(root.Position-start).Magnitude,largestFrame=largest,frameAtLargest=frameAtLargest,worstFrame=worstFrame}
+            assert(largest<12,string.format("dash jumped an entire frame: %.2f studs in a %.3f s frame (worst frame %.3f s)",largest,frameAtLargest,worstFrame)..trace)
+            return {distance=(root.Position-start).Magnitude,largestFrame=largest,frameAtLargest=frameAtLargest,worstFrame=worstFrame,frames=frames}
         elseif command=="sidestepInput" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
             local model=player.Character

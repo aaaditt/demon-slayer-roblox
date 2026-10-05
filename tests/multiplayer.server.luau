@@ -38,6 +38,7 @@ return function(session)
         local selectionOnly=type(suiteArgs)=="table" and suiteArgs.selectionOnly
         local swampOnly=type(suiteArgs)=="table" and suiteArgs.swampOnly
         local asakusaOnly=type(suiteArgs)=="table" and suiteArgs.asakusaOnly
+        local dashOnly=type(suiteArgs)=="table" and suiteArgs.dashOnly
         local seededChapters,completedRoutes={},{}
         local function storyCheck(chapter,route,name,run)
             local e=session.players[p1]
@@ -95,17 +96,32 @@ return function(session)
             for _,model in ipairs(models) do model:Destroy() end
             assert(ok,err)
         end)
-        check("W plus Q produces a moving animated dash",function()
+        for attempt=1,dashOnly and 3 or 1 do
+        check("W plus Q produces a moving animated dash"..(dashOnly and (" attempt "..attempt) or ""),function()
             local actor=session.players[p1].actor
+            if attempt>1 then task.wait(Config.DodgeCooldown);actor.energy=100 end
             actor.model:PivotTo(CFrame.new(0,4,35));actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow()
             task.wait(0.6)
-            local ok,result=pcall(function() return client(p1,"dashInput") end)
+            local sampling=dashOnly
+            local frames={};local origin=actor.root.Position
+            if sampling then task.spawn(function()
+                while sampling do
+                    table.insert(frames,{time=workspace:GetServerTimeNow(),distance=(actor.root.Position-origin).Magnitude,
+                        owner=actor.root:GetNetworkOwner()==p1 and "player" or "server",motion=actor.motion~=nil})
+                    game:GetService("RunService").Heartbeat:Wait()
+                end
+            end) end
+            local ok,result=pcall(function() return client(p1,"dashInput",{trace=dashOnly}) end)
+            sampling=false
+            if dashOnly then print("DASH_SERVER_FRAMES "..game:GetService("HttpService"):JSONEncode(frames)) end
             local motion=session.players[p1].actor.lastMotion
             print("DASH_DIAGNOSTIC "..game:GetService("HttpService"):JSONEncode(motion or {}))
             assert(ok,result)
             print("DASH_CLIENT "..game:GetService("HttpService"):JSONEncode(result))
             assert(motion and motion.distance>8,"server dash did not travel: "..(motion and motion.reason or "missing motion"))
         end)
+        end
+        if dashOnly then return end
         check("A plus Q sidesteps camera-left while facing the camera",function()
             local actor=session.players[p1].actor
             task.wait(Config.DodgeCooldown)

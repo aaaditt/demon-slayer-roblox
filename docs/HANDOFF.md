@@ -6,6 +6,10 @@ The October 4 source remains intact. Continued from clean `ee86352`; the prologu
 
 Story checks now recover leftover missions and saved test loadouts; fallback chapter seeds are logged and make the separate sequential-unlock assertion fail. Portable checks pass (6 authoring, 18 core, 31 compilations). Production code/place hash is unchanged; the October 4 engine 25/25 remains the latest engine result. Visual/editor review and Tsuzumi production remain next after qualification. Git delivery and further diagnostic results are recorded in WORKLOG.md.
 
+Prologue/isolation checkpoint `64a8c4c` is pushed and its portable CI passed. The new focused command is `python scripts/prepare_studio_test.py --dash-only`, followed by the normal multiplayer runner command. It records client frame displacement and synchronized server ownership/position traces across three attempts. **Focused result: 7/7**, exit 0; largest client jumps 6.93 / 6.35 / 8.13 studs. Each trace shows two stationary client frames while the server advances, followed by catch-up during the active server-owned dash. Investigate initial ownership/physics replication, not just the final handoff. This is a candidate explanation; the 14.17-stud full-run failure was not reproduced or fixed.
+
+Local logs (ignored): `build/regression-diagnostic-20261005.log`, `build/regression-20261005.log`, `build/dash-diagnostic-20261005.log`. Current tools lack the native `node_repl` used by the installed Windows computer-use skill; browser CUA has native apps disabled. No new editor/manual visual session was attempted. Do not infer a permission block or claim screenshots/playthroughs.
+
 The original handoff below is historical context; its prologue diagnosis/next-task items are superseded by this update.
 
 ---
