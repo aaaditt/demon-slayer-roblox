@@ -121,6 +121,16 @@ return function(session)
             assert(motion and motion.distance>8,"server dash did not travel: "..(motion and motion.reason or "missing motion"))
         end)
         end
+        check("a client cannot teleport outside its approved dash corridor",function()
+            local actor=session.players[p1].actor
+            task.wait(Config.DodgeCooldown);actor.energy=100
+            actor.model:PivotTo(CFrame.new(0,4,35));actor.lastPosition=actor.root.Position;actor.motionTime=workspace:GetServerTimeNow()
+            task.wait(0.6)
+            local position=client(p1,"dashTamper")
+            assert(actor.lastMotion and actor.lastMotion.reason=="rejected motion envelope","forged dash position was not rejected")
+            assert(not actor.motion and math.abs(actor.root.Position.X)<2 and math.abs(position.X)<2,"dash correction did not reach both server and owner")
+            assert(not actor.root:FindFirstChild("DashVelocity"),"rejected constraint leaked")
+        end)
         if dashOnly then return end
         check("A plus Q sidesteps camera-left while facing the camera",function()
             local actor=session.players[p1].actor

@@ -9,6 +9,15 @@ function Rules.integer(value, minimum, maximum)
     return Rules.finite(value) and value % 1 == 0 and value >= minimum and value <= maximum
 end
 
+-- Authoritative horizontal corridor for a server-approved movement. No client clock or limits.
+function Rules.motionEnvelope(forward, lateral, elapsed, speed, distance, slack)
+    for _,value in ipairs({forward,lateral,elapsed,speed,distance,slack}) do
+        if not Rules.finite(value) then return false end
+    end
+    if elapsed<0 or speed<=0 or distance<=0 or slack<0 then return false end
+    return forward>=-slack and forward<=math.min(distance,speed*elapsed)+slack and math.abs(lateral)<=slack
+end
+
 -- Timing comes from the server clock, never from a client-provided timestamp.
 function Rules.focusWindow(elapsed, period, opens, closes, lastCycle)
     if not Rules.finite(elapsed) or not Rules.finite(period) or elapsed < 0 or period <= 0 then return false, -1, 0 end

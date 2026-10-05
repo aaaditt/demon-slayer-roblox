@@ -1,16 +1,30 @@
-# Continuation update — 2026-10-05
+# Continuation update — 2026-10-05, verified movement checkpoint
 
-The October 4 source remains intact. Continued from clean `ee86352`; the prologue E-input test race is now **confirmed and fixed**. Camera/UI readiness returned at 0.334 s and the real E request was rejected at 0.433 s, before the unchanged 0.6 s server gate. The test waits until `changedAt + 0.65`, then presses the real key and checks actual server admission. Corrected receipt: 0.765 s, accepted.
+**Full regression now passes 25/25**, runner exit 0, `RUNTIME_JSON.failures=0`. Final Studio engine suite **26/26**, exit 0. Portable checks **6 authoring / 19 core / 32 Luau compilations**, 44 clips/two profiles and build pass. Delivery commit/CI references are in WORKLOG.md. Read current STATUS/PLAN before making changes; the October 4 handoff below is historical.
 
-**Latest full regression: 23 passed / 1 failed, exit 1.** All five routes, reward/cleanup checks, natural sequential unlocks, profiles, sword handling and PvP passed. W+Q failed the unchanged smoothness limit: 14.17 studs in one 0.069 s frame (worst 0.072 s), server distance 16.6447 studs. Next priority is focused dash/ownership/replication diagnosis, then full regression. Do not revert the prologue fix or report full qualification.
+## Implemented and diagnosed
 
-Story checks now recover leftover missions and saved test loadouts; fallback chapter seeds are logged and make the separate sequential-unlock assertion fail. Portable checks pass (6 authoring, 18 core, 31 compilations). Production code/place hash is unchanged; the October 4 engine 25/25 remains the latest engine result. Visual/editor review and Tsuzumi production remain next after qualification. Git delivery and further diagnostic results are recorded in WORKLOG.md.
+- Prologue E waits until eligible and remains a real key/server-handler test. All five routes unlock naturally; fallback test seeds cannot hide a sequential-progression failure.
+- Server-owned physics caused intermittent client catch-up (14.17-stud frame). Waiting 0.15 s for ownership and removing the rotation write did not resolve it. Raw client ownership made movement even but closed the old server timer prematurely; that incomplete experiment was not shipped.
+- Production now keeps player movement client-simulated with server-created constraints and `src/client/MotionDriver.luau` tapering at the approved endpoint. Server origin, direction, speed, reach, timers and collision parameters remain private and authoritative. Swept position validation runs every tick and before network actions, casts and damage. Rejected movement restores the verified position under server ownership, cancels its cast token/constraint and dodge immunity. NPCs stay server-simulated.
+- A bounded **0.5 s** endpoint-receipt grace gives no additional reach or i-frames. Vertical limits include the initial jump apex; grace cannot permit upward flight. Movement attacks wait for audited completion. No new network action is exposed.
+- Focused candidate **8/8** includes three real W+Q attempts and an actual 40-stud client-side sideways teleport that the server corrects. Final full W+Q: **15.9524 studs server / 14.2956 client**, largest frame **3.3333 studs** at 0.0665 s. Full A+Q, profiles, sword paths, all five chapters, rewards/cleanup and PvP pass. All prior dash thresholds remain intact.
+- An intermediate full run was 24/25 because the old single-frame programmatic jump fixture missed an animation phase. It now waits for ground and holds real virtual Space for 0.15 s with normal controls; all jump/fall/landing phases are still required. Original missing phase was not logged, so no animator defect is claimed. Final fixture passes.
 
-Prologue/isolation checkpoint `64a8c4c` and focused diagnostic checkpoint `da2f31f` are pushed, and both portable CI runs passed. A final documentation commit records delivery. The new focused command is `python scripts/prepare_studio_test.py --dash-only`, followed by the normal multiplayer runner command. It records client frame displacement and synchronized server ownership/position traces across three attempts. **Focused result: 7/7**, exit 0; largest client jumps 6.93 / 6.35 / 8.13 studs. Each trace shows two stationary client frames while the server advances, followed by catch-up during the active server-owned dash. Investigate initial ownership/physics replication, not just the final handoff. This is a candidate explanation; the 14.17-stud full-run failure was not reproduced or fixed.
+## Next work
 
-Local logs (ignored): `build/regression-diagnostic-20261005.log`, `build/regression-20261005.log`, `build/dash-diagnostic-20261005.log`. Current tools lack the native `node_repl` used by the installed Windows computer-use skill; browser CUA has native apps disabled. No new editor/manual visual session was attempted. Do not infer a permission block or claim screenshots/playthroughs.
+1. Confirm clean Git status and latest delivery in WORKLOG. Do not restart the resolved prologue or ownership experiments. Commands remain `python scripts/check.py`, engine `--script tests/studio.spec.luau`, and `python scripts/prepare_studio_test.py` followed by the normal multiplayer runner. `--dash-only` selects eight focused checks. Run Studio suites sequentially.
+2. Visually review base/Tanjiro motion, sword handling, held WASD+Q and all five chapters; complete an actual Animation Editor save/export/import round-trip. Current tools lack the native `node_repl` entry point required by the installed computer-use skill; browser CUA explicitly disables native apps. No visual/editor session was attempted. This is a tool limitation, not a permission block.
+3. Then continue **Tsuzumi Mansion**, Zenitsu/Inosuke and rotating-room encounters with primary references. Expand Nezuko/Giyu motion alongside story work. Chapters **6–22 remain previews**; keep the full cast, Infinity Castle (2025 minimum), later arcs, PvP and progression objective.
+4. Qualify physical devices, human traversal/balance, sustained latency/low-FPS behavior, live saves and release. Automated routing teleports fixtures and accelerates selected clocks; it does not prove appearance or difficulty. Native UI limitations do not justify claiming these checks passed.
 
-The original handoff below is historical context; its prologue diagnosis/next-task items are superseded by this update.
+## Artifacts
+
+Local production place: `build/WisteriaChronicles.rbxlx`, **3,377,746 bytes**, SHA-256 `4d7b1b965604544c2c7c4d0db90fe5e44e99c72952bf91a2455a9bea15f9949c`. Checksum refreshed. Build/tools/logs stay ignored; shipping tree excludes test injection. Local evidence: `build/engine-motion-final-20261005.log`, `build/dash-verified-20261005.log`, `build/full-motion-final-20261005.log`. Intermediate experiments/failures remain in WORKLOG/QA and ignored logs.
+
+No new release or Roblox cloud upload. Last downloadable release remains v0.4.0-dev.1 (chapters 1–3); private place remains the earlier upload. GitHub pushes do not update Roblox.
+
+The original October 4 handoff below is superseded by this update wherever it describes failures or next tasks.
 
 ---
 

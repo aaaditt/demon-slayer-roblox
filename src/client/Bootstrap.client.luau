@@ -12,6 +12,7 @@ local Effects=require(script.Parent.Effects)
 local Animator=require(script.Parent.Animator)
 local UI=require(script.Parent.UI)
 local StoryPlayer=require(script.Parent.StoryPlayer)
+require(script.Parent.MotionDriver).start()
 local function send(name,payload) action:FireServer(name,payload) end
 local ui=UI.new(send,Effects)
 local storyPlayer=StoryPlayer.new(send,ui)

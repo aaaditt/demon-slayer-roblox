@@ -2,7 +2,7 @@
 
 Updated: 2026-10-05
 
-Start fresh sessions with [HANDOFF.md](HANDOFF.md). The prologue E-input test race is diagnosed and fixed. **Full regression: 23 passed / 1 failed** on October 5; all five chapters and sequential unlocks pass, but W+Q showed a 14.17-stud frame jump. The October 4 engine 25/25 and focused Asakusa 2/2 remain valid for the unchanged production build. GitHub and Studio access work.
+Start fresh sessions with [HANDOFF.md](HANDOFF.md). **Full two-client regression passes 25/25; Studio engine checks pass 26/26.** The prologue input race and dash ownership catch-up are resolved in the tested build. Player motion now retains client simulation with independent server path/collision validation; actual forged movement is rejected and corrected. Visual/editor review and later story production remain open.
 
 ## Current build: 0.6.0
 
@@ -14,16 +14,16 @@ Chapters **6-22 remain encounter previews**. The full objective remains all nine
 
 ## Current validation
 
-- `python scripts/check.py` passed on October 5: catalog validation, 44 clips, two profiles, **6 Python authoring tests**, **18 core tests**, **31 Luau compilations** and the production build.
-- Actual Studio engine suite: **25 passed / 0 failed**, exit 0. Includes new map access, restraint/defense logic and sampled Tanjiro clips. Final twelve-rig animator benchmark: 2.502 ms per frame (0.209 ms per rig).
-- Focused Asakusa two-client suite: **2/2**, exit 0, after fixing the encounter idle timer. All fifteen stages, both rescue clips, real Water attacks, nonlethal defense, one reward, saved kit restoration and cleanup passed.
-- Full suite on October 5: **23 passed / 1 failed**, exit 1. E is accepted at scene age 0.765 s after the test waits for eligibility. All five story routes, exits, natural sequential unlocks, profiles, sword handling and PvP pass. W+Q failed: 14.17 studs in one 0.069 s frame, despite 16.6447 studs of server travel. Smoothness thresholds are unchanged; the full suite is not green. Failure isolation records fallback unlock seeds and cannot hide them from the sequential progression assertion.
-- Focused dash diagnostic: **7/7**, exit 0, including three actual W+Q attempts. Largest jumps were 6.93 / 6.35 / 8.13 studs. Traces show client replication catch-up during server-owned movement; the earlier 14.17-stud failure was not reproduced. `--dash-only` now records synchronized ownership/position/frame evidence. Full regression remains unresolved.
-- No new visual review or manual Animation Editor round-trip: the Windows computer-use helper could not connect its native pipe. Automated tests do not prove motion quality, human route traversal, difficulty or cinematic pacing.
+- October 5 `python scripts/check.py`: catalog/44 clips/two profiles, **6 Python authoring tests, 19 core tests, 32 Luau compilations** and production build passed.
+- Final Studio engine suite: **26/26**, exit 0. Includes path/speed/reach/vertical validation, late upward-flight rejection, swept collision through a newly added wall and correction before casts. Twelve-rig animator benchmark: **0.883 ms/frame**.
+- Focused dash candidate: **8/8**, exit 0. Three W+Q attempts each had a largest client frame displacement of about 3.3333 studs, with server travel 15.97–16.19 studs. A real client teleporting 40 studs sideways was corrected on both server and owner.
+- Final full two-client suite: **25/25**, exit 0, `RUNTIME_JSON.failures=0`. All five story routes, natural sequential unlocks, rewards, exits/cleanup, profile/sword observations, jump/fall/landing, directional dashes, forged-position rejection and PvP passed. W+Q: **15.9524 studs server / 14.2956 client**, largest frame **3.3333 studs** at 0.0665 s. No movement threshold was weakened.
+- An intermediate full run was 24/25 on the old jump observation fixture. It now uses a grounded, held virtual Space input with all three animation phases still required. Experiments and failures remain in QA/WORKLOG; a passing final run does not qualify arbitrary latency or every device.
+- Native Windows UI automation is unavailable in the current tool set. No new visual review, human route playthrough or manual Animation Editor round-trip occurred. Automated routes reposition actors and accelerate selected timings; appearance, difficulty and pacing remain unqualified.
 
 ## Next work
 
-1. Use `python scripts/prepare_studio_test.py --dash-only` to investigate initial dash ownership/physics replication delay, then rerun full regression without weakening smoothness thresholds. The prologue race and dependent story-test failures are resolved. Finish qualification before new story implementation.
+1. Review the new client-driven dash and all five chapters in Studio when native UI tooling is available. Retain `--dash-only` for repeated movement and rejection diagnostics; qualify network latency, physical controls and human traversal.
 2. Review all five chapters and base/Tanjiro animation in Studio. Test the importer with an actual editor save/export. Refine observed sword paths, movement, acting, navigation and difficulty.
 3. Continue chronologically with Tsuzumi Mansion, Zenitsu/Inosuke introductions and rotating-room encounters, using primary references. Expand Nezuko/Giyu profiles alongside story work.
 4. Finish the later arcs, unique boss mechanics, character models, weapons, technique choreography, sound and exploration. Keep all existing cast/PvP/progression objectives.
@@ -31,8 +31,8 @@ Chapters **6-22 remain encounter previews**. The full objective remains all nine
 
 ## Artifact and delivery
 
-Local production place: `build/WisteriaChronicles.rbxlx`, **3,372,157 bytes**, SHA-256 `9cf06c489cdf5c512c9b1650be90522cb0aaa17ea4735587b8db8c92c0145b56`. Build output and Studio logs are ignored. The shipping place excludes test bridges/hooks.
+Local production place: `build/WisteriaChronicles.rbxlx`, **3,377,746 bytes**, SHA-256 `4d7b1b965604544c2c7c4d0db90fe5e44e99c72952bf91a2455a9bea15f9949c`. Build output and Studio logs are ignored. The shipping place excludes test bridges/hooks.
 
-Production source checkpoint [5ad7b51](https://github.com/aaaditt/demon-slayer-roblox/commit/5ad7b5106aa089f9ecae54f1899a2a0add106229) remains unchanged. Prologue/isolation test checkpoint [64a8c4c](https://github.com/aaaditt/demon-slayer-roblox/commit/64a8c4caa0064c2eef606ca7bd6646d59cf50af5) is committed and pushed; its [portable CI passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37315915002). Focused diagnostic checkpoint [da2f31f](https://github.com/aaaditt/demon-slayer-roblox/commit/da2f31fb7d1b8c7bda83426be20d18fe3706b0d3) is also pushed; its [portable CI passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37316472875). CI does not run Studio or clear the dash failure. Last release download remains [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), chapters 1-3; no new release was created.
+The verified movement source checkpoint and Git/CI delivery are recorded in WORKLOG.md. This production build supersedes the earlier server-ownership dash implementation. The last release download remains [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), chapters 1-3; build current source for all five. No new release or Roblox upload occurred.
 
 The [private Roblox target](DEPLOYMENT.md) remains universe `10766590718`, place `139004028759819`, containing the earlier upload. No new cloud upload, public-access success or live-save validation is claimed. GitHub pushes do not update Roblox automatically.

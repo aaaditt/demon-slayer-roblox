@@ -195,6 +195,17 @@ test("character motion picks specific clips and safely falls back for partial or
     assert(partial.id("test")=="base" and partial.clip("test","slash")=="base/slash")
 end)
 
+test("approved movement rejects excess speed, reach, lateral drift, reverse and non-finite positions",function()
+    assert(Rules.motionEnvelope(5,0,0.1,50,16,1.5))
+    assert(Rules.motionEnvelope(16,0,0.7,50,16,1.5)) -- A late replicated endpoint stays bounded.
+    assert(not Rules.motionEnvelope(10,0,0.1,50,16,1.5))
+    assert(not Rules.motionEnvelope(18,0,1,50,16,1.5))
+    assert(not Rules.motionEnvelope(5,2,0.1,50,16,1.5))
+    assert(not Rules.motionEnvelope(-2,0,0.1,50,16,1.5))
+    assert(not Rules.motionEnvelope(0/0,0,0.1,50,16,1.5))
+    assert(not Rules.motionEnvelope(5,math.huge,0.1,50,16,1.5))
+end)
+
 test("Tanjiro combo Hit and End align to server timing for every override", function()
     for i=1,3 do
         local entry=AnimationIndex["tanjiro/combo_"..i]

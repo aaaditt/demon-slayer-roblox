@@ -231,6 +231,7 @@ function Game:handle(player, action, payload)
     local actor = entry.actor
     if action == "Ready" then self:push(player); return end
     if not actor or not actor.alive then return end
+    if not self.combat:validateMotion(actor) then return end
     if action == "StoryContinue" or action == "StorySkip" then
         if entry.mission and entry.mission.story then entry.mission.story:continue(action == "StorySkip") end
         return

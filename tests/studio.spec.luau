@@ -398,6 +398,39 @@ check("Tanjiro profile drives distinct poses, all combo variants and guard after
     model:Destroy()
 end)
 
+check("client-driven movement is swept and corrected before combat admission",function()
+    local a=actor("tanjiro","player",Vector3.new(0,4,15))
+    local function motion()
+        combat:stopMotion(a);a.busyUntil=0;a.castToken+=1
+        a.model:PivotTo(CFrame.new(0,4,15))
+        combat:move(a,Vector3.xAxis,16,0.32)
+        -- Exercise the same server audit without a real Player in the edit-mode engine fixture.
+        a.motion.clientDriven=true;a.motion.started=workspace:GetServerTimeNow()-0.2
+        return a.motion
+    end
+    motion();a.model:PivotTo(CFrame.new(5,4,15))
+    assert(combat:validateMotion(a),"legal progress rejected")
+    a.model:PivotTo(CFrame.new(5,4,19))
+    local token=a.castToken
+    assert(not combat:cast(a,Content.moves.water_1,Vector3.xAxis),"lateral teleport admitted a cast")
+    assert(not a.motion and a.castToken>token and (a.root.Position-Vector3.new(5,4,15)).Magnitude<0.01)
+    assert(not a.root:FindFirstChild("DashVelocity") and not a.cooldowns.water_1)
+    motion();a.model:PivotTo(CFrame.new(25,4,15))
+    assert(not combat:validateMotion(a) and a.root.Position.X==0,"excess reach was not corrected")
+    motion();a.model:PivotTo(CFrame.new(1,40,15))
+    assert(not combat:validateMotion(a),"vertical teleport admitted")
+    local late=motion();late.started=workspace:GetServerTimeNow()-0.7
+    a.model:PivotTo(CFrame.new(1,40,15))
+    assert(not combat:validateMotion(a),"replication grace granted upward flight")
+    motion()
+    -- Wall appears after the initial destination cast: validate the entire received displacement.
+    local wall=Instance.new("Part");wall.Anchored=true;wall.Size=Vector3.new(1,12,20)
+    wall.Position=Vector3.new(4,5,15);wall.Parent=workspace
+    a.model:PivotTo(CFrame.new(8,4,15))
+    assert(not combat:validateMotion(a) and string.find(a.lastMotion.reason,"collision"),"sparse snapshot crossed a new wall")
+    wall:Destroy();combat:remove(a)
+end)
+
 check("animator per-frame cost stays small for a crowded scene",function()
     local Animator=require(game:GetService("StarterPlayer").StarterPlayerScripts.Client.Animator)
     local models,states={},{}

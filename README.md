@@ -35,7 +35,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 
 ## Verified
 
-Portable validation passes; the unchanged production build previously passed the 25-check Studio engine suite. The October 5 full two-client run passes all five story routes, natural sequential unlocks and PvP, but **full regression remains unresolved (23 passed / 1 failed)** because W+Q showed a visible frame jump. The prologue E-input test race is fixed. [QA evidence](docs/QA.md) records the results and limitations. Automated checks do not establish visual quality or a human playthrough.
+Portable validation, **26 Studio engine checks**, and **25 full two-client regression checks** pass for the October 5 movement checkpoint. All five story routes, natural sequential unlocks, directional movement, forged-position rejection and PvP pass. The dash retains client simulation with independent server path/collision validation, eliminating the ownership catch-up seen in the failing run. [QA evidence](docs/QA.md) records intermediate failures and limits. Automated checks do not establish visual quality, a human playthrough or arbitrary-latency performance.
 
 To review the new opening, choose **Journey -> 01 A Trail in the Snow**, including on an existing save. Use E / controller X / the prompt to interact, and E / controller A / Continue for dialogue. Skip Scene skips only that conversation. M -> Return to Hub leaves the chapter. [Story production roadmap](docs/STORY_PRODUCTION.md).
 

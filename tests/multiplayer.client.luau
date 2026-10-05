@@ -55,13 +55,26 @@ bridge.OnClientEvent:Connect(function(token,command,args)
                 RunService.RenderStepped:Wait()
                 if (hip.Transform.Position-original.Position).Magnitude>0.01 or hip.Transform.LookVector:Dot(original.LookVector)<0.99 then changed=true end
             until os.clock()>deadline
-            humanoid:Move(Vector3.zero);humanoid.Jump=true
+            humanoid:Move(Vector3.zero);controls:Enable()
+            -- Use the real held jump input after landing, instead of a one-frame Jump assignment
+            -- while PlayerModule controls are disabled. Keep requiring every animation phase.
+            local input=game:GetService("UserInputService"):CreateVirtualInput()
+            if player.PlayerGui.WisteriaUI.MenuShade.Visible then
+                input:SendKey(true,Enum.KeyCode.M,false);task.wait(0.1);input:SendKey(false,Enum.KeyCode.M,false)
+            end
+            deadline=os.clock()+3
+            repeat RunService.RenderStepped:Wait() until humanoid.FloorMaterial~=Enum.Material.Air or os.clock()>deadline
+            assert(humanoid.FloorMaterial~=Enum.Material.Air,"jump fixture did not reach the ground")
             local states={}
-            deadline=os.clock()+1.5
-            repeat RunService.RenderStepped:Wait();states[model:GetAttribute("MotionState") or "missing"]=true until os.clock()>deadline
-            controls:Enable()
+            local started=os.clock();local released=false;deadline=started+3
+            input:SendKey(true,Enum.KeyCode.Space,false)
+            repeat
+                RunService.RenderStepped:Wait();states[model:GetAttribute("MotionState") or "missing"]=true
+                if not released and os.clock()-started>=0.15 then input:SendKey(false,Enum.KeyCode.Space,false);released=true end
+            until (released and states.jump and states.fall and states.land) or os.clock()>deadline
+            if not released then input:SendKey(false,Enum.KeyCode.Space,false) end
             assert(changed,"walking did not change the leg joint")
-            assert(states.jump and states.fall and states.land,"missing jump, fall or landing poses")
+            assert(states.jump and states.fall and states.land,"missing jump, fall or landing poses: "..game:GetService("HttpService"):JSONEncode(states).." humanoid="..humanoid:GetState().Name)
             return true
         elseif command=="brace" then
             -- Wait for a fresh gold window after replication, instead of spending it on the bridge trip.
@@ -134,6 +147,18 @@ bridge.OnClientEvent:Connect(function(token,command,args)
             assert((root.Position-start).Magnitude>10,string.format("dash failed to travel: %.2f; largest step %.2f; worst frame %.3f s",(root.Position-start).Magnitude,largest,worstFrame))
             assert(largest<12,string.format("dash jumped an entire frame: %.2f studs in a %.3f s frame (worst frame %.3f s)",largest,frameAtLargest,worstFrame)..trace)
             return {distance=(root.Position-start).Magnitude,largestFrame=largest,frameAtLargest=frameAtLargest,worstFrame=worstFrame,frames=frames}
+        elseif command=="dashTamper" then
+            local root=player.Character.HumanoidRootPart
+            ReplicatedStorage.Network.Action:FireServer("Dodge",{direction=-Vector3.zAxis,facing=-Vector3.zAxis})
+            local deadline=os.clock()+3
+            local velocity
+            repeat
+                RunService.RenderStepped:Wait();velocity=root:FindFirstChild("DashVelocity")
+            until velocity or os.clock()>deadline
+            assert(velocity and velocity:GetAttribute("ClientDriven"),"approved dash did not replicate")
+            root.CFrame+=Vector3.new(40,0,0)
+            task.wait(1)
+            return root.Position
         elseif command=="sidestepInput" then
             local input=game:GetService("UserInputService"):CreateVirtualInput()
             local model=player.Character

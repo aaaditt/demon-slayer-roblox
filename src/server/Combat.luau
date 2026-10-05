@@ -72,14 +72,17 @@ function Combat:stopMotion(actor, reason)
     if not motion then return end
     actor.lastMotion = {distance=(actor.root.Position-motion.origin).Magnitude,reason=reason or "cancelled"}
     actor.motion = nil
+    if motion.extendedBusy and actor.busyUntil==motion.extendedBusy then
+        actor.busyUntil=math.max(workspace:GetServerTimeNow(),motion.originalBusy)
+    end
     motion.velocity:Destroy(); motion.attachment:Destroy()
     if actor.root.Parent then
         local v = actor.root.AssemblyLinearVelocity
         actor.root.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
         actor.humanoid.AutoRotate = true
         if actor.player then
-            -- Let the final server physics position replicate before giving control back.
-            -- Immediate handoff lets the client's older position shorten the visible dash.
+            -- Settle after completion/correction. Client-driven movement normally retains ownership;
+            -- rejected movement and server-simulated movement release it only after this interval.
             local releaseAt=workspace:GetServerTimeNow()+0.15
             actor.motionReleaseAt=releaseAt
             task.delay(0.15,function()
@@ -90,6 +93,36 @@ function Combat:stopMotion(actor, reason)
             end)
         end
     end
+end
+
+function Combat:validateMotion(actor)
+    local m=actor.motion
+    if not m or not m.clientDriven then return true end
+    local now=workspace:GetServerTimeNow()
+    local offset=actor.root.Position-m.origin
+    local elapsed=math.max(0,now-m.started)
+    local forward=offset:Dot(m.direction)
+    local lateral=offset:Dot(Vector3.new(-m.direction.Z,0,m.direction.X))
+    local gravity=math.max(1,workspace.Gravity)
+    local highest=math.max(0,m.verticalSpeed)^2/(2*gravity)+3
+    local lowest=math.min(0,m.verticalSpeed)*elapsed-0.5*gravity*elapsed^2-3
+    local valid=Rules.motionEnvelope(forward,lateral,elapsed,m.speed,m.distance,Config.MotionPositionSlack)
+        and Rules.finite(offset.Y) and offset.Y>=lowest and offset.Y<=highest
+    local delta=actor.root.Position-m.verifiedPosition
+    local hit=valid and delta.Magnitude>0.01 and workspace:Blockcast(CFrame.new(m.verifiedPosition),Vector3.new(3,4,2),delta,m.parameters)
+    if not valid or hit then
+        -- Take control before correcting a forged/obstructed position; ordinary completion retains
+        -- client ownership and therefore has no ownership-transfer interpolation stall.
+        pcall(function() actor.root:SetNetworkOwner(nil) end)
+        actor.model:PivotTo(CFrame.new(m.verifiedPosition)*m.rotation)
+        actor.castToken+=1
+        actor.invulnerableUntil=math.min(actor.invulnerableUntil,now)
+        self:stopMotion(actor,hit and ("rejected collision: "..hit.Instance.Name) or "rejected motion envelope")
+        actor.lastPosition=actor.root.Position;actor.motionTime=now
+        return false
+    end
+    m.verifiedPosition=actor.root.Position
+    return true
 end
 
 -- keepFacing: travel without turning toward the direction (side and back dashes).
@@ -123,12 +156,26 @@ function Combat:move(actor, direction, distance, duration, keepFacing)
     velocity.PrimaryTangentAxis = Vector3.xAxis; velocity.SecondaryTangentAxis = Vector3.zAxis
     velocity.ForceLimitsEnabled = false
     velocity.PlaneVelocity = Vector2.new(direction.X, direction.Z)*(travel/duration)
+    local clientDriven=actor.player~=nil and not actor.root.Anchored
+    local started=workspace:GetServerTimeNow()
+    local expires=started+duration+(clientDriven and Config.MotionReplicationGrace or 0)
+    if clientDriven then
+        velocity:SetAttribute("ClientDriven",true)
+        velocity:SetAttribute("Origin",origin);velocity:SetAttribute("Direction",direction)
+        velocity:SetAttribute("Distance",travel);velocity:SetAttribute("Speed",travel/duration)
+        velocity:SetAttribute("Expires",expires)
+    end
     velocity.Parent = actor.root
     actor.humanoid.AutoRotate = false
     if not keepFacing then actor.root.CFrame = CFrame.lookAt(origin, origin+direction) end
-    pcall(function() actor.root:SetNetworkOwner(nil) end)
+    pcall(function() actor.root:SetNetworkOwner(clientDriven and actor.player or nil) end)
     actor.motion = {attachment=attachment,velocity=velocity,origin=origin,direction=direction,distance=travel,
-        ends=workspace:GetServerTimeNow()+duration,speed=travel/duration,parameters=parameters,token=actor.castToken}
+        ends=expires,started=started,speed=travel/duration,parameters=parameters,token=actor.castToken,
+        clientDriven=clientDriven,verifiedPosition=origin,rotation=actor.root.CFrame.Rotation,
+        verticalSpeed=math.clamp(actor.root.AssemblyLinearVelocity.Y,-250,Config.JumpPower)}
+    if clientDriven and actor.busyUntil<expires then
+        actor.motion.originalBusy=actor.busyUntil;actor.motion.extendedBusy=expires;actor.busyUntil=expires
+    end
     return duration
 end
 
@@ -145,6 +192,8 @@ end
 
 function Combat:damage(actor, target, amount, status)
     local now = workspace:GetServerTimeNow()
+    if not self:validateMotion(actor) then return end
+    self:validateMotion(target)
     if not actor.alive or not target.alive or not Rules.canDamage(actor, target) then return end
     if actor.kind == "player" and actor.mode == "Arena" and not actor.arenaActive then return end
     if target.kind == "player" and target.mode == "Arena" and not target.arenaActive then return end
@@ -204,6 +253,7 @@ end
 
 function Combat:cast(actor, move, direction)
     local now = workspace:GetServerTimeNow()
+    if not self:validateMotion(actor) then return false,"Invalid movement" end
     if not actor.alive then return false, "Respawning" end
     if not Rules.storyMoveAllowed(actor,move.id) then return false, "Follow the story objective" end
     if actor.model:GetAttribute("InCutscene") then return false, "Follow the story scene" end
@@ -249,8 +299,13 @@ function Combat:cast(actor, move, direction)
             if move.status == "cleanse" then actor.status = {} end
         end
         local travelTime = self:move(actor, direction, move.dash)
+        local movement=actor.motion
         self:emit(actor, "cast", {move = move.id, position = field or origin, destination = actor.root.Position, direction = direction, color = color, pattern = move.pattern, range = field and move.width or move.range, width = move.width})
-        if travelTime > 0 then task.wait(travelTime) end
+        if travelTime > 0 then
+            if movement and movement.clientDriven then
+                repeat task.wait() until actor.motion~=movement or workspace:GetServerTimeNow()>=movement.ends
+            else task.wait(travelTime) end
+        end
         if not actor.alive or actor.castToken ~= token then return end
         if move.damage <= 0 then return end
         local reference = CFrame.lookAt(origin, origin+direction)
@@ -343,6 +398,7 @@ local DASHES = {
 -- into the travel direction; side and back dashes face `facing` throughout. Returns the dash kind.
 function Combat:dodge(actor, direction, facing)
     local now = workspace:GetServerTimeNow()
+    if not self:validateMotion(actor) then return end
     if actor.model:GetAttribute("InCutscene") then return end
     if not actor.alive or now < actor.stunUntil or now < actor.busyUntil or (actor.cooldowns.dodge or 0)>now or actor.energy<Config.DodgeCost then return end
     local look = actor.root.CFrame.LookVector
@@ -380,12 +436,13 @@ function Combat:tick(dt)
             end
         end
         if not actor.alive then continue end
+        self:validateMotion(actor)
         if actor.motion then
             local m = actor.motion
             local traveled = (actor.root.Position-m.origin):Dot(m.direction)
             local hit = workspace:Blockcast(actor.root.CFrame, Vector3.new(3, 4, 2), m.direction*(m.speed*dt+0.6), m.parameters)
             if hit then self:stopMotion(actor, "collision: "..hit.Instance.Name)
-            elseif now >= m.ends or traveled >= m.distance then self:stopMotion(actor, "finished")
+            elseif now >= m.ends or traveled >= m.distance-0.05 then self:stopMotion(actor, "finished")
             elseif now < actor.stunUntil or actor.castToken ~= m.token then self:stopMotion(actor, "interrupted") end
         end
         -- Auto-sheathe: a drawn sword returns with the full noto after AutoSheatheSeconds without dealing or

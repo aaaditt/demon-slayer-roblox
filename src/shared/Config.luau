@@ -17,6 +17,8 @@ return {
     AutoSheatheSeconds = 8,
     FastSheatheWindow = 3,
     DodgeDuration = 0.32,
+    MotionReplicationGrace = 0.5,
+    MotionPositionSlack = 1.5,
     ParryWindow = 0.18,
     GuardReduction = 0.75,
     GuardEnergyCost = 13,
