@@ -1,5 +1,7 @@
 # Continuation update — 2026-10-08, Tsuzumi checkpoint
 
+Source/tests/docs checkpoint **[04d4e10](https://github.com/aaaditt/demon-slayer-roblox/commit/04d4e1084f218add6ef9c28bb5864f708b431d33)** is committed and pushed to origin/main. [Portable CI succeeded](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37806371260). A following documentation commit records this delivery; no code changed after the passing tests.
+
 **Build 0.7.0 has six staged chapters. Full two-client regression passes 27/27; Studio engine checks pass 28/28; focused Tsuzumi passes 2/2.** All runners exited 0 and both multiplayer results report `failures=0`. Portable validation: 6 Python authoring / 19 core / 34 Luau compilations, 44 clips/two profiles and production build pass. Read STATUS/PLAN/WORKLOG and verify delivery before changing code. Earlier handoffs below are historical.
 
 ## What changed

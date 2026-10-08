@@ -328,3 +328,8 @@
 - Final portable: **6 authoring / 19 core / 34 compilations**, catalog/44 clips/two profiles and production build pass. Final engine **28/28**, exit 0; animator benchmark 1.774 ms/frame for twelve rigs. Focused chapter **2/2**, exit 0, failures=0. Full regression **27/27**, exit 0, failures=0, all six chapters naturally unlock without seeds. W+Q server/client 16.0242/14.2670 studs, largest frame 3.33334 studs; no thresholds weakened.
 - Updated README, STATUS, HANDOFF, PLAN, SETUP, STORY_PRODUCTION, RESEARCH and QA. Production artifact **3,422,912 bytes**, SHA-256 `434eebd2ddb4e1ed95976663c6496237e6a82df2f32198f4ce982426aae49aea`, ignored checksum refreshed. No tools/logs/credentials or injected hooks belong in the commit.
 - Manual visual/editor/physical-device/latency/live-save work remains pending; current tools lack native Windows UI control. Exact Tsuzumi gravity/fight choreography/backstory remain unfinished. Next chronological production is Natagumo and the spider family. No release or Roblox cloud upload occurred. Commit/push and CI delivery follow below.
+
+### Tsuzumi delivery
+
+- Committed and pushed source/tests/docs as **04d4e1084f218add6ef9c28bb5864f708b431d33** (`Add Tsuzumi story chapter and authoritative rotating-room encounter`) to origin/main. GitHub [portable CI 37806371260](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37806371260) completed successfully for that exact commit.
+- Working tree was clean after the source push; no Studio test processes remained. This following documentation checkpoint records delivery in STATUS/HANDOFF/WORKLOG. No source/build change or additional Roblox/release publication occurred.
