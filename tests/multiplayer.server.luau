@@ -38,6 +38,7 @@ return function(session)
         local selectionOnly=type(suiteArgs)=="table" and suiteArgs.selectionOnly
         local swampOnly=type(suiteArgs)=="table" and suiteArgs.swampOnly
         local asakusaOnly=type(suiteArgs)=="table" and suiteArgs.asakusaOnly
+        local tsuzumiOnly=type(suiteArgs)=="table" and suiteArgs.tsuzumiOnly
         local dashOnly=type(suiteArgs)=="table" and suiteArgs.dashOnly
         local seededChapters,completedRoutes={},{}
         local function storyCheck(chapter,route,name,run)
@@ -57,8 +58,8 @@ return function(session)
             e.profile.data.loadouts.tanjiro=savedLoadout
             if route then completedRoutes[chapter]=passed end
         end
-        if selectionOnly or swampOnly or asakusaOnly then
-            session.players[p1].profile.data.chapter=asakusaOnly and 5 or swampOnly and 4 or 3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
+        if selectionOnly or swampOnly or asakusaOnly or tsuzumiOnly then
+            session.players[p1].profile.data.chapter=tsuzumiOnly and 6 or asakusaOnly and 5 or swampOnly and 4 or 3;session.players[p1].profile.data.selected="giyu";session:spawn(p1,"Hub")
         else
         check("two real clients load GUI, attach cameras, and stand on the ground",function()
             for _,p in ipairs({p1,p2}) do
@@ -366,7 +367,7 @@ return function(session)
             client(p1,"story",{scene=false})
         end)
         end
-        if not swampOnly and not asakusaOnly then
+        if not swampOnly and not asakusaOnly and not tsuzumiOnly then
         storyCheck(3,true,"Final Selection fights, patrol, induction and return award once and preserve the saved kit",function()
             local Content=require(ReplicatedStorage.Shared.Content)
             local e=session.players[p1]
@@ -486,7 +487,7 @@ return function(session)
             client(p1,"story",{scene=false})
         end)
         end
-        if not selectionOnly and not asakusaOnly then
+        if not selectionOnly and not asakusaOnly and not tsuzumiOnly then
         storyCheck(4,true,"town investigation, Nezuko rescue, swamp bodies and farewell complete once",function()
             local e=session.players[p1]
             client(p1,"action",{name="Story",payload=4})
@@ -579,6 +580,7 @@ return function(session)
         end)
         end
         if not selectionOnly and not swampOnly then
+        if not tsuzumiOnly then
         storyCheck(5,true,"Asakusa rescue, house reveal, Water encounters and farewell complete once",function()
             local e=session.players[p1]
             if e.mission then session:clearMission(e);session:spawn(p1,"Hub") end
@@ -686,12 +688,94 @@ return function(session)
             assert(not e.actor.storyMoves and not e.actor.healthFloor and not e.actor.storyLoadout)
             client(p1,"story",{scene=false})
         end)
+        end
         if not asakusaOnly then
+        storyCheck(6,true,"Tsuzumi scenes, replicated room turns, Water opening and reunion unlock Natagumo once",function()
+            local e=session.players[p1]
+            local selected=e.profile.data.selected
+            local saved=game:GetService("HttpService"):JSONEncode(e.profile.data.loadouts)
+            local before=e.profile.data.xp
+            session:startMission(p1,6)
+            local mission=assert(e.mission);local story=assert(mission.story)
+            assert(story.data.id=="tsuzumi_mansion" and e.actor.characterId=="tanjiro")
+            local function place(position)
+                session.combat:stopMotion(e.actor);e.actor.root.Anchored=true
+                e.actor.model:PivotTo(CFrame.lookAt(position,position-Vector3.zAxis))
+                e.actor.root.AssemblyLinearVelocity=Vector3.zero;e.actor.lastPosition=position;e.actor.motionTime=workspace:GetServerTimeNow()
+            end
+            local function advanceLine(skip)
+                story.changedAt=workspace:GetServerTimeNow()-1;assert(story:continue(skip))
+            end
+            for stage=1,#story.data.steps do
+                assert(story.stepIndex==stage,"Tsuzumi stage order")
+                print("TSUZUMI_STAGE "..stage.." "..story.step.id)
+                if stage==1 then client(p1,"story",{scene=true}) end
+                if story.phase=="objective" then
+                    assert(not story:interact(p2,story.step.target) and not story:interact(p1,"forged"))
+                    place(mission.room.center+Vector3.new(140,3,140));assert(not story:interact(p1,story.step.target))
+                    place(mission.room.anchors[story.step.target].Position);assert(story:interact(p1,story.step.target))
+                end
+                if story.step.id=="shade" then
+                    assert(story.carry=="none" and mission.room.folder.NezukoTravelBox.Transparency==0)
+                elseif story.step.id=="retrieve" then
+                    assert(story.carry=="box" and not mission.room.folder:FindFirstChild("NezukoTravelBox"))
+                end
+                -- Walk every line to exercise cutaway movement/effects and actor visibility.
+                while story.line<#story.sceneLines do advanceLine(false) end
+                if story.step.id=="zenitsu_cutaway" then assert(story.npcs.tongue_demon.Head.Transparency==1) end
+                if story.step.id=="inosuke_cutaway" then assert(story.npcs.horned_demon.Head.Transparency==1) end
+                advanceLine(true)
+                if story.phase=="challenge" then
+                    local c=story.challenge;local boss=c.enemy
+                    assert(c.data.kind=="drums" and not story:continue(true))
+                    -- Observe an unaccelerated cycle in the real client before staging attack geometry.
+                    local result=client(p1,"drums",{floor=mission.room.arena.TatamiFloor})
+                    assert(result.turned and result.locked and result.released and result.warning and result.opening)
+                    waitFor(function() return c.phase=="exposed" end,8,"drums never exposed")
+                    c.nextPhase=workspace:GetServerTimeNow()+5 -- isolate the real remote strike from the next room turn
+                    boss.invulnerableUntil=0;local hp=boss.humanoid.Health
+                    session.combat:damage(session.players[p2].actor,boss,30,"none");assert(boss.humanoid.Health==hp)
+                    place(boss.root.Position+Vector3.zAxis*7)
+                    e.actor.busyUntil=0;e.actor.stunUntil=0;e.actor.cooldowns={}
+                    client(p1,"action",{name="Skill",payload={slot=1,direction=-Vector3.zAxis},wait=1.1})
+                    assert(boss.humanoid.Health<hp,"real Water strike missed drum opening")
+                    session.combat:damage(e.actor,boss,1000,"none")
+                    waitFor(function() return story.resultScene end,5,"Kyogai defeat did not progress")
+                    assert(c.closed and not boss.model.Parent and not e.actor.storyMoves and not e.actor.healthFloor)
+                    assert(story.npcs.kyogai.Head.Transparency==1,"defeated story double visible")
+                    advanceLine(true)
+                end
+            end
+            assert(not e.mission and e.profile.data.chapter==7 and e.profile.data.xp==before+210)
+            assert(e.actor.characterId==selected and not e.actor.root.Anchored and not e.actor.storyLoadout)
+            assert(game:GetService("HttpService"):JSONEncode(e.profile.data.loadouts)==saved)
+            assert(not mission.room.folder.Parent and not session.slots[mission.slot])
+            for _,model in pairs(story.npcs) do assert(not model.Parent,"Tsuzumi actor leaked") end
+            client(p1,"action",{name="StorySkip"});assert(e.profile.data.xp==before+210)
+            client(p1,"story",{scene=false})
+        end)
+        storyCheck(6,false,"leaving during a room turn releases the player and removes the encounter",function()
+            local e=session.players[p1]
+            session:startMission(p1,6)
+            local mission=e.mission;local story=mission.story
+            story.stepIndex=9;story:advance()
+            e.actor.model:PivotTo(CFrame.new(mission.room.anchors.drums.Position));assert(story:interact(p1,"drums"))
+            story.changedAt=workspace:GetServerTimeNow()-1;story:continue(true)
+            local c=story.challenge;local enemy=c.enemy;local old=e.actor
+            c:beginTurn(workspace:GetServerTimeNow());assert(old.root.Anchored and c.turn)
+            client(p1,"action",{name="Hub"})
+            assert(c.closed and not c.turn and not enemy.model.Parent and not mission.room.folder.Parent and not session.slots[mission.slot])
+            assert(not e.actor.root.Anchored and not e.actor.model:GetAttribute("InCutscene") and not e.actor.storyMoves and not e.actor.healthFloor)
+            client(p1,"story",{scene=false})
+        end)
+        end
+
+        if not asakusaOnly and not tsuzumiOnly then
         if not selectionOnly and not swampOnly then
-        check("all five story routes unlock sequentially without fallback seeds",function()
+        check("all six story routes unlock sequentially without fallback seeds",function()
             assert(#seededChapters==0,"chapter isolation required fallback seeds: "..table.concat(seededChapters,","))
-            for chapter=1,5 do assert(completedRoutes[chapter],"chapter route failed: "..chapter) end
-            assert(session.players[p1].profile.data.chapter==6,"chapter six was not unlocked")
+            for chapter=1,6 do assert(completedRoutes[chapter],"chapter route failed: "..chapter) end
+            assert(session.players[p1].profile.data.chapter==7,"chapter seven was not unlocked")
         end)
         end
         check("locked chapters cannot be started by forged remote requests",function()

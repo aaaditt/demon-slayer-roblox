@@ -81,6 +81,9 @@ function StoryPlayer.new(send,ui)
                 if challenge.kind=="hand_boss" then
                     local phase=challenge.phase=="exposed" and "NECK EXPOSED — STRIKE" or challenge.phase=="windup" and "ARMS REACHING — EVADE" or "ARMS GUARDING THE NECK"
                     progress=phase.."  ·  "..math.ceil(challenge.bossHp or 0).." HP"
+                elseif challenge.kind=="drums" then
+                    local cue=challenge.phase=="turning" and "ROOM TURNING" or challenge.phase=="windup" and "CLAW LANES — EVADE" or challenge.phase=="exposed" and "DRUMS QUIET — STRIKE" or "WATCH THE DRUMS"
+                    progress=cue.."  ·  "..math.ceil(challenge.bossHp or 0).." HP"
                 elseif challenge.kind=="vigil" then progress..="  ·  Hold out: "..challenge.holdRemaining.."s"
                 elseif challenge.kind=="hold" then progress="Cover Tamayo: "..challenge.hits.." / "..challenge.goal.." hits  ·  Hold "..challenge.holdRemaining.."s"
                 elseif challenge.kind=="swamp" then

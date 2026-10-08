@@ -271,6 +271,24 @@ bridge.OnClientEvent:Connect(function(token,command,args)
                 if not args.gear then assert(player.PlayerGui.StoryUI.Training.Visible,"swamp HUD missing") end
             end
             assert(#failures==0,table.concat(failures,"\n"));return true
+        elseif command=="drums" then
+            local floor=args.floor;assert(floor,"turning floor did not replicate")
+            local original=floor.CFrame;local result={turned=false,locked=false,released=false,warning=false,opening=false}
+            local deadline=os.clock()+8
+            repeat
+                RunService.RenderStepped:Wait()
+                result.turned=result.turned or floor.CFrame.LookVector:Dot(original.LookVector)<0.8
+                local locked=player.Character:GetAttribute("InCutscene")==true
+                result.locked=result.locked or locked
+                result.released=result.released or (result.locked and not locked)
+                for _,label in ipairs(player.PlayerGui.StoryUI.Training:GetChildren()) do
+                    if label:IsA("TextLabel") then
+                        result.warning=result.warning or string.find(label.Text,"CLAW LANES",1,true)~=nil
+                        result.opening=result.opening or string.find(label.Text,"DRUMS QUIET",1,true)~=nil
+                    end
+                end
+            until (result.turned and result.locked and result.released and result.warning and result.opening) or os.clock()>deadline
+            assert(#failures==0,table.concat(failures,"\n"));return result
         elseif command=="bossAnimation" then
             local boss
             for _,model in ipairs(workspace.Actors:GetChildren()) do

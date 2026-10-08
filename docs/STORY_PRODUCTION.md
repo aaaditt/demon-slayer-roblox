@@ -1,6 +1,6 @@
 # Story production and next sessions
 
-Updated 2026-09-30. The whole intended campaign remains the goal. Five locally staged chapters and 17 encounter previews are not a finished storyline. The new Asakusa first pass has not run in Studio yet.
+Updated 2026-10-08. The whole intended campaign remains the goal. Six locally staged chapters and 16 encounter previews are not a finished storyline. Current runtime evidence is in QA.md and STATUS.md.
 
 ## Current playable chapter: A Trail in the Snow
 
@@ -49,7 +49,7 @@ The ambush requires three damaging hits and sixteen seconds; the later encounter
 
 ## Proposed session sequence
 
-- **Next:** visually review the five staged chapters and base/Tanjiro clips, complete an Animation Editor export/import round-trip, and refine navigation, acting and difficulty. Then build Tsuzumi Mansion, Zenitsu/Inosuke's introductions and rotating-room encounters from primary references. See STATUS.md for current validation and delivery.
+- **Next:** visually review the six staged chapters and base/Tanjiro clips, complete an Animation Editor export/import round-trip, and refine navigation, acting and difficulty. Continue chronologically with Mount Natagumo and the spider family from primary references; refine Tsuzumi alongside the earlier chapters. See STATUS.md for current validation and delivery.
 - **Training refinement:** authored temple intervention, Sabito/Makomo acting, expanded mountain routes, waterfall animation/sound and persistent within-chapter checkpoints. The current chapter uses condensed narrated transitions and shared procedural poses.
 - **Selection refinement:** final boss art/acting, expanded survival exploration, candidate interactions, physical route playtesting and scene-level costume/choreography audit. The current boss's attack/recovery cycle is original gameplay.
 - **Early missions:** first town disappearances and swamp rescue, Asakusa civilians and Muzan, Tamayo/Yushiro, Susamaru/Yahaba, Tsuzumi Mansion's rotating rooms and character introductions.
@@ -71,3 +71,11 @@ Fifteen stages cover city arrival, a noodle stall, the scent trail, Muzan, civil
 The civilian is never a combat target. Sword use and skills are disabled during four timed, stationary bracing inputs near the marker; `restrain` and `struggle` are bundled body clips. Ownership, distance, phase, timing and repeated-input rejection are server-checked. Yahaba uses his existing Arrow techniques; Susamaru uses Temari techniques and stays alive until the three-hit/20-second defense objective triggers Tamayo's scene. Nezuko plays repeated short kicks beside that encounter. Defeat/timeout restarts the current challenge, and chapter completion restores the saved hub fighter/loadout.
 
 Portable validation, the 25-check engine suite and both focused two-client chapter checks pass. Tests cover map access, restraint restrictions and client playback, nonlethal defense, real Water attacks, ownership, progression/rewards and cleanup. They reposition actors and accelerate clocks/damage; this is not a manual route or difficulty review. The chapter has not been uploaded to Roblox. Exact boss choreography/physics, blood-collection scenes, detailed acting and visual refinement remain work.
+
+## Sixth chapter first pass: The Shifting Mansion
+
+Sixteen stages cover Zenitsu on the road, the children, setting down Nezuko's box, entering and becoming separated, Inosuke, the missing brother, two parallel-fight cutaways, Kyogai, gathering the children, the box defense/reunion, a wisteria rest house and departure. The original set contains a turning chamber, annex, shaded roadside and enterable rest house. All dialogue is original; episode synopses establish only the broad sequence.
+
+Kyogai's server-controlled cycle turns the room and player horizontally by 90 degrees, marks three claw lanes, resolves at most one hit, and exposes the boss for a short Water-attack opening. It cancels pending movement/attacks during the turn and restores control afterward. Defeat, timeout or leaving the encounter radius restarts locally; exit during rotation clears temporary locks, actors and the mission room. No new client action is exposed. The box's static prop appears when set down and disappears when collected. Completion awards 210 XP once, unlocks chapter seven and restores the saved kit.
+
+Horizontal turns, guarded/open phases and short cutaways are gameplay adaptations. They do not implement gravity inversion, full room rearrangement, exact Thunder/Beast choreography, the entire outside fight, Kyogai's memories/manuscripts, facial acting or scene-accurate costumes. Human navigation, appearance and balance remain unqualified even when automated checks pass. The next chronological story slice is Natagumo; all later arcs and the full cast remain in scope.

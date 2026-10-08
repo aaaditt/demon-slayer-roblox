@@ -1,3 +1,32 @@
+# Continuation update — 2026-10-08, Tsuzumi checkpoint
+
+**Build 0.7.0 has six staged chapters. Full two-client regression passes 27/27; Studio engine checks pass 28/28; focused Tsuzumi passes 2/2.** All runners exited 0 and both multiplayer results report `failures=0`. Portable validation: 6 Python authoring / 19 core / 34 Luau compilations, 44 clips/two profiles and production build pass. Read STATUS/PLAN/WORKLOG and verify delivery before changing code. Earlier handoffs below are historical.
+
+## What changed
+
+- Catalog chapter six, **The Shifting Mansion**, now has sixteen stages: Zenitsu, the children, box placement, mansion entry/separation, Inosuke, the missing brother, Zenitsu/Inosuke cutaways, Kyogai, reunion, box retrieval, wisteria rest and departure. Official episodes 11–14 support the broad sequence. Dialogue, staging and mechanics are original; see RESEARCH.md.
+- `TsuzumiWorld.luau` builds a chamber with four open doorways, annex, shaded road and enterable rest house. `DrumEncounter.luau` inherits encounter permissions/retry/cleanup and adds server-controlled horizontal quarter-turns, player transport, three claw warnings, one-hit resolution and exposed attack windows. Turn cancellation frees controls and invalidates pending attacks/motion. No new network action or external asset is required.
+- `Story.luau` selects the new encounter and reveals/collects the box prop; the HUD describes each fight phase. `data/catalog.json` remains source of truth and generated Content was rebuilt. No new animation clips were added; cutaways use shared poses/effects.
+- Engine tests found a path crossing the rest-house side wall; the approach now runs south of it and all route blockcasts pass. An updater restart initially outlived the test runner's temporary place. The verified installed Studio ContentFolder pointer was repaired; a separate first multiplayer attempt failed because two clients did not join. These are recorded failures, not passes.
+- The passing focused/full suites observe an unaccelerated rotation/warning/opening cycle on a real client, walk every new dialogue line, admit a real Water remote hit, reject cross-room damage, require actual boss-death progression, award 210 XP once, unlock chapter seven, restore the saved kit and clean actors/map/camera/slot. An exit test leaves during rotation. The full suite requires all six routes to unlock without fallback seeds.
+
+## Continue here
+
+1. Verify clean Git status and latest push/CI in WORKLOG.md. Do not redo the resolved prologue/dash investigation. Current source needs no test hook; injected tests live under tests/ and build/ only.
+2. Continue chronologically with **Mount Natagumo and the spider family**, researching primary sources before authoring. Chapters **7–22 remain encounter previews**. Keep all nine Hashira, protagonists, Muzan, Moons, Infinity Castle (2025 minimum), later arcs, PvP and progression in scope.
+3. Human visual review of all six chapters, physical navigation/balance, the real Animation Editor save/export/import workflow, device controls and sustained latency/live saves remain open. Native Windows UI automation is unavailable in this session (no required native node_repl entry point; browser CUA disables native apps). No human or editor pass is claimed.
+4. Refine Tsuzumi's full room/gravity changes, exact Thunder/Beast and outside-fight choreography, Kyogai backstory/manuscripts, acting and costumes. Horizontal quarter-turns and short cutaways are only the current gameplay adaptation. Expand Nezuko/Giyu animation alongside future chapter work.
+
+## Commands and evidence
+
+`python scripts/check.py`; engine runner `.tools/run-in-roblox/run-in-roblox.exe --place build/WisteriaChronicles.rbxlx --script tests/studio.spec.luau`; multiplayer preparation `python scripts/prepare_studio_test.py`, then runner `--script build/run-multiplayer.luau`. `--tsuzumi-only` selects two seeded chapter-six checks; `--dash-only` selects eight movement/security checks. Run Studio suites sequentially. Studio's verified October 8 install was `version-9b554450a0fc4e65`; see SETUP.md for update recovery, not a hardcoded project dependency.
+
+Ignored logs: `build/engine-tsuzumi-final-20261008.log`, `build/tsuzumi-focused-retry-20261008.log`, `build/full-tsuzumi-20261008.log`. Twelve-rig engine animator benchmark: **1.774 ms/frame**. Full W+Q: **16.0242 studs server / 14.2670 client**, largest client frame **3.33334 studs** at 0.06636 s. No motion threshold was weakened.
+
+Production artifact: `build/WisteriaChronicles.rbxlx`, **3,422,912 bytes**, SHA-256 `434eebd2ddb4e1ed95976663c6496237e6a82df2f32198f4ce982426aae49aea`; checksum refreshed. Build/tools/logs remain ignored. No new GitHub release or Roblox upload occurred; the old download/private upload still contains the earlier build. GitHub source pushes do not update Roblox.
+
+---
+
 # Continuation update — 2026-10-05, verified movement checkpoint
 
 **Full regression now passes 25/25**, runner exit 0, `RUNTIME_JSON.failures=0`. Final Studio engine suite **26/26**, exit 0. Portable checks **6 authoring / 19 core / 32 Luau compilations**, 44 clips/two profiles and build pass. Delivery commit/CI references are in WORKLOG.md. Read current STATUS/PLAN before making changes; the October 4 handoff below is historical.

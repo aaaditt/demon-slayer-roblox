@@ -6,7 +6,7 @@ A Roblox action RPG and PvP project. Minimum cast: **Infinity Castle (2025)**, a
 
 ## Project principles
 
-**Continuing in a fresh session:** read [the current handoff](docs/HANDOFF.md) first. It records the Tanjiro animation and Asakusa checkpoint, validation limits and next work; verify the latest workspace before continuing.
+**Continuing in a fresh session:** read [the current handoff](docs/HANDOFF.md) first. It records the current Tsuzumi chapter and movement checkpoint, validation limits and next work; verify the latest workspace before continuing.
 
 - Server decides damage, cooldowns, energy, progression, arena membership, and rewards.
 - PvP uses equal combat stats; story progression never buys a PvP advantage.
@@ -27,7 +27,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 
 - **44 selectable characters**, including all nine Hashira, Tanjiro, Nezuko, Zenitsu, Inosuke, Kanao, Genya, Muzan, and all named anime-era Upper/Lower Moons.
 - **210 technique entries** with selectable loadouts, energy/cooldowns, shared attack clips, colored effects, and canon/adaptation labels. Tanjiro has the first motion profile (six stance/walk/combo/guard clips); individual technique choreography remains unfinished. See the [animation tracker and Studio workflow](docs/ANIMATION.md).
-- **Five staged story chapters**: the Kamado prologue; Sagiri training; Final Selection and homecoming; northwest town/Swamp Demon; and the new Asakusa first pass. **17 later chapters remain encounter previews**. Asakusa has passed engine and focused two-client checks; visual review remains pending. The published 0.4.0 download contains the first three chapters; build current source for version 0.6.0.
+- **Six staged story chapters**: the Kamado prologue; Sagiri training; Final Selection and homecoming; northwest town/Swamp Demon; Asakusa; and the new Tsuzumi Mansion first pass. **16 later chapters remain encounter previews**. Visual review remains pending. The published 0.4.0 download contains the first three chapters; build current source for version 0.7.0.
 - **PvP free-for-all**, three-minute rounds, five-elimination victory, respawns, equal health/energy, and opt-in combat.
 - Server-side action validation, hit geometry/line-of-sight checks, guard/parry, dodge, status effects, and DataStore session ownership.
 - Visible procedural walk/run, jump/fall/landing and combat poses; camera-relative directional dashes (W/Q front dash, A or D + Q sidestep, S + Q back-hop); single-blade sword drawing/sheathing with **R** (the blade slides out of and back into the saya; a slow noto sheathe out of combat, a fast one in combat, and auto-sheathe after 8 s idle), controller D-pad right or the Sword button.
@@ -35,7 +35,7 @@ Select a fighter, choose four techniques, fight training constructs, play the ca
 
 ## Verified
 
-Portable validation, **26 Studio engine checks**, and **25 full two-client regression checks** pass for the October 5 movement checkpoint. All five story routes, natural sequential unlocks, directional movement, forged-position rejection and PvP pass. The dash retains client simulation with independent server path/collision validation, eliminating the ownership catch-up seen in the failing run. [QA evidence](docs/QA.md) records intermediate failures and limits. Automated checks do not establish visual quality, a human playthrough or arbitrary-latency performance.
+Portable validation, **28 Studio engine checks**, **2 focused Tsuzumi checks**, and **27 full two-client regression checks** pass for the October 8 checkpoint. All six story routes, natural sequential unlocks, rewards/cleanup, client-observed room turns, directional movement, forged-position rejection and PvP pass. Player dash simulation remains independently validated by the server. [QA evidence](docs/QA.md) records intermediate failures and limits. Automated checks do not establish visual quality, a human playthrough or arbitrary-latency performance.
 
 To review the new opening, choose **Journey -> 01 A Trail in the Snow**, including on an existing save. Use E / controller X / the prompt to interact, and E / controller A / Continue for dialogue. Skip Scene skips only that conversation. M -> Return to Hub leaves the chapter. [Story production roadmap](docs/STORY_PRODUCTION.md).
 
@@ -46,6 +46,8 @@ After the opening, choose **02 The Mountain Trial**. Follow the marked course, u
 **04 Beneath the Town** continues with the black sword, Corps uniform and Nezuko's box. Investigate the lantern streets with Kazumi, rescue a young woman, hold off three swamp bodies, and descend while Nezuko guards the survivors. Watch the pools, evade the marked claw attacks, then strike during exposure. A keepsake and farewell lead toward Asakusa. This chapter is in the local build; its current validation/delivery status is in [STATUS.md](docs/STATUS.md).
 
 **05 Lights of Asakusa** adds streets, a noodle stall, Muzan's encounter, a nonlethal civilian restraint exercise, Yushiro's route and Tamayo's house/garden. Defeat Yahaba, then distract Susamaru with Nezuko until Tamayo intervenes. This tested 15-stage first pass includes original dialogue and acting clips; visual review and refinement remain pending. The fights use the shared Arrow/Temari mechanics, with exact canon choreography still in production.
+
+**06 The Shifting Mansion** adds Zenitsu, Inosuke, the children, parallel-fight cutaways, Kyogai and the reunion at Nezuko’s box. Each drumbeat turns the combat room horizontally; evade the marked claw lanes and attack when the drums fall quiet. Sixteen stages end at a wisteria rest house and unlock Natagumo. Room-turn rules, dialogue and staging are original adaptations; gravity inversion and exact fight choreography remain unfinished.
 
 ## Still in production
 

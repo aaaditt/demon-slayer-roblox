@@ -189,6 +189,63 @@ check("civilian restraint validates owner/range/timing and temari defense keeps 
     combat:remove(stranger);combat:remove(a);victim:Destroy();World.remove(1)
 end)
 
+check("Tsuzumi doorways, refuge, rest house and objective floors are navigable",function()
+    local chapter=Content.chapters[6]
+    local room=World.mission(1,Content.locations.tsuzumi,chapter.story)
+    assert(room.arena and room.arena:GetPivot()==room.arenaBase)
+    local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Include;params.FilterDescendantsInstances={room.folder};params.RespectCanCollide=true
+    for _,pair in ipairs(room.paths) do
+        local hit=workspace:Blockcast(CFrame.new(room.center+pair[1]+Vector3.yAxis*4),Vector3.new(2,4,2),pair[2]-pair[1],params)
+        assert(not hit,"Tsuzumi path blocked: "..(hit and hit.Instance.Name or ""))
+    end
+    for id,anchor in pairs(room.anchors) do
+        assert(World.inside(room,anchor.Position) and workspace:Raycast(anchor.Position+Vector3.yAxis*2,-Vector3.yAxis*8,params),id)
+    end
+    World.remove(1)
+end)
+
+check("drum turns carry the player, gate attacks, resolve once and release controls on retry/exit",function()
+    local DrumEncounter=require(ServerScriptService.Server.DrumEncounter)
+    local Story=require(ServerScriptService.Server.Story)
+    local chapter=Content.chapters[6]
+    local room=World.mission(1,Content.locations.tsuzumi,chapter.story)
+    local a=actor("tanjiro","player",room.center+Vector3.new(0,3,-26));a.room=room;a.storyLocked=true
+    local finished=0
+    local story={data=chapter.story,step=chapter.story.steps[10],mission={room=room},serial=0,
+        actor=function() return a end,freeze=function() a.root.Anchored=false end,clearPrompt=function() end,mark=function() end,pose=Story.pose,
+        finishChallenge=function() finished+=1 end,game={combat=combat,toast=function() end,push=function() end}}
+    local c=DrumEncounter.new(story);local boss=c.enemy;boss.invulnerableUntil=0
+    local hp=boss.humanoid.Health;combat:damage(a,boss,50,"none");assert(boss.humanoid.Health==hp)
+    local now=workspace:GetServerTimeNow();local initial=a.root.Position
+    c:beginTurn(now)
+    assert(a.root.Anchored and a.model:GetAttribute("InCutscene"))
+    assert(not combat:cast(a,Content.moves.water_1,-Vector3.zAxis),"cast admitted during turn")
+    c:tick(now+c.data.turnTime/2)
+    assert((a.root.Position-initial).Magnitude>5,"turn did not carry player")
+    assert(math.abs((a.root.Position-c:position()).Magnitude-22)<0.02,"turn changed player radius")
+    c:tick(now+c.data.turnTime)
+    assert(c.phase=="windup" and not a.root.Anchored and not a.model:GetAttribute("InCutscene"))
+    assert(room.arena:GetPivot().LookVector:Dot(room.arenaBase.LookVector)<0.01,"quarter turn missing")
+    a.invulnerableUntil=0;local before=a.humanoid.Health
+    c:resolveClaws(c.nextPhase-0.01);assert(a.humanoid.Health==before,"early claw damage")
+    c:resolveClaws(c.nextPhase);assert(a.humanoid.Health==before-c.data.damage,"center lane missed")
+    c:resolveClaws(c.nextPhase);assert(a.humanoid.Health==before-c.data.damage,"claw hit repeated")
+    combat:damage(a,boss,50,"none");assert(boss.humanoid.Health==hp-50 and c.phase=="exposed")
+    c:tick(c.nextPhase);assert(boss.damageMultiplier==0 and c.turn)
+    a.humanoid.Health=1;c:tick(workspace:GetServerTimeNow())
+    assert(c.attempt==2 and not boss.model.Parent and a.humanoid.Health==a.humanoid.MaxHealth)
+    assert(not a.root.Anchored and not a.model:GetAttribute("InCutscene") and room.arena:GetPivot()==room.arenaBase)
+    -- The gaps between marked lanes are safe, even while within forward reach.
+    c:beginClaws(workspace:GetServerTimeNow());local lane=c.lanes[2]
+    a.root.CFrame=CFrame.new(lane.origin+lane.direction*20+lane.direction:Cross(Vector3.yAxis)*6)
+    a.invulnerableUntil=0;before=a.humanoid.Health;c:resolveClaws(c.nextPhase);assert(a.humanoid.Health==before,"safe lane gap damaged")
+    c:beginTurn(workspace:GetServerTimeNow());local last=c.enemy
+    c:destroy();c:destroy()
+    assert(not a.root.Anchored and not a.model:GetAttribute("InCutscene") and not a.storyMoves and not a.healthFloor)
+    assert(not last.model.Parent and not story.mission.enemy and finished==0)
+    combat:remove(a);World.remove(1)
+end)
+
 check("Hand Demon guarding, telegraphed damage and recovery windows are authoritative",function()
     local chapter=Content.chapters[3]
     local room=World.mission(1,Content.locations[chapter.location],chapter.story)

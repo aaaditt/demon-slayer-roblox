@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": "0.7.0",
   "title": "Wisteria Chronicles",
   "sources": {
     "official": {
@@ -355,6 +355,34 @@
       "kind": "primary",
       "reviewed": "2026-09-30",
       "evidence": "Synopsis-level sequence; dialogue, layout and mechanical challenges are original adaptations"
+    },
+    "episode_11": {
+      "title": "Official episode 11: Tsuzumi Mansion",
+      "url": "https://demonslayer-anime.com/risshihen/story/11.html",
+      "kind": "primary",
+      "reviewed": "2026-10-08",
+      "evidence": "Synopsis-level sequence; dialogue, horizontal room turns, geography and combat rules are original adaptations"
+    },
+    "episode_12": {
+      "title": "Official episode 12: The Boar Bares Its Fangs, Zenitsu Sleeps",
+      "url": "https://demonslayer-anime.com/risshihen/story/12.html",
+      "kind": "primary",
+      "reviewed": "2026-10-08",
+      "evidence": "Synopsis-level sequence; dialogue, horizontal room turns, geography and combat rules are original adaptations"
+    },
+    "episode_13": {
+      "title": "Official episode 13: Something More Important Than Life",
+      "url": "https://demonslayer-anime.com/risshihen/story/13.html",
+      "kind": "primary",
+      "reviewed": "2026-10-08",
+      "evidence": "Synopsis-level sequence; dialogue, horizontal room turns, geography and combat rules are original adaptations"
+    },
+    "episode_14": {
+      "title": "Official episode 14: The House with the Wisteria Family Crest",
+      "url": "https://demonslayer-anime.com/risshihen/story/14.html",
+      "kind": "primary",
+      "reviewed": "2026-10-08",
+      "evidence": "Synopsis-level sequence; dialogue, horizontal room turns, geography and combat rules are original adaptations"
     }
   },
   "styles": {
@@ -8783,7 +8811,7 @@
       "theme": "mansion",
       "description": "Timber rooms whose arrangement changes with drum beats.",
       "source": "story",
-      "implementation": "procedural arena interpretation"
+      "implementation": "Original enterable mansion chamber, annex, road and wisteria rest house; horizontal quarter-turn combat adaptation"
     },
     "natagumo": {
       "id": "natagumo",
@@ -13191,13 +13219,1065 @@
         "horned_demon",
         "kyogai"
       ],
-      "objective": "Clear the mansion and confront the former Lower Six.",
+      "objective": "Find the children, survive Kyogai’s turning room, and reunite outside the mansion.",
       "mentor": "inosuke",
       "spoiler": false,
       "reward": 210,
       "bossHealth": 168,
-      "timeLimit": 600,
-      "production": "encounter blockout; story scenes pending"
+      "timeLimit": 1200,
+      "production": "staged first pass; original dialogue, quarter-turn room fight and cutaways; visual/pacing review pending",
+      "story": {
+        "id": "tsuzumi_mansion",
+        "map": "tsuzumi",
+        "character": "tanjiro",
+        "sources": [
+          "episode_11",
+          "episode_12",
+          "episode_13",
+          "episode_14"
+        ],
+        "initialWeapon": "black",
+        "initialCarry": "box",
+        "loadout": [
+          "water_1",
+          "water_2",
+          "water_4",
+          "water_8"
+        ],
+        "targets": {
+          "road": [
+            0,
+            3,
+            118
+          ],
+          "children": [
+            0,
+            3,
+            70
+          ],
+          "shade": [
+            -18,
+            3,
+            45
+          ],
+          "door": [
+            0,
+            3,
+            2
+          ],
+          "room": [
+            0,
+            3,
+            -26
+          ],
+          "boar": [
+            20,
+            3,
+            -48
+          ],
+          "refuge": [
+            -63,
+            3,
+            -48
+          ],
+          "drums": [
+            0,
+            3,
+            -26
+          ],
+          "reunion": [
+            0,
+            3,
+            50
+          ],
+          "box": [
+            -18,
+            3,
+            45
+          ],
+          "rest": [
+            85,
+            3,
+            64
+          ],
+          "departure": [
+            85,
+            3,
+            95
+          ]
+        },
+        "shots": {
+          "road": {
+            "from": [
+              15,
+              9,
+              135
+            ],
+            "to": [
+              0,
+              4,
+              119
+            ]
+          },
+          "children": {
+            "from": [
+              13,
+              9,
+              87
+            ],
+            "to": [
+              0,
+              4,
+              69
+            ]
+          },
+          "shade": {
+            "from": [
+              -9,
+              7,
+              61
+            ],
+            "to": [
+              -23,
+              3,
+              45
+            ]
+          },
+          "door": {
+            "from": [
+              15,
+              14,
+              24
+            ],
+            "to": [
+              0,
+              5,
+              -8
+            ]
+          },
+          "room": {
+            "from": [
+              27,
+              17,
+              -18
+            ],
+            "to": [
+              0,
+              4,
+              -48
+            ]
+          },
+          "boar": {
+            "from": [
+              32,
+              8,
+              -30
+            ],
+            "to": [
+              20,
+              4,
+              -48
+            ]
+          },
+          "refuge": {
+            "from": [
+              -48,
+              8,
+              -38
+            ],
+            "to": [
+              -65,
+              4,
+              -50
+            ]
+          },
+          "kyogai": {
+            "from": [
+              16,
+              9,
+              -27
+            ],
+            "to": [
+              0,
+              5,
+              -48
+            ]
+          },
+          "reunion": {
+            "from": [
+              11,
+              10,
+              66
+            ],
+            "to": [
+              -18,
+              3,
+              45
+            ]
+          },
+          "rest": {
+            "from": [
+              85,
+              8,
+              73
+            ],
+            "to": [
+              85,
+              4,
+              57
+            ]
+          },
+          "departure": {
+            "from": [
+              105,
+              12,
+              118
+            ],
+            "to": [
+              85,
+              4,
+              96
+            ]
+          }
+        },
+        "actors": [
+          {
+            "id": "zenitsu",
+            "name": "Zenitsu Agatsuma",
+            "position": [
+              0,
+              3,
+              118
+            ],
+            "visible": false,
+            "color": [
+              255,
+              225,
+              103
+            ],
+            "scale": 1,
+            "template": "zenitsu"
+          },
+          {
+            "id": "inosuke",
+            "name": "Inosuke Hashibira",
+            "position": [
+              20,
+              3,
+              -48
+            ],
+            "visible": false,
+            "color": [
+              164,
+              193,
+              222
+            ],
+            "scale": 1,
+            "template": "inosuke"
+          },
+          {
+            "id": "kyogai",
+            "name": "Kyogai",
+            "position": [
+              0,
+              3,
+              -48
+            ],
+            "visible": false,
+            "color": [
+              197,
+              148,
+              106
+            ],
+            "scale": 1,
+            "template": "kyogai"
+          },
+          {
+            "id": "tongue_demon",
+            "name": "Tongue Demon",
+            "position": [
+              -70,
+              3,
+              -50
+            ],
+            "visible": false,
+            "color": [
+              183,
+              97,
+              122
+            ],
+            "scale": 1,
+            "template": "tongue_demon"
+          },
+          {
+            "id": "horned_demon",
+            "name": "Horned Demon",
+            "position": [
+              -70,
+              3,
+              -50
+            ],
+            "visible": false,
+            "color": [
+              183,
+              97,
+              122
+            ],
+            "scale": 1,
+            "template": "horned_demon"
+          },
+          {
+            "id": "shoichi",
+            "name": "Shoichi",
+            "position": [
+              -3,
+              2.5,
+              70
+            ],
+            "visible": false,
+            "color": [
+              131,
+              112,
+              84
+            ],
+            "scale": 0.8
+          },
+          {
+            "id": "sister",
+            "name": "Younger sister",
+            "position": [
+              3,
+              2.5,
+              70
+            ],
+            "visible": false,
+            "color": [
+              178,
+              119,
+              122
+            ],
+            "scale": 0.75
+          },
+          {
+            "id": "brother",
+            "name": "Older brother",
+            "position": [
+              -68,
+              2.5,
+              -52
+            ],
+            "visible": false,
+            "color": [
+              115,
+              140,
+              153
+            ],
+            "scale": 0.85
+          }
+        ],
+        "steps": [
+          {
+            "id": "road",
+            "title": "Another survivor",
+            "objective": "Follow the road toward the mansion.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Zenitsu",
+                "text": "You are going toward that sound? Please tell me you have a plan.",
+                "shot": "road"
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "Someone may need help. We can go together.",
+                "shot": "road"
+              }
+            ],
+            "automatic": true,
+            "actors": {
+              "zenitsu": {
+                "position": [
+                  0,
+                  3,
+                  118
+                ],
+                "visible": true
+              }
+            },
+            "playerPosition": [
+              0,
+              3,
+              126
+            ]
+          },
+          {
+            "id": "children",
+            "title": "The children outside",
+            "objective": "Listen to the children beside the road.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Shoichi",
+                "text": "Our brother was taken inside. We heard the drums again.",
+                "shot": "children"
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "Stay close. Tell me where you last saw him.",
+                "shot": "children"
+              }
+            ],
+            "target": "children",
+            "action": "Listen",
+            "hideActors": true,
+            "actors": {
+              "shoichi": {
+                "position": [
+                  -3,
+                  2.5,
+                  70
+                ],
+                "visible": true
+              },
+              "sister": {
+                "position": [
+                  3,
+                  2.5,
+                  70
+                ],
+                "visible": true
+              },
+              "zenitsu": {
+                "position": [
+                  -6,
+                  3,
+                  74
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "shade",
+            "title": "A shaded place",
+            "objective": "Set Nezuko’s box beneath the tree.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Tanjiro",
+                "text": "There is deep shade here. I will come back as soon as the children are safe.",
+                "shot": "shade"
+              }
+            ],
+            "target": "shade",
+            "action": "Set down the box",
+            "carryOnScene": "none",
+            "revealOnScene": "NezukoTravelBox"
+          },
+          {
+            "id": "entrance",
+            "title": "The first drumbeat",
+            "objective": "Enter the mansion.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Zenitsu",
+                "text": "That sound is coming from inside the walls.",
+                "shot": "door"
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "Keep together—",
+                "shot": "door"
+              }
+            ],
+            "target": "door",
+            "action": "Enter",
+            "actors": {
+              "zenitsu": {
+                "position": [
+                  -4,
+                  3,
+                  5
+                ],
+                "visible": true
+              },
+              "shoichi": {
+                "position": [
+                  -6,
+                  2.5,
+                  7
+                ],
+                "visible": true
+              },
+              "sister": {
+                "position": [
+                  3,
+                  2.5,
+                  3
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "separated",
+            "title": "Separated",
+            "objective": "Find a way through the unfamiliar room.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Tanjiro",
+                "text": "The doorway has changed. Zenitsu! Shoichi!",
+                "shot": "room"
+              },
+              {
+                "speaker": "Younger sister",
+                "text": "They are not here. Where did the hall go?",
+                "shot": "room"
+              }
+            ],
+            "automatic": true,
+            "hideActors": true,
+            "actors": {
+              "sister": {
+                "position": [
+                  4,
+                  2.5,
+                  -25
+                ],
+                "visible": true
+              }
+            },
+            "playerPosition": [
+              0,
+              3,
+              -20
+            ]
+          },
+          {
+            "id": "boar_mask",
+            "title": "The boar mask",
+            "objective": "Approach the swordsman inside.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Inosuke",
+                "text": "Out of the way! The strongest one in this house is mine!",
+                "shot": "boar",
+                "actors": {
+                  "inosuke": {
+                    "pose": "barrage",
+                    "duration": 1
+                  }
+                }
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "There are children here. Watch where you swing those swords!",
+                "shot": "boar"
+              }
+            ],
+            "target": "boar",
+            "action": "Approach",
+            "actors": {
+              "inosuke": {
+                "position": [
+                  20,
+                  3,
+                  -48
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "refuge",
+            "title": "A place to hide",
+            "objective": "Search the side room for the missing brother.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Older brother",
+                "text": "I stayed where the noise was quieter. Are my brother and sister safe?",
+                "shot": "refuge"
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "Your sister is here. Wait together while I find the others.",
+                "shot": "refuge"
+              }
+            ],
+            "target": "refuge",
+            "action": "Reunite the children",
+            "hideActors": true,
+            "actors": {
+              "brother": {
+                "position": [
+                  -68,
+                  2.5,
+                  -52
+                ],
+                "visible": true
+              },
+              "sister": {
+                "position": [
+                  -64,
+                  2.5,
+                  -52
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "zenitsu_cutaway",
+            "title": "Behind another door",
+            "objective": "Zenitsu stands between Shoichi and a demon.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Shoichi",
+                "text": "It is coming closer!",
+                "shot": "refuge"
+              },
+              {
+                "speaker": "Zenitsu",
+                "text": "Stay behind me...",
+                "shot": "refuge",
+                "actors": {
+                  "zenitsu": {
+                    "pose": "recoil",
+                    "duration": 1
+                  }
+                }
+              },
+              {
+                "speaker": "Narrator",
+                "text": "Fear gives way to stillness. A single rush carries Zenitsu past the demon.",
+                "shot": "refuge",
+                "actors": {
+                  "zenitsu": {
+                    "pose": "dash",
+                    "moveTo": [
+                      -72,
+                      3,
+                      -50
+                    ],
+                    "duration": 0.5
+                  }
+                },
+                "effect": {
+                  "at": "tongue_demon",
+                  "pattern": "burst",
+                  "color": [
+                    247,
+                    219,
+                    111
+                  ],
+                  "range": 6
+                }
+              },
+              {
+                "speaker": "Shoichi",
+                "text": "We can get out now. This way!",
+                "shot": "refuge",
+                "actors": {
+                  "tongue_demon": {
+                    "visible": false
+                  }
+                }
+              }
+            ],
+            "automatic": true,
+            "hideActors": true,
+            "actors": {
+              "zenitsu": {
+                "position": [
+                  -58,
+                  3,
+                  -50
+                ],
+                "visible": true
+              },
+              "shoichi": {
+                "position": [
+                  -55,
+                  2.5,
+                  -45
+                ],
+                "visible": true
+              },
+              "tongue_demon": {
+                "position": [
+                  -68,
+                  3,
+                  -50
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "inosuke_cutaway",
+            "title": "Two jagged blades",
+            "objective": "Inosuke forces his way through another room.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Inosuke",
+                "text": "You picked the wrong opponent!",
+                "shot": "refuge",
+                "actors": {
+                  "inosuke": {
+                    "pose": "barrage",
+                    "duration": 1
+                  }
+                },
+                "effect": {
+                  "at": "horned_demon",
+                  "pattern": "burst",
+                  "color": [
+                    156,
+                    187,
+                    199
+                  ],
+                  "range": 6
+                }
+              },
+              {
+                "speaker": "Narrator",
+                "text": "The horned demon falls. Inosuke charges after the next sound.",
+                "shot": "refuge",
+                "actors": {
+                  "horned_demon": {
+                    "visible": false
+                  },
+                  "inosuke": {
+                    "moveTo": [
+                      -48,
+                      3,
+                      -48
+                    ],
+                    "duration": 0.8,
+                    "pose": "dash"
+                  }
+                }
+              }
+            ],
+            "automatic": true,
+            "hideActors": true,
+            "actors": {
+              "inosuke": {
+                "position": [
+                  -61,
+                  3,
+                  -50
+                ],
+                "visible": true
+              },
+              "horned_demon": {
+                "position": [
+                  -68,
+                  3,
+                  -50
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "kyogai",
+            "title": "The master of the drums",
+            "objective": "Watch each room turn, evade the claw lanes, and strike while the drums are quiet.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Kyogai",
+                "text": "Another intruder. You will not disturb this room.",
+                "shot": "kyogai"
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "My injuries are slowing me down. I have to watch the rhythm and keep breathing.",
+                "shot": "kyogai"
+              }
+            ],
+            "target": "drums",
+            "action": "Face Kyogai",
+            "hideActors": true,
+            "actors": {
+              "kyogai": {
+                "position": [
+                  0,
+                  3,
+                  -48
+                ],
+                "visible": true
+              }
+            },
+            "challenge": {
+              "kind": "drums",
+              "enemy": "kyogai",
+              "start": [
+                0,
+                3,
+                -26
+              ],
+              "radius": 44,
+              "limit": 240,
+              "health": 210,
+              "turnTime": 0.8,
+              "windup": 1.05,
+              "recovery": 2.6,
+              "reach": 40,
+              "width": 6,
+              "laneGap": 12,
+              "damage": 20
+            },
+            "outro": [
+              {
+                "speaker": "Tanjiro",
+                "text": "The drums have stopped. I can hear the children again.",
+                "shot": "kyogai"
+              }
+            ],
+            "resultActors": {
+              "kyogai": {
+                "visible": false
+              }
+            }
+          },
+          {
+            "id": "aftermath",
+            "title": "A quiet room",
+            "objective": "Take a breath after the fight.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Tanjiro",
+                "text": "That was a powerful Blood Demon Art. But I could not let anyone else be hurt.",
+                "shot": "room"
+              }
+            ],
+            "automatic": true,
+            "hideActors": true
+          },
+          {
+            "id": "gather",
+            "title": "Everyone accounted for",
+            "objective": "Bring the children back to the entrance.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Older brother",
+                "text": "We are all here. Thank you for finding us.",
+                "shot": "refuge"
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "Walk with your sister. We are leaving this house together.",
+                "shot": "refuge"
+              }
+            ],
+            "target": "refuge",
+            "action": "Gather the children",
+            "actors": {
+              "brother": {
+                "position": [
+                  -68,
+                  2.5,
+                  -52
+                ],
+                "visible": true
+              },
+              "sister": {
+                "position": [
+                  -64,
+                  2.5,
+                  -52
+                ],
+                "visible": true
+              },
+              "shoichi": {
+                "position": [
+                  -60,
+                  2.5,
+                  -52
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "box_defense",
+            "title": "Something precious",
+            "objective": "Return to the box outside.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Zenitsu",
+                "text": "I told him this box mattered to you. I would not let him break it.",
+                "shot": "reunion",
+                "actors": {
+                  "zenitsu": {
+                    "pose": "recoil",
+                    "duration": 2
+                  }
+                }
+              },
+              {
+                "speaker": "Inosuke",
+                "text": "There is a demon in there! Move!",
+                "shot": "reunion",
+                "actors": {
+                  "inosuke": {
+                    "pose": "thrust",
+                    "duration": 0.7
+                  }
+                }
+              },
+              {
+                "speaker": "Tanjiro",
+                "text": "Stop! Zenitsu is injured. Put your swords down and listen.",
+                "shot": "reunion",
+                "playerPose": "guard"
+              },
+              {
+                "speaker": "Narrator",
+                "text": "Tanjiro steps between them. The quarrel ends with everyone exhausted.",
+                "shot": "reunion",
+                "actors": {
+                  "inosuke": {
+                    "pose": "recoil",
+                    "duration": 1
+                  }
+                }
+              }
+            ],
+            "target": "reunion",
+            "action": "Protect your companions",
+            "hideActors": true,
+            "actors": {
+              "zenitsu": {
+                "position": [
+                  -20,
+                  3,
+                  48
+                ],
+                "visible": true
+              },
+              "inosuke": {
+                "position": [
+                  -13,
+                  3,
+                  44
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "retrieve",
+            "title": "Together again",
+            "objective": "Retrieve Nezuko’s box.",
+            "clock": 15,
+            "scene": [
+              {
+                "speaker": "Tanjiro",
+                "text": "Thank you, Zenitsu. My sister is inside. I will explain once we are somewhere safe.",
+                "shot": "shade"
+              }
+            ],
+            "target": "box",
+            "action": "Retrieve the box",
+            "carryOnScene": "box",
+            "collectOnScene": "NezukoTravelBox"
+          },
+          {
+            "id": "wisteria_rest",
+            "title": "The wisteria crest",
+            "objective": "Rest at the house beyond the road.",
+            "clock": 19,
+            "scene": [
+              {
+                "speaker": "Narrator",
+                "text": "The wisteria crest marks a place to recover. The children are safe, and the three swordsmen can finally rest.",
+                "shot": "rest"
+              },
+              {
+                "speaker": "Zenitsu",
+                "text": "Next time, can we start with the explanation?",
+                "shot": "rest"
+              },
+              {
+                "speaker": "Inosuke",
+                "text": "Rest now. Then we settle who is strongest.",
+                "shot": "rest"
+              }
+            ],
+            "target": "rest",
+            "action": "Rest",
+            "hideActors": true,
+            "actors": {
+              "zenitsu": {
+                "position": [
+                  81,
+                  3,
+                  55
+                ],
+                "visible": true
+              },
+              "inosuke": {
+                "position": [
+                  90,
+                  3,
+                  55
+                ],
+                "visible": true
+              }
+            }
+          },
+          {
+            "id": "departure",
+            "title": "The road to Natagumo",
+            "objective": "Leave the rest house when you are ready.",
+            "clock": 17,
+            "scene": [
+              {
+                "speaker": "Tanjiro",
+                "text": "The next assignment is at Mount Natagumo. We should stay together.",
+                "shot": "departure"
+              },
+              {
+                "speaker": "Narrator",
+                "text": "Three swordsmen and one precious box take the road toward the mountain.",
+                "shot": "departure"
+              }
+            ],
+            "target": "departure",
+            "action": "Continue the journey",
+            "actors": {
+              "zenitsu": {
+                "position": [
+                  81,
+                  3,
+                  96
+                ],
+                "visible": true
+              },
+              "inosuke": {
+                "position": [
+                  90,
+                  3,
+                  94
+                ],
+                "visible": true
+              }
+            }
+          }
+        ]
+      }
     },
     {
       "id": "webs",

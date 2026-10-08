@@ -5,6 +5,7 @@ local World=require(script.Parent.World)
 local Training=require(script.Parent.Training)
 local Encounter=require(script.Parent.Encounter)
 local SwampEncounter=require(script.Parent.SwampEncounter)
+local DrumEncounter=require(script.Parent.DrumEncounter)
 local Story={}
 Story.__index=Story
 
@@ -252,6 +253,10 @@ function Story:startScene(result)
         if self.step.uniformOnScene then Rig.uniform(self:actor().model) end
         if self.step.crowOnScene then Rig.crow(self:actor().model) end
         if self.step.carryOnScene then self:setCarry(self.step.carryOnScene) end
+        if self.step.revealOnScene then
+            local item=self.mission.room.folder:FindFirstChild(self.step.revealOnScene,true)
+            if item then item.Transparency=0;item.CanCollide=true end
+        end
         if self.step.collectOnScene then
             local item=self.mission.room.folder:FindFirstChild(self.step.collectOnScene,true)
             if item then item:Destroy() end
@@ -294,7 +299,7 @@ function Story:startChallenge()
     if npc then visible(npc,false) end
     for _,id in ipairs(self.step.hideChallengeActors or {}) do visible(self.npcs[id],false) end
     local kind=self.step.challenge.kind
-    self.challenge=kind=="swamp" and SwampEncounter.new(self) or (kind=="battle" or kind=="hold" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
+    self.challenge=kind=="drums" and DrumEncounter.new(self) or kind=="swamp" and SwampEncounter.new(self) or (kind=="battle" or kind=="hold" or kind=="hand_boss" or kind=="vigil") and Encounter.new(self) or Training.new(self)
     self.game:push(self.player)
 end
 

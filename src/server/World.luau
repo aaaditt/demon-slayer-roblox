@@ -4,6 +4,7 @@ local SagiriWorld = require(script.Parent.SagiriWorld)
 local SelectionWorld = require(script.Parent.SelectionWorld)
 local TownWorld = require(script.Parent.TownWorld)
 local AsakusaWorld = require(script.Parent.AsakusaWorld)
+local TsuzumiWorld = require(script.Parent.TsuzumiWorld)
 local World = {}
 World.Rooms = {}
 local wood = Color3.fromRGB(75, 47, 42)
@@ -178,7 +179,7 @@ end
 function World.mission(slot, location, story)
     local center = Vector3.new((slot%4)*500, 0, 700+math.floor(slot/4)*500)
     if story then
-        local builder = (story.map=="asakusa" or story.map=="clinic") and AsakusaWorld or (story.map=="town" or story.map=="swamp") and TownWorld or story.map == "selection" and SelectionWorld or story.map == "sagiri" and SagiriWorld or StoryWorld
+        local builder = story.map=="tsuzumi" and TsuzumiWorld or (story.map=="asakusa" or story.map=="clinic") and AsakusaWorld or (story.map=="town" or story.map=="swamp") and TownWorld or story.map == "selection" and SelectionWorld or story.map == "sagiri" and SagiriWorld or StoryWorld
         local room = builder.build(World.Root, center, story)
         World.Rooms[slot] = room
         return room
