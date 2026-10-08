@@ -310,3 +310,10 @@
 
 - **Final full regression: 25 passed / 0 failed**, runner exit 0, `RUNTIME_JSON.failures=0`. All five routes, natural sequential unlocks, rewards/cleanup, locomotion phases, both-client profile/sword checks, directional motion, forged-position rejection and PvP passed. W+Q: **15.9524 server / 14.2956 client** studs; largest frame **3.3333 studs in 0.0665 s**, worst frame 0.0701 s. A+Q: 10.0756 client studs, facing dot 0.999939. Prologue E received at 0.757 s and accepted. Original dash thresholds remain unchanged.
 - Final engine animator benchmark: **0.883 ms/frame for twelve rigs**. Production artifact: **3,377,746 bytes**, SHA-256 `4d7b1b965604544c2c7c4d0db90fe5e44e99c72952bf91a2455a9bea15f9949c`; ignored checksum refreshed. Test hooks remain outside the shipping tree. No new release, Roblox upload, native visual/editor session or arbitrary-latency/device qualification is claimed. All test Studio processes exited; checkpoint delivery follows below.
+
+- **Delivery verified October 8:** movement checkpoint `e9625a4380d91aa123a7ef3822f29abfe0dccb45` is pushed to `origin/main`; [portable CI 37321126525](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37321126525) passed for that exact SHA. Working tree was clean on continuation. No Roblox upload occurred.
+
+## 2026-10-08 — Tsuzumi Mansion continuation
+
+- User requested continuation. Automated qualification of the preceding checkpoint is complete. Native Studio UI access remains unavailable, so manual motion/chapter review and Animation Editor round-trip stay explicitly pending while chronological story implementation proceeds.
+- Read official episode 11–14 synopses. They establish Zenitsu and the children's request, separation and drum-driven room rotation, Zenitsu protecting Shoichi, the boar-masked swordsman, Kyogai's fight and Zenitsu protecting Nezuko's box outside. Dialogue, compact geography, quarter-turn mechanics and timings will be original adaptations, not a scene-exact reconstruction.

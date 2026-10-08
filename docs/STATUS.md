@@ -1,6 +1,6 @@
 # Current status
 
-Updated: 2026-10-05
+Updated: 2026-10-08
 
 Start fresh sessions with [HANDOFF.md](HANDOFF.md). **Full two-client regression passes 25/25; Studio engine checks pass 26/26.** The prologue input race and dash ownership catch-up are resolved in the tested build. Player motion now retains client simulation with independent server path/collision validation; actual forged movement is rejected and corrected. Visual/editor review and later story production remain open.
 
@@ -33,6 +33,6 @@ Chapters **6-22 remain encounter previews**. The full objective remains all nine
 
 Local production place: `build/WisteriaChronicles.rbxlx`, **3,377,746 bytes**, SHA-256 `4d7b1b965604544c2c7c4d0db90fe5e44e99c72952bf91a2455a9bea15f9949c`. Build output and Studio logs are ignored. The shipping place excludes test bridges/hooks.
 
-The verified movement source checkpoint and Git/CI delivery are recorded in WORKLOG.md. This production build supersedes the earlier server-ownership dash implementation. The last release download remains [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), chapters 1-3; build current source for all five. No new release or Roblox upload occurred.
+Movement checkpoint [e9625a4](https://github.com/aaaditt/demon-slayer-roblox/commit/e9625a4380d91aa123a7ef3822f29abfe0dccb45) is pushed and its [portable CI passed](https://github.com/aaaditt/demon-slayer-roblox/actions/runs/37321126525). Tsuzumi production is beginning; source/test results will be recorded in WORKLOG.md. This production build supersedes the earlier server-ownership dash implementation. The last release download remains [v0.4.0-dev.1](https://github.com/aaaditt/demon-slayer-roblox/releases/tag/v0.4.0-dev.1), chapters 1-3; build current source for all five. No new release or Roblox upload occurred.
 
 The [private Roblox target](DEPLOYMENT.md) remains universe `10766590718`, place `139004028759819`, containing the earlier upload. No new cloud upload, public-access success or live-save validation is claimed. GitHub pushes do not update Roblox automatically.
